@@ -1,0 +1,22 @@
+.filtros {
+  margin-bottom: 20px;
+}
+
+.productos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.producto {
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  width: 200px;
+}
+
+.producto img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}

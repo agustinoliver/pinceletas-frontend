@@ -1,1 +1,33 @@
-<p>product-list works!</p>
+<div class="filtros">
+  <label for="categoria">Filtrar por categoría:</label>
+  <select id="categoria" [(ngModel)]="categoriaSeleccionada" (change)="aplicarFiltros()">
+    <option value="todas">Todas</option>
+    <option *ngFor="let cat of categorias" [value]="cat.nombre">
+      {{ cat.nombre }}
+    </option>
+  </select>
+
+  <label for="busqueda">Buscar por nombre:</label>
+  <input
+    id="busqueda"
+    type="text"
+    [(ngModel)]="filtroNombre"
+    (input)="aplicarFiltros()"
+    placeholder="Buscar productos..."
+  />
+</div>
+
+<div class="productos">
+  <div class="producto" *ngFor="let producto of productosFiltrados">
+    <!-- Cambiar esta línea -->
+    <img [src]="getImagenUrl(producto.imagen)" alt="{{ producto.nombre }}" />
+    <h3>{{ producto.nombre }}</h3>
+    <p>{{ producto.descripcion }}</p>
+    <p><strong>${{ producto.precio }}</strong></p>
+    <ul *ngIf="producto.opciones.length > 0">
+      <li *ngFor="let opcion of producto.opciones">
+        {{ opcion.tipo }}
+      </li>
+    </ul>
+  </div>
+</div>
