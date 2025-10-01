@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommerceService } from '../../../services/commerce.service';
 import { Categoria} from '../../../models/categoria.model';
 import { Producto } from '../../../models/producto.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -20,12 +21,13 @@ export class ProductListComponent implements OnInit {
   categoriaSeleccionada: string = 'todas';
   filtroNombre: string = '';
   
-  // Agregar esta propiedad
   private backendUrl = 'http://localhost:8080';
 
-  constructor(private commerceService: CommerceService) {}
+  constructor(
+    private commerceService: CommerceService,
+    private router: Router
+  ) {}
 
-  // Agregar este método
   getImagenUrl(imagenPath: string): string {
     if (!imagenPath) return '';
     if (imagenPath.startsWith('http')) return imagenPath;
@@ -62,5 +64,13 @@ export class ProductListComponent implements OnInit {
     }
 
     this.productosFiltrados = filtrados;
+  }
+
+  verDetalleProducto(productoId: number): void {
+    this.router.navigate(['/productdetail', productoId]);
+  }
+
+  handleImageError(event: any) {
+    event.target.style.display = 'none';
   }
 }

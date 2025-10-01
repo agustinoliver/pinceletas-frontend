@@ -19,6 +19,10 @@ export class CommerceService {
     return this.http.get<Producto[]>(this.apiProductos);
   }
 
+  getProductoById(id: number): Observable<Producto> {
+    return this.http.get<Producto>(`${this.apiProductos}/${id}`);
+  }
+
   getCategoriasConProductos(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(`${this.apiCategorias}/all-con-products`);
   }

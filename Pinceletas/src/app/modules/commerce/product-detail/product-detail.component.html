@@ -1,1 +1,104 @@
-<p>product-detail works!</p>
+<!-- product-detail.component.html -->
+<div class="container mt-4" *ngIf="producto">
+  <div class="row">
+    <div class="col-12 mb-3">
+      <button class="btn btn-outline-secondary" (click)="volverALista()">
+        <i class="fas fa-arrow-left me-2"></i>Volver a la lista
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Imagen del producto -->
+    <div class="col-md-6 mb-4">
+      <div class="image-container-detail">
+        <img 
+          [src]="getImagenUrl(producto.imagen)" 
+          class="img-fluid rounded shadow" 
+          alt="{{ producto.nombre }}"
+          (error)="handleImageError($event)"
+        />
+        <div class="image-placeholder-detail" *ngIf="!producto.imagen">
+          <i class="fas fa-image fa-3x"></i>
+          <span>Imagen no disponible</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del producto -->
+    <div class="col-md-6">
+      <div class="product-info">
+        <h1 class="product-title mb-3">{{ producto.nombre }}</h1>
+        <p class="product-description text-muted mb-4">{{ producto.descripcion }}</p>
+        
+        <div class="price-section mb-4">
+          <h2 class="text-primary">${{ producto.precio }}</h2>
+        </div>
+
+        <!-- Selector de opciones - SOLO si el producto tiene opciones -->
+        <div class="options-section mb-4" *ngIf="producto.opciones && producto.opciones.length > 0">
+          <label class="form-label fw-bold">Selecciona una opción:</label>
+          <select 
+            class="form-select" 
+            [(ngModel)]="opcionSeleccionada"
+            (change)="seleccionarOpcion($event)">
+            <option [value]="null">Elige una opción</option>
+            <option 
+              *ngFor="let opcion of producto.opciones" 
+              [value]="opcion.id">
+              {{ opcion.tipo }}
+            </option>
+          </select>
+          <small class="text-muted" *ngIf="!opcionSeleccionada">
+            * Debes seleccionar una opción antes de agregar al carrito
+          </small>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+          <button 
+            class="btn btn-primary btn-lg me-3"
+            (click)="agregarAlCarrito()"
+            [disabled]="producto.opciones.length > 0 && !opcionSeleccionada">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Agregar al Carrito
+          </button>
+          <button class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-heart me-2"></i>
+            Favorito
+          </button>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="product-meta mt-4 pt-4 border-top">
+          <div class="row">
+            <div class="col-6">
+              <small class="text-muted">ID del producto:</small>
+              <br>
+              <strong>{{ producto.id }}</strong>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Estado:</small>
+              <br>
+              <strong [class]="producto.activo ? 'text-success' : 'text-danger'">
+                {{ producto.activo ? 'Disponible' : 'No disponible' }}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div class="container mt-4" *ngIf="!producto">
+  <div class="row">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando producto...</p>
+    </div>
+  </div>
+</div>

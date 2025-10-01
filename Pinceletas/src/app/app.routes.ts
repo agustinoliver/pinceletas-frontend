@@ -9,7 +9,7 @@ export const routes: Routes = [
         .then(m => m.ProductListComponent)
   },
   {
-    path: 'productdetail',
+    path: 'productdetail/:id',
     loadComponent: () =>
       import('./modules/commerce/product-detail/product-detail.component')
         .then(m => m.ProductDetailComponent)
