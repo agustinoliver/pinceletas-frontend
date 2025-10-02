@@ -1,11 +1,114 @@
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .navbar-brand {
   font-size: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
 }
 
 .nav-link {
   font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0 0.2rem;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-toggle::after {
+  vertical-align: 0.15em;
+  margin-left: 0.5em;
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
 }
 
 .dropdown-item {
   cursor: pointer;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  padding-left: 1.7rem;
+}
+
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+.dropdown-divider {
+  margin: 0.5rem 0;
+}
+
+/* Estilos para el toggle del menú mobile */
+.navbar-toggler {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 0.7rem;
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* Mejoras para modo responsive */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    margin-top: 1rem;
+  }
+  
+  .nav-link {
+    margin: 0.2rem 0;
+  }
+  
+  .dropdown-menu {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Animación suave para el collapse */
+.navbar-collapse {
+  transition: height 0.3s ease;
+}
+
+/* Estilos para el nombre del usuario */
+.nav-link span {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@media (min-width: 992px) {
+  .nav-link span {
+    max-width: 200px;
+  }
 }

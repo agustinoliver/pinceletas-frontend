@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
 
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -7,11 +7,12 @@ import { UserAuthService } from '../../../services/user-auth.service';
 
 @Component({
   selector: 'app-forgot-password',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.css'
 })
-export class ForgotPassword {
+export class ForgotPasswordComponent {
   forgotPasswordForm: FormGroup;
   isLoading = false;
   message = '';

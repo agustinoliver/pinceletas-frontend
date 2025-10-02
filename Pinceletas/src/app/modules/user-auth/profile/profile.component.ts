@@ -7,11 +7,12 @@ import { Country, State } from '../../../models/location.model';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
-export class Profile implements OnInit {
+export class ProfileComponent implements OnInit {
   user: User | null = null;
   personalDataForm: FormGroup;
   addressForm: FormGroup;
@@ -165,5 +166,4 @@ export class Profile implements OnInit {
     this.successMessage = '';
     setTimeout(() => this.errorMessage = '', 5000);
   }
-
 }

@@ -6,12 +6,13 @@ import { UserAuthService } from '../../../services/user-auth.service';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class Register {
- registerForm: FormGroup;
+export class RegisterComponent {
+  registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
 

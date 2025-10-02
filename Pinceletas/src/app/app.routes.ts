@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { Login } from './modules/user-auth/login/login';
-import { Register } from './modules/user-auth/register/register';
-import { Profile } from './modules/user-auth/profile/profile';
-import { ForgotPassword } from './modules/user-auth/forgot-password/forgot-password';
+import { LoginComponent } from './modules/user-auth/login/login.component';
+import { RegisterComponent } from './modules/user-auth/register/register.component';
+import { ProfileComponent } from './modules/user-auth/profile/profile.component';
+import { ForgotPasswordComponent } from './modules/user-auth/forgot-password/forgot-password.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -25,10 +25,23 @@ export const routes: Routes = [
   },
 
   // Rutas de User Auth (nuestro microservicio)
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { 
+    path: 'login', 
+    component: LoginComponent 
+  },
+  { 
+    path: 'register', 
+    component: RegisterComponent 
+  },
+  { 
+    path: 'forgot-password', 
+    component: ForgotPasswordComponent 
+  },
+  { 
+    path: 'profile', 
+    component: ProfileComponent, 
+    canActivate: [authGuard] 
+  },
 
   // Rutas por defecto y redirecciones
   { path: '', redirectTo: 'productlist', pathMatch: 'full' },

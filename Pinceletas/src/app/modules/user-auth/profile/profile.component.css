@@ -1,0 +1,233 @@
+/* Animaciones suaves */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Headers de las tarjetas */
+.card-header {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 1.5rem;
+}
+
+.card-header h5 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Formularios */
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 0.6rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: #dc3545;
+  background-image: none;
+}
+
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Botones */
+.btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #117a8b;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
+
+/* Alertas */
+.alert {
+  border-radius: 8px;
+  border: none;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.alert .btn-close {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.alert .btn-close:hover {
+  opacity: 1;
+}
+
+/* Título principal */
+h1 {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+h1 i {
+  color: #007bff;
+}
+
+/* Espaciado de filas en formularios */
+.row .col-md-6:first-child,
+.row .col-md-4:first-child,
+.row .col-md-3:first-child {
+  padding-right: 0.75rem;
+}
+
+.row .col-md-6:last-child,
+.row .col-md-4:last-child,
+.row .col-md-3:last-child {
+  padding-left: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .row .col-md-6,
+  .row .col-md-4,
+  .row .col-md-3 {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* Iconos en los headers */
+.card-header i {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+/* Mejora visual para selects */
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.5rem;
+}
+
+/* Sombras más suaves para las cards */
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Transiciones suaves para inputs */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
