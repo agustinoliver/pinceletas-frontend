@@ -1,6 +1,6 @@
 export const userAuthEnviroment = {
-    // apiUsuarios : 'http://localhost:8081/usuarios',
-    // apiPosteos : 'http://localhost:8081/posteos',
-
-    
-  };
+  apiBaseUrl: 'http://localhost:8080/api',
+  apiAuth: 'http://localhost:8080/api/auth',
+  apiUsers: 'http://localhost:8080/api/users',
+  apiLocations: 'http://localhost:8080/api/locations'
+};

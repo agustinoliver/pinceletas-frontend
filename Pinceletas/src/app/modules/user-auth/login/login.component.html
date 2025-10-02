@@ -1,0 +1,88 @@
+<p>login works!</p>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+          
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                formControlName="email"
+                [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                placeholder="Ingresa tu email">
+              <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['required']">
+                El email es requerido
+              </div>
+              <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['email']">
+                Ingresa un email válido
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                formControlName="password"
+                [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                placeholder="Ingresa tu contraseña">
+              <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['required']">
+                La contraseña es requerida
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="alert alert-danger" *ngIf="errorMessage">
+              {{ errorMessage }}
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="btn btn-primary w-100 mb-3"
+              [disabled]="loginForm.invalid || isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isLoading ? 'Iniciando sesión...' : 'Sign In' }}
+            </button>
+
+            <!-- Forgot Password -->
+            <div class="text-center mb-3">
+              <a routerLink="/forgot-password" class="text-decoration-none">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            <!-- Divider -->
+            <div class="text-center text-muted mb-3 position-relative">
+              <hr>
+              <span class="position-absolute top-50 start-50 translate-middle bg-white px-3">O</span>
+            </div>
+
+            <!-- Google Login -->
+            <button
+              type="button"
+              class="btn btn-outline-danger w-100"
+              (click)="loginWithGoogle()">
+              <i class="fab fa-google me-2"></i>Continuar con Google
+            </button>
+
+            <!-- Register Link -->
+            <div class="text-center mt-3">
+              <span>¿No tienes cuenta? </span>
+              <a routerLink="/register" class="text-decoration-none">Regístrate</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
