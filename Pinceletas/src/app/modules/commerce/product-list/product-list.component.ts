@@ -42,7 +42,10 @@ export class ProductListComponent implements OnInit {
   }
 
   actualizarProductos(): void {
-    const productos = this.categorias.flatMap((c) => c.productos);
+    // FILTRAR SOLO PRODUCTOS ACTIVOS
+    const productos = this.categorias.flatMap((c) => 
+      c.productos ? c.productos.filter(p => p.activo) : []
+    );
     this.productos = productos;
     this.aplicarFiltros();
   }
@@ -54,7 +57,10 @@ export class ProductListComponent implements OnInit {
       const categoria = this.categorias.find(
         (c) => c.nombre === this.categoriaSeleccionada
       );
-      filtrados = categoria ? [...categoria.productos] : [];
+      // FILTRAR SOLO PRODUCTOS ACTIVOS DE LA CATEGORÍA SELECCIONADA
+      filtrados = categoria && categoria.productos 
+        ? categoria.productos.filter(p => p.activo) 
+        : [];
     }
 
     if (this.filtroNombre.trim() !== '') {
@@ -72,5 +78,11 @@ export class ProductListComponent implements OnInit {
 
   handleImageError(event: any) {
     event.target.style.display = 'none';
+  }
+
+  limpiarFiltros(): void {
+    this.categoriaSeleccionada = 'todas';
+    this.filtroNombre = '';
+    this.aplicarFiltros();
   }
 }

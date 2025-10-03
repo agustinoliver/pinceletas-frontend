@@ -19,6 +19,27 @@ export const routes: Routes = [
         .then(m => m.ProductDetailComponent)
   },
   {
+    path: 'productcreate',
+    loadComponent: () =>
+      import('./modules/commerce/product-create/product-create.component')
+        .then(m => m.ProductCreateComponent)
+    // canActivate: [authGuard] // Solo usuarios autenticados pueden crear productos
+  },
+  {
+    path: 'admin/products',
+    loadComponent: () =>
+      import('./modules/commerce/product-list-admin/product-list-admin.component')
+        .then(m => m.ProductListAdminComponent),
+    // canActivate: [authGuard]
+  },
+  {
+    path: 'admin/products/edit/:id',
+    loadComponent: () =>
+      import('./modules/commerce/product-edit/product-edit.component')
+        .then(m => m.ProductEditComponent),
+    // canActivate: [authGuard]
+  },
+  {
     path: '',
     redirectTo: 'productlist',
     pathMatch: 'full'

@@ -1,0 +1,323 @@
+<div class="container-fluid product-create-container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10 col-xl-8">
+      
+      <!-- Mensajes -->
+      <div *ngIf="mensaje" class="alert" 
+           [class.alert-success]="tipoMensaje === 'success'" 
+           [class.alert-danger]="tipoMensaje === 'error'">
+        <i class="fas" [class.fa-check-circle]="tipoMensaje === 'success'" 
+           [class.fa-exclamation-circle]="tipoMensaje === 'error'" class="me-2"></i>
+        {{ mensaje }}
+      </div>
+
+      <!-- Card principal -->
+      <div class="card shadow-lg">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-white">
+              <i class="fas fa-plus-circle me-2"></i>
+              Crear Nuevo Producto
+            </h4>
+            <button 
+              type="button" 
+              class="btn btn-outline-light btn-sm"
+              (click)="volverALista()"
+              title="Volver a la lista de productos"
+            >
+              <i class="fas fa-arrow-left me-1"></i>
+              Volver a la lista
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body" [class.loading]="cargando">
+          <form (ngSubmit)="crearProducto()" #productoForm="ngForm">
+            
+            <!-- Información Básica del Producto -->
+            <div class="form-section">
+              <h5 class="section-title">
+                <i class="fas fa-info-circle me-2"></i>
+                Información del Producto
+              </h5>
+              
+              <div class="row">
+                <!-- Nombre -->
+                <div class="col-md-6 mb-3">
+                  <label for="nombre" class="form-label required-field">Nombre del Producto</label>
+                  <input
+                    type="text"
+                    id="nombre"
+                    class="form-control"
+                    [(ngModel)]="producto.nombre"
+                    name="nombre"
+                    required
+                    placeholder="Ej: Mate de madera personalizado"
+                    [disabled]="cargando"
+                  >
+                </div>
+
+                <!-- Precio -->
+                <div class="col-md-6 mb-3">
+                  <label for="precio" class="form-label required-field">Precio</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="number"
+                      id="precio"
+                      class="form-control"
+                      [(ngModel)]="producto.precio"
+                      name="precio"
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      [disabled]="cargando"
+                    >
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12 mb-3">
+                  <label for="descripcion" class="form-label">Descripción</label>
+                  <textarea
+                    id="descripcion"
+                    class="form-control"
+                    [(ngModel)]="producto.descripcion"
+                    name="descripcion"
+                    rows="3"
+                    placeholder="Describe las características del producto..."
+                    [disabled]="cargando"
+                  ></textarea>
+                </div>
+
+                <!-- Imagen -->
+                <div class="col-12 mb-3">
+                  <label for="imagen" class="form-label">Imagen del Producto</label>
+                  <input
+                    type="file"
+                    id="imagen"
+                    class="form-control"
+                    (change)="onImagenSeleccionada($event)"
+                    name="imagen"
+                    accept="image/*"
+                    [disabled]="cargando"
+                  >
+                  <div class="form-text">Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 5MB</div>
+                  
+                  <!-- Preview de imagen -->
+                  <div *ngIf="imagenPrevia" class="mt-3">
+                    <label class="form-label fw-bold">Vista previa:</label>
+                    <div class="image-preview-container">
+                      <img [src]="imagenPrevia" alt="Preview" class="img-thumbnail">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estado Activo -->
+                <div class="col-12 mb-3">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="activo"
+                      [(ngModel)]="producto.activo"
+                      name="activo"
+                      [disabled]="cargando"
+                    >
+                    <label class="form-check-label fw-bold" for="activo">
+                      Producto activo (disponible para la venta)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-section">
+              <h5 class="section-title">
+                <i class="fas fa-tags me-2"></i>
+                Categoría
+              </h5>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="categoria" class="form-label required-field">Seleccionar Categoría</label>
+                  <select
+                    id="categoria"
+                    class="form-select"
+                    [(ngModel)]="producto.categoriaId"
+                    name="categoriaId"
+                    required
+                    [disabled]="cargando"
+                  >
+                    <option value="0">Seleccione una categoría</option>
+                    <option *ngFor="let cat of categorias" [value]="cat.id">
+                      {{ cat.nombre }}
+                    </option>
+                  </select>
+                  
+                  <!-- Lista de categorías con botones de eliminar -->
+                  <div class="mt-2">
+                    <label class="form-label small">Categorías existentes:</label>
+                    <div class="categorias-list">
+                      <div *ngFor="let cat of categorias" 
+                           class="categoria-item d-flex justify-content-between align-items-center mb-1 p-2 rounded">
+                        <span class="small">{{ cat.nombre }}</span>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="eliminarCategoria(cat)"
+                          [disabled]="eliminandoCategoria === cat.id || !puedeEliminarCategoria(cat)"
+                          [title]="getTooltipCategoria(cat)"
+                        >
+                          <i class="fas fa-times" *ngIf="eliminandoCategoria !== cat.id"></i>
+                          <i class="fas fa-spinner fa-spin" *ngIf="eliminandoCategoria === cat.id"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Crear Nueva Categoría -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Crear Nueva Categoría</label>
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="nuevaCategoria.nombre"
+                      name="nuevaCategoria"
+                      placeholder="Nombre de nueva categoría"
+                      [disabled]="cargando"
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary"
+                      (click)="crearCategoria()"
+                      [disabled]="cargando || !nuevaCategoria.nombre.trim()"
+                    >
+                      <i class="fas fa-plus" *ngIf="!cargando"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="cargando"></i>
+                      Crear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Opciones de Producto -->
+            <div class="form-section">
+              <h5 class="section-title">
+                <i class="fas fa-cog me-2"></i>
+                Opciones del Producto
+              </h5>
+              
+              <!-- Opciones existentes -->
+              <div class="mb-4">
+                <label class="form-label">Seleccionar Opciones Existentes</label>
+                <div class="options-container">
+                  <div class="row">
+                    <div class="col-12 mb-2" *ngFor="let opcion of opciones">
+                      <div class="opcion-item d-flex justify-content-between align-items-center p-2 rounded">
+                        <div class="form-check mb-0">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [id]="'opcion-' + opcion.id"
+                            [value]="opcion.id"
+                            (change)="onOpcionSeleccionada($event, opcion.id)"
+                            [disabled]="cargando"
+                          >
+                          <label class="form-check-label" [for]="'opcion-' + opcion.id">
+                            {{ opcion.tipo }}
+                          </label>
+                        </div>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger ms-2"
+                          (click)="eliminarOpcion(opcion)"
+                          [disabled]="eliminandoOpcion === opcion.id"
+                        >
+                          <i class="fas fa-times" *ngIf="eliminandoOpcion !== opcion.id"></i>
+                          <i class="fas fa-spinner fa-spin" *ngIf="eliminandoOpcion === opcion.id"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-12" *ngIf="opciones.length === 0">
+                      <p class="text-muted text-center mb-0">No hay opciones disponibles. Crea una nueva opción.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Crear Nueva Opción -->
+              <div class="mb-3">
+                <label class="form-label">Crear Nueva Opción</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="nuevaOpcion.tipo"
+                    name="nuevaOpcion"
+                    placeholder="Ej: Color rojo, Talla M, etc."
+                    [disabled]="cargando"
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="crearOpcion()"
+                    [disabled]="cargando || !nuevaOpcion.tipo.trim()"
+                  >
+                    <i class="fas fa-plus" *ngIf="!cargando"></i>
+                    <i class="fas fa-spinner fa-spin" *ngIf="cargando"></i>
+                    Crear Opción
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="form-section">
+              <div class="row">
+                <div class="col-12">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="limpiarFormulario()"
+                      [disabled]="cargando"
+                    >
+                      <i class="fas fa-eraser me-1"></i>
+                      Limpiar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="volverALista()"
+                      [disabled]="cargando"
+                    >
+                      <i class="fas fa-times me-1"></i>
+                      Cancelar
+                    </button>
+                    
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-lg"
+                      [disabled]="cargando || productoForm.invalid"
+                    >
+                      <i class="fas fa-save me-1" *ngIf="!cargando"></i>
+                      <i class="fas fa-spinner fa-spin me-1" *ngIf="cargando"></i>
+                      {{ cargando ? 'Creando...' : 'Crear Producto' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

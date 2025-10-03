@@ -5,8 +5,9 @@
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-md-6 mb-2">
+          <div class="row align-items-end">
+            <!-- Filtro por categoría -->
+            <div class="col-md-5 mb-2">
               <label for="categoria" class="form-label fw-bold">Filtrar por categoría:</label>
               <select 
                 id="categoria" 
@@ -19,7 +20,9 @@
                 </option>
               </select>
             </div>
-            <div class="col-md-6 mb-2">
+          
+            <!-- Filtro por nombre -->
+            <div class="col-md-5 mb-2">
               <label for="busqueda" class="form-label fw-bold">Buscar por nombre:</label>
               <div class="input-group">
                 <span class="input-group-text">
@@ -34,6 +37,16 @@
                   placeholder="Buscar productos..."
                 />
               </div>
+            </div>
+          
+            <!-- Botón limpiar filtros -->
+            <div class="col-md-2 mb-2 text-end">
+              <button 
+                class="btn btn-outline-danger mt-4 w-100" 
+                (click)="limpiarFiltros()"
+                title="Limpiar filtros">
+                <i class="fas fa-trash me-1"></i> Limpiar
+              </button>
             </div>
           </div>
         </div>
@@ -102,9 +115,5 @@
   </div>
 </div>
    
-    <!-- <ul *ngIf="producto.opciones.length > 0">
-      <li *ngFor="let opcion of producto.opciones">
-        {{ opcion.tipo }}
-      </li>
-    </ul> -->
+
   
