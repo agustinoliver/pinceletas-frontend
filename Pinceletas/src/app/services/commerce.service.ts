@@ -127,19 +127,5 @@ export class CommerceService {
     return this.http.delete<void>(`${this.apiProductos}/${id}?usuarioId=${usuarioId}`);
   }
 
-  // MÉTODO AUXILIAR PARA OBTENER HEADERS DE AUTENTICACIÓN (opcional)
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); // Ajusta según donde guardes el token
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
-
-  private getMultipartAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-      // No establecer Content-Type para multipart/form-data
-    });
-  }
+  
 }

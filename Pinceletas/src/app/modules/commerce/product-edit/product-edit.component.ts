@@ -5,6 +5,7 @@ import { CommerceService } from '../../../services/commerce.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core'; 
 
 @Component({
   selector: 'app-product-edit',
@@ -47,8 +48,10 @@ export class ProductEditComponent implements OnInit {
   // Estados
   cargando = false;
   cargandoProducto = false;
+  cargandoCategorias = false;
   mensaje = '';
-  tipoMensaje: 'success' | 'error' | '' = '';
+  // Cambia esta línea en las propiedades del componente:
+  tipoMensaje: 'success' | 'error' | 'warning' | '' = '';
   imagenPrevia: string | null = null;
   imagenCambiada = false;
 
@@ -59,15 +62,37 @@ export class ProductEditComponent implements OnInit {
   constructor(
     private commerceService: CommerceService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.productoId = Number(this.route.snapshot.paramMap.get('id'));
     if (this.productoId) {
-      this.cargarProducto();
-      this.cargarDatosIniciales();
+      // Primero cargar categorías, luego el producto
+      this.cargarCategoriasYProducto();
     }
+  }
+
+  // CORRECCIÓN: Cargar categorías primero y luego el producto
+  cargarCategoriasYProducto(): void {
+    this.cargandoCategorias = true;
+    
+    this.commerceService.getCategoriasConProductos().subscribe({
+      next: (categorias) => {
+        this.categorias = categorias;
+        this.cargandoCategorias = false;
+        
+        // Una vez cargadas las categorías, cargar el producto
+        this.cargarProducto();
+        this.cargarOpciones();
+      },
+      error: (error) => {
+        console.error('Error cargando categorías:', error);
+        this.mostrarMensaje('Error cargando categorías', 'error');
+        this.cargandoCategorias = false;
+      }
+    });
   }
 
   cargarProducto(): void {
@@ -75,18 +100,26 @@ export class ProductEditComponent implements OnInit {
     this.commerceService.getProductoById(this.productoId).subscribe({
       next: (producto) => {
         this.productoOriginal = producto;
+        
+        // CORRECCIÓN: Verificar si la categoría del producto existe en la lista
+        const categoriaId = producto.categoria?.id || 0;
+        const categoriaExiste = this.categorias.some(cat => cat.id === categoriaId);
+        
         this.producto = {
           id: producto.id,
           nombre: producto.nombre,
           descripcion: producto.descripcion || '',
           precio: producto.precio,
           activo: producto.activo,
-          categoriaId: producto.categoria?.id || 0,
+          categoriaId: categoriaExiste ? categoriaId : 0, // Solo asignar si existe
           opcionesIds: producto.opciones.map(op => op.id),
           usuarioId: 1,
           imagen: null,
           imagenActual: producto.imagen
         };
+        
+        // CORRECCIÓN: Forzar la detección de cambios
+        this.cdr.detectChanges();
         
         // Cargar preview de imagen actual
         if (producto.imagen) {
@@ -94,28 +127,16 @@ export class ProductEditComponent implements OnInit {
         }
         
         this.cargandoProducto = false;
+        
+        // Mostrar mensaje si la categoría no existe
+        if (categoriaId > 0 && !categoriaExiste) {
+          this.mostrarMensaje('La categoría original de este producto ya no existe. Por favor seleccione una nueva categoría.', 'warning');
+        }
       },
       error: (error) => {
         console.error('Error cargando producto:', error);
         this.mostrarMensaje('Error cargando producto', 'error');
         this.cargandoProducto = false;
-      }
-    });
-  }
-
-  cargarDatosIniciales(): void {
-    this.cargarCategorias();
-    this.cargarOpciones();
-  }
-
-  cargarCategorias(): void {
-    this.commerceService.getCategoriasConProductos().subscribe({
-      next: (data) => {
-        this.categorias = data;
-      },
-      error: (error) => {
-        console.error('Error cargando categorías:', error);
-        this.mostrarMensaje('Error cargando categorías', 'error');
       }
     });
   }
@@ -169,6 +190,7 @@ export class ProductEditComponent implements OnInit {
           
           if (this.producto.categoriaId === categoria.id) {
             this.producto.categoriaId = 0;
+            this.mostrarMensaje('Categoría eliminada. El producto ahora no tiene categoría asignada.', 'warning');
           }
           
           this.mostrarMensaje('Categoría eliminada exitosamente', 'success');
@@ -366,13 +388,13 @@ export class ProductEditComponent implements OnInit {
     return `http://localhost:8080${imagenPath}`;
   }
 
-  mostrarMensaje(mensaje: string, tipo: 'success' | 'error'): void {
-    this.mensaje = mensaje;
-    this.tipoMensaje = tipo;
-    setTimeout(() => {
-      this.mensaje = '';
-      this.tipoMensaje = '';
-    }, 5000);
+  mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'warning'): void {
+  this.mensaje = mensaje;
+  this.tipoMensaje = tipo;
+  setTimeout(() => {
+    this.mensaje = '';
+    this.tipoMensaje = '';
+  }, 5000);
   }
 
   limpiarImagen(): void {
