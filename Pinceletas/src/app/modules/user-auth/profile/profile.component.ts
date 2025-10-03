@@ -89,12 +89,17 @@ export class ProfileComponent implements OnInit {
   }
 
   onCountryChange(event: any): void {
-    const countryCode = event.target.value;
-    if (countryCode) {
-      this.authService.getStatesByCountry(countryCode).subscribe(states => {
+    const countryName = event.target.value;
+  if (countryName) {
+    const country = this.countries.find(c => c.name === countryName);
+    if (country) {
+      this.authService.getStatesByCountry(country.code).subscribe(states => {
         this.states = states;
       });
     }
+  } else {
+    this.states = [];
+  }
   }
 
   updatePersonalData(): void {

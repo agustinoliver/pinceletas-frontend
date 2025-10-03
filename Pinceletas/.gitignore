@@ -40,3 +40,13 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# ⚠️ INFORMACIÓN SENSIBLE - FIREBASE
+/src/app/environment/firebase-environment.ts
+/src/app/enviroment/firebase-environment.ts
+
+# ⚠️ INFORMACIÓN SENSIBLE - ENVIRONMENT FILES
+.env
+.env.local
+.env.*.local
+environment.prod.ts

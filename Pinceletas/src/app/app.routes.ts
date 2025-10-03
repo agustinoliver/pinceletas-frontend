@@ -3,6 +3,7 @@ import { LoginComponent } from './modules/user-auth/login/login.component';
 import { RegisterComponent } from './modules/user-auth/register/register.component';
 import { ProfileComponent } from './modules/user-auth/profile/profile.component';
 import { ForgotPasswordComponent } from './modules/user-auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './modules/user-auth/reset-password/reset-password.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -36,6 +37,10 @@ export const routes: Routes = [
   { 
     path: 'forgot-password', 
     component: ForgotPasswordComponent 
+  },
+  { 
+    path: 'reset-password', 
+    component: ResetPasswordComponent
   },
   { 
     path: 'profile', 
