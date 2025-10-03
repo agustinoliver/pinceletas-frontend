@@ -103,7 +103,7 @@ export class UserAuthService {
       );
   }
 
-    forgotPassword(email: string): Observable<any> {
+  forgotPassword(email: string): Observable<any> {
     return this.http.post<{message: string}>(
       `${this.apiAuth}/forgot-password`,
       { email }
@@ -143,9 +143,6 @@ export class UserAuthService {
     );
   }
 
-  /**
-   * ✅ VERSIÓN CORREGIDA - Iniciar sesión con Google
-   */
   loginWithGoogle(): Observable<AuthResponse> {
     return new Observable(observer => {
       if (!this.firebaseService.isFirebaseConfigured()) {
@@ -157,24 +154,15 @@ export class UserAuthService {
         .then(async (firebaseUserCredential) => {
           try {
             const firebaseUser = firebaseUserCredential.user;
-            
-            // ✅ OBTENER EL TOKEN DE FIREBASE (esto es lo que faltaba)
             const idToken = await firebaseUser.getIdToken();
-            
-            console.log('Firebase ID Token obtenido correctamente');
 
-            // ✅ Enviar solo el firebaseIdToken al backend
             const requestBody = {
               firebaseIdToken: idToken
             };
 
-            console.log('Enviando petición al backend con token...');
-
-            // ✅ Usar el endpoint correcto: /api/auth/firebase/login
             this.http.post<AuthResponse>(`${this.apiAuth}/firebase/login`, requestBody)
               .subscribe({
                 next: (response) => {
-                  console.log('Autenticación exitosa con backend');
                   this.handleAuthSuccess(response, firebaseUser.email!, observer);
                 },
                 error: (error) => {
@@ -255,30 +243,30 @@ export class UserAuthService {
   }
 
   changePassword(email: string, passwordData: ChangePasswordRequest): Observable<any> {
-  return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/password`, passwordData)
-    .pipe(
-      catchError(error => {
-        console.error('Change password error', error);
-        return throwError(() => error);
-      })
-    );
-}
+    return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/password`, passwordData)
+      .pipe(
+        catchError(error => {
+          console.error('Change password error', error);
+          return throwError(() => error);
+        })
+      );
+  }
 
   deactivateUser(email: string): Observable<any> {
-  return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/deactivate`, {})
-    .pipe(
-      tap(() => {
-        const currentUser = this.getCurrentUser();
-        if (currentUser && currentUser.email === email) {
-          this.logout();
-        }
-      }),
-      catchError(error => {
-        console.error('Deactivate user error', error);
-        return throwError(() => error);
-      })
-    );
-}
+    return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/deactivate`, {})
+      .pipe(
+        tap(() => {
+          const currentUser = this.getCurrentUser();
+          if (currentUser && currentUser.email === email) {
+            this.logout();
+          }
+        }),
+        catchError(error => {
+          console.error('Deactivate user error', error);
+          return throwError(() => error);
+        })
+      );
+  }
 
   logout(): void {
     this.clearUserData();

@@ -80,26 +80,52 @@ export class ProfileComponent implements OnInit {
       provincia: user.provincia || '',
       codigoPostal: user.codigoPostal || ''
     });
+
+    // Si hay un país seleccionado, cargar sus estados
+    if (user.pais) {
+      const country = this.countries.find(c => c.name === user.pais);
+      if (country) {
+        this.authService.getStatesByCountry(country.code).subscribe(states => {
+          this.states = states;
+        });
+      }
+    }
   }
 
   loadCountries(): void {
     this.authService.getAllCountries().subscribe(countries => {
       this.countries = countries;
+      
+      // Después de cargar países, cargar estados si hay país seleccionado
+      if (this.user?.pais) {
+        const country = this.countries.find(c => c.name === this.user!.pais);
+        if (country) {
+          this.authService.getStatesByCountry(country.code).subscribe(states => {
+            this.states = states;
+          });
+        }
+      }
     });
   }
 
   onCountryChange(event: any): void {
     const countryName = event.target.value;
-  if (countryName) {
-    const country = this.countries.find(c => c.name === countryName);
-    if (country) {
-      this.authService.getStatesByCountry(country.code).subscribe(states => {
-        this.states = states;
-      });
+    
+    if (countryName) {
+      // Buscar el código del país por su nombre
+      const country = this.countries.find(c => c.name === countryName);
+      
+      if (country) {
+        // Obtener estados usando el código
+        this.authService.getStatesByCountry(country.code).subscribe(states => {
+          this.states = states;
+        });
+      }
+    } else {
+      // Si no hay país seleccionado, limpiar estados
+      this.states = [];
+      this.addressForm.patchValue({ provincia: '' });
     }
-  } else {
-    this.states = [];
-  }
   }
 
   updatePersonalData(): void {
