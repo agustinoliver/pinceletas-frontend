@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserAuthService } from '../../../services/user-auth.service';
@@ -11,15 +11,17 @@ import { UserAuthService } from '../../../services/user-auth.service';
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  returnUrl: string = '/productlist';
 
   constructor(
     private fb: FormBuilder,
     private authService: UserAuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.registerForm = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -29,6 +31,15 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+  }
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/productlist']);
+      return;
+    }
+
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/productlist';
   }
 
   passwordMatchValidator(control: AbstractControl) {
@@ -49,7 +60,8 @@ export class RegisterComponent {
 
       this.authService.register(this.registerForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/profile']);
+          // ✅ Redirigir a la URL guardada después del registro
+          this.router.navigateByUrl(this.returnUrl);
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Error al registrarse';

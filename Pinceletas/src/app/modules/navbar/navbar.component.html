@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/" style="cursor: pointer;">
+    <a class="navbar-brand fw-bold" routerLink="/productlist" style="cursor: pointer;">
       <i class="fas fa-paint-brush me-2"></i>Pinceletas
     </a>
     
@@ -46,31 +46,29 @@
         </ng-container>
         
         <!-- Opciones para usuarios autenticados -->
-        <li class="nav-item dropdown" *ngIf="isLoggedIn">
-          <a 
-            class="nav-link dropdown-toggle d-flex align-items-center" 
-            href="#" 
-            id="navbarDropdown"
-            role="button" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false">
-            <i class="fas fa-user-circle me-2"></i>
-            <span>{{ userName }}</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            <li>
-              <a class="dropdown-item" (click)="navigateToProfile()" style="cursor: pointer;">
-                <i class="fas fa-user me-2 text-primary"></i>Mi Perfil
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
-                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-              </a>
-            </li>
-          </ul>
-        </li>
+        <ng-container *ngIf="isLoggedIn">
+          <!-- Botón Mi Perfil -->
+          <li class="nav-item">
+            <a class="nav-link" (click)="navigateToProfile()" style="cursor: pointer;">
+              <i class="fas fa-user me-1"></i>Mi Perfil
+            </a>
+          </li>
+          
+          <!-- Nombre del usuario -->
+          <li class="nav-item">
+            <span class="nav-link text-light">
+              <i class="fas fa-user-circle me-1"></i>
+              {{ userName }}
+            </span>
+          </li>
+          
+          <!-- Botón Cerrar Sesión -->
+          <li class="nav-item">
+            <a class="nav-link text-warning" (click)="logout()" style="cursor: pointer;">
+              <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+            </a>
+          </li>
+        </ng-container>
       </ul>
     </div>
   </div>

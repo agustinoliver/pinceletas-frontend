@@ -4,7 +4,7 @@ import { UserAuthService } from '../services/user-auth.service';
 
 /**
  * Guard para proteger rutas que requieren autenticación
- * Si el usuario no está logeado, redirige a /login
+ * Si el usuario no está logeado, redirige a /login guardando la URL actual
  */
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(UserAuthService);
@@ -18,7 +18,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   // Guardar la URL a la que intentaba acceder para redirigir después del login
   const returnUrl = state.url;
   
-  // Redirigir al login
+  // Redirigir al login con la URL de retorno
   router.navigate(['/login'], { 
     queryParams: { returnUrl: returnUrl } 
   });

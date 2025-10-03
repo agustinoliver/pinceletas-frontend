@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
-import { userAuthEnviroment } from '../enviroment/user-auth-enviroment';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, catchError, throwError, map } from 'rxjs';
+import { FirebaseService } from './firebase.service';
 import { 
   User, 
   LoginRequest, 
@@ -9,11 +9,10 @@ import {
   AuthResponse, 
   ChangePasswordRequest, 
   UpdateAddressRequest, 
-  UpdateUserRequest,
-  ForgotPasswordRequest,
-  ResetPasswordRequest 
+  UpdateUserRequest 
 } from '../models/user.model';
 import { Country, State } from '../models/location.model';
+import { userAuthEnviroment } from '../enviroment/user-auth-enviroment';
 
 @Injectable({
   providedIn: 'root'
@@ -26,14 +25,13 @@ export class UserAuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private firebaseService: FirebaseService
+  ) {
     this.loadUserFromStorage();
   }
 
-  /**
-   * Carga el usuario desde sessionStorage al iniciar la aplicación
-   * sessionStorage se borra automáticamente al cerrar la pestaña/navegador
-   */
   private loadUserFromStorage(): void {
     const token = sessionStorage.getItem('token');
     const userData = sessionStorage.getItem('currentUser');
@@ -49,43 +47,30 @@ export class UserAuthService {
     }
   }
 
-  /**
-   * Guarda los datos del usuario en sessionStorage y actualiza el BehaviorSubject
-   * sessionStorage se borra automáticamente al cerrar la pestaña/navegador
-   */
   private saveUserData(token: string, user: User): void {
     sessionStorage.setItem('token', token);
     sessionStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 
-  /**
-   * Limpia todos los datos del usuario
-   */
   private clearUserData(): void {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
-  /**
-   * Login del usuario
-   */
   login(loginData: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiAuth}/login`, loginData)
       .pipe(
         tap(response => {
-          // Guardar token inmediatamente
-          localStorage.setItem('token', response.token);
+          sessionStorage.setItem('token', response.token);
           
-          // Obtener datos completos del usuario
           this.getUserProfile(loginData.email).subscribe({
             next: (user) => {
               this.saveUserData(response.token, user);
             },
             error: (error) => {
               console.error('Error loading user profile after login', error);
-              // Aún así mantener el token
             }
           });
         }),
@@ -96,17 +81,12 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Registro de nuevo usuario
-   */
   register(registerData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiAuth}/register`, registerData)
       .pipe(
         tap(response => {
-          // Guardar token inmediatamente
-          localStorage.setItem('token', response.token);
+          sessionStorage.setItem('token', response.token);
           
-          // Obtener datos completos del usuario
           this.getUserProfile(registerData.email).subscribe({
             next: (user) => {
               this.saveUserData(response.token, user);
@@ -123,35 +103,115 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Solicitar recuperación de contraseña
-   */
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiAuth}/forgot-password`, { email })
-      .pipe(
-        catchError(error => {
-          console.error('Forgot password error', error);
-          return throwError(() => error);
-        })
-      );
+    forgotPassword(email: string): Observable<any> {
+    return this.http.post<{message: string}>(
+      `${this.apiAuth}/forgot-password`,
+      { email }
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Forgot password error:', error);
+        let errorMessage = 'Error al enviar el código de recuperación';
+        
+        if (error.status === 404) {
+          errorMessage = 'Email no encontrado en el sistema';
+        } else if (error.status === 500) {
+          errorMessage = 'Error del servidor. Intenta más tarde.';
+        }
+        
+        return throwError(() => errorMessage);
+      })
+    );
+  }
+
+  resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<any> {
+    return this.http.post<{message: string}>(
+      `${this.apiAuth}/reset-password`,
+      { token, newPassword, confirmNewPassword }
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Reset password error:', error);
+        let errorMessage = 'Error al restablecer la contraseña';
+        
+        if (error.status === 400) {
+          errorMessage = 'Código inválido o expirado';
+        } else if (error.status === 500) {
+          errorMessage = 'Error del servidor. Intenta más tarde.';
+        }
+        
+        return throwError(() => errorMessage);
+      })
+    );
   }
 
   /**
-   * Resetear contraseña con token
+   * ✅ VERSIÓN CORREGIDA - Iniciar sesión con Google
    */
-  resetPassword(resetData: ResetPasswordRequest): Observable<any> {
-    return this.http.post(`${this.apiAuth}/reset-password`, resetData)
-      .pipe(
-        catchError(error => {
-          console.error('Reset password error', error);
-          return throwError(() => error);
+  loginWithGoogle(): Observable<AuthResponse> {
+    return new Observable(observer => {
+      if (!this.firebaseService.isFirebaseConfigured()) {
+        observer.error('La autenticación con Google no está configurada en el sistema');
+        return;
+      }
+
+      this.firebaseService.signInWithGoogle()
+        .then(async (firebaseUserCredential) => {
+          try {
+            const firebaseUser = firebaseUserCredential.user;
+            
+            // ✅ OBTENER EL TOKEN DE FIREBASE (esto es lo que faltaba)
+            const idToken = await firebaseUser.getIdToken();
+            
+            console.log('Firebase ID Token obtenido correctamente');
+
+            // ✅ Enviar solo el firebaseIdToken al backend
+            const requestBody = {
+              firebaseIdToken: idToken
+            };
+
+            console.log('Enviando petición al backend con token...');
+
+            // ✅ Usar el endpoint correcto: /api/auth/firebase/login
+            this.http.post<AuthResponse>(`${this.apiAuth}/firebase/login`, requestBody)
+              .subscribe({
+                next: (response) => {
+                  console.log('Autenticación exitosa con backend');
+                  this.handleAuthSuccess(response, firebaseUser.email!, observer);
+                },
+                error: (error) => {
+                  console.error('Error en autenticación con backend:', error);
+                  observer.error('Error al autenticar con el servidor. Intenta más tarde.');
+                }
+              });
+
+          } catch (error) {
+            console.error('Error al obtener token de Firebase:', error);
+            observer.error('Error al procesar el inicio de sesión con Google');
+          }
         })
-      );
+        .catch(error => {
+          console.error('Error en Google sign-in:', error);
+          observer.error(error.message);
+        });
+    });
   }
 
-  /**
-   * Obtener perfil del usuario
-   */
+  private handleAuthSuccess(response: AuthResponse, email: string, observer: any): void {
+    sessionStorage.setItem('token', response.token);
+    
+    this.getUserProfile(email).subscribe({
+      next: (user) => {
+        this.saveUserData(response.token, user);
+        observer.next(response);
+        observer.complete();
+      },
+      error: (error) => {
+        console.error('Error loading user profile after Google login:', error);
+        observer.next(response);
+        observer.complete();
+      }
+    });
+  }
+
   getUserProfile(email: string): Observable<User> {
     return this.http.get<User>(`${this.apiUsers}/profile/${email}`)
       .pipe(
@@ -162,9 +222,6 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Actualizar datos personales del usuario
-   */
   updateUserProfile(email: string, userData: UpdateUserRequest): Observable<User> {
     return this.http.put<User>(`${this.apiUsers}/profile/${email}`, userData)
       .pipe(
@@ -181,9 +238,6 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Actualizar dirección del usuario
-   */
   updateUserAddress(email: string, addressData: UpdateAddressRequest): Observable<User> {
     return this.http.put<User>(`${this.apiUsers}/profile/${email}/address`, addressData)
       .pipe(
@@ -200,70 +254,48 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Cambiar contraseña del usuario
-   */
   changePassword(email: string, passwordData: ChangePasswordRequest): Observable<any> {
-    return this.http.put(`${this.apiUsers}/profile/${email}/password`, passwordData)
-      .pipe(
-        catchError(error => {
-          console.error('Change password error', error);
-          return throwError(() => error);
-        })
-      );
-  }
+  return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/password`, passwordData)
+    .pipe(
+      catchError(error => {
+        console.error('Change password error', error);
+        return throwError(() => error);
+      })
+    );
+}
 
-  /**
-   * Desactivar cuenta de usuario
-   */
   deactivateUser(email: string): Observable<any> {
-    return this.http.put(`${this.apiUsers}/profile/${email}/deactivate`, {})
-      .pipe(
-        tap(() => {
-          // Si el usuario desactiva su propia cuenta, hacer logout
-          const currentUser = this.getCurrentUser();
-          if (currentUser && currentUser.email === email) {
-            this.logout();
-          }
-        }),
-        catchError(error => {
-          console.error('Deactivate user error', error);
-          return throwError(() => error);
-        })
-      );
-  }
+  return this.http.put<{message: string}>(`${this.apiUsers}/profile/${email}/deactivate`, {})
+    .pipe(
+      tap(() => {
+        const currentUser = this.getCurrentUser();
+        if (currentUser && currentUser.email === email) {
+          this.logout();
+        }
+      }),
+      catchError(error => {
+        console.error('Deactivate user error', error);
+        return throwError(() => error);
+      })
+    );
+}
 
-  /**
-   * Cerrar sesión del usuario
-   */
   logout(): void {
     this.clearUserData();
   }
 
-  /**
-   * Obtener token JWT del sessionStorage
-   */
   getToken(): string | null {
     return sessionStorage.getItem('token');
   }
 
-  /**
-   * Obtener usuario actual
-   */
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  /**
-   * Verificar si el usuario está autenticado
-   */
   isLoggedIn(): boolean {
     return !!this.getToken() && !!this.getCurrentUser();
   }
 
-  /**
-   * Verificar si el usuario es administrador
-   */
   isAdmin(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'ADMIN';
@@ -271,9 +303,6 @@ export class UserAuthService {
 
   // ==================== LOCATION METHODS ====================
 
-  /**
-   * Obtener todos los países
-   */
   getAllCountries(): Observable<Country[]> {
     return this.http.get<Country[]>(`${this.apiLocations}/countries`)
       .pipe(
@@ -284,9 +313,6 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Obtener estados/provincias por código de país
-   */
   getStatesByCountry(countryCode: string): Observable<State[]> {
     return this.http.get<State[]>(`${this.apiLocations}/countries/${countryCode}/states`)
       .pipe(
@@ -297,9 +323,6 @@ export class UserAuthService {
       );
   }
 
-  /**
-   * Buscar países por nombre
-   */
   searchCountries(query: string): Observable<Country[]> {
     return this.http.get<Country[]>(`${this.apiLocations}/countries/search?query=${query}`)
       .pipe(

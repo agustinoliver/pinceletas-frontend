@@ -1,65 +1,95 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
-  isLoading = false;
-  errorMessage = '';
-  returnUrl: string = '/profile';
+export class LoginComponent {
+  email: string = '';
+  password: string = '';
+  loading: boolean = false;
+  googleLoading: boolean = false;
+  errorMessage: string = '';
+  returnUrl: string = '/';
 
   constructor(
-    private fb: FormBuilder,
     private authService: UserAuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
-    });
+    // Obtener returnUrl de los parámetros de ruta o usar '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  ngOnInit(): void {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/profile']);
+  /**
+   * Login normal con email y password
+   */
+  onSubmit(): void {
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Por favor completa todos los campos';
       return;
     }
 
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+    this.loading = true;
+    this.errorMessage = '';
+
+    const loginData = {
+      email: this.email,
+      password: this.password
+    };
+
+    this.authService.login(loginData).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.router.navigateByUrl(this.returnUrl);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
+        console.error('Login error:', error);
+      }
+    });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.router.navigate([this.returnUrl]);
-        },
-        error: (error) => {
-          this.errorMessage = error.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
-          this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
+  /**
+   * Iniciar sesión con Google
+   */
   loginWithGoogle(): void {
-    console.log('Login con Google - Próximamente');
-    this.errorMessage = 'Función en desarrollo';
+    this.googleLoading = true;
+    this.errorMessage = '';
+
+    this.authService.loginWithGoogle().subscribe({
+      next: (response) => {
+        this.googleLoading = false;
+        console.log('Google login successful:', response);
+        this.router.navigateByUrl(this.returnUrl);
+      },
+      error: (error) => {
+        this.googleLoading = false;
+        this.errorMessage = error;
+        console.error('Google login error:', error);
+      }
+    });
+  }
+
+  /**
+   * Ir a registro
+   */
+  goToRegister(): void {
+    this.router.navigate(['/register']);
+  }
+
+  /**
+   * Ir a recuperar contraseña
+   */
+  goToForgotPassword(): void {
+    this.router.navigate(['/forgot-password']);
   }
 }

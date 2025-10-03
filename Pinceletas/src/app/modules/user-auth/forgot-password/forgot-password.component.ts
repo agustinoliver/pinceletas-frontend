@@ -1,51 +1,67 @@
-
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.css'
+  styleUrls: ['./forgot-password.component.css']
 })
 export class ForgotPasswordComponent {
-  forgotPasswordForm: FormGroup;
-  isLoading = false;
-  message = '';
-  isError = false;
+  email: string = '';
+  loading: boolean = false;
+  errorMessage: string = '';
+  successMessage: string = '';
+  showEmailError: boolean = false;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: UserAuthService
-  ) {
-    this.forgotPasswordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+    private authService: UserAuthService,
+    private router: Router
+  ) {}
+
+  onSubmit() {
+    // Validar email
+    if (!this.isValidEmail(this.email)) {
+      this.showEmailError = true;
+      this.errorMessage = 'Por favor ingresa un email válido';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.showEmailError = false;
+
+    this.authService.forgotPassword(this.email).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.successMessage = 'Código enviado correctamente. Revisa tu email.';
+        
+        // Redirigir después de 2 segundos
+        setTimeout(() => {
+          this.router.navigate(['/reset-password'], {
+            queryParams: { email: this.email }
+          });
+        }, 2000);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = typeof error === 'string' ? error : 'Error al enviar el código. Intenta nuevamente.';
+        console.error('Error en recuperación:', error);
+      }
     });
   }
 
-  onSubmit(): void {
-    if (this.forgotPasswordForm.valid) {
-      this.isLoading = true;
-      this.message = '';
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 
-      this.authService.forgotPassword(this.forgotPasswordForm.value.email).subscribe({
-        next: () => {
-          this.message = 'Si el email existe en nuestro sistema, recibirás un token de recuperación';
-          this.isError = false;
-          this.forgotPasswordForm.reset();
-        },
-        error: (error) => {
-          this.message = error.error?.message || 'Error al procesar la solicitud';
-          this.isError = true;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
-    }
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }
