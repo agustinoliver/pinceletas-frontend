@@ -1,18 +1,21 @@
-.filtros {
-  margin-bottom: 20px;
+/* product-list.component.css */
+
+/* Variables de colores de la empresa */
+:root {
+  --primary-color: #ED620C;    /* Naranja principal */
+  --accent-color: #EBED6D;     /* Amarillo de acento */
+  --primary-hover: #d4560a;    /* Naranja más oscuro para hover */
+  --accent-hover: #e0e25a;     /* Amarillo más oscuro para hover */
+  --text-dark: #2c3e50;        /* Texto oscuro formal */
+  --text-light: #6c757d;       /* Texto secundario */
+  --bg-light: #f8f9fa;         /* Fondo claro */
+  --border-color: #e9ecef;     /* Color de bordes */
 }
 
-.productos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.producto {
-  border: 1px solid #ccc;
-  padding: 12px;
-  border-radius: 8px;
-  width: 200px;
+/* Filtros */
+.filtros-container {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-left: 4px solid var(--primary-color) !important;
 }
 
 /* Contenedor de imagen mejorado */
@@ -21,7 +24,7 @@
   width: 100%;
   height: 250px;
   overflow: hidden;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +34,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  transition: transform 0.3s ease;
 }
 
 /* Placeholder para imágenes que no cargan */
@@ -40,26 +43,133 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #6c757d;
+  color: var(--text-light);
   font-size: 0.9rem;
 }
 
 .image-placeholder i {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  color: var(--primary-color);
 }
 
 /* Estilos para las tarjetas de productos */
 .producto-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: none;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color) !important;
+  background: white;
 }
 
 .producto-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 8px 25px rgba(237, 98, 12, 0.15) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.producto-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.producto-card:hover .card-title {
+  color: var(--primary-color);
 }
 
 .card-img-top {
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Estilos para elementos de Bootstrap personalizados */
+.btn-outline-secondary {
+  border-color: var(--text-light);
+  color: var(--text-light);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--text-light);
+  border-color: var(--text-light);
+  color: white;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+.text-secondary {
+  color: var(--text-dark) !important;
+}
+
+/* Mejoras en los formularios */
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
+}
+
+.form-label {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Badge personalizado */
+.badge.bg-accent {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+/* Efectos de hover en elementos interactivos */
+.producto-card {
+  cursor: pointer;
+}
+
+.producto-card .card-body {
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-container {
+    height: 200px;
+  }
+  
+  .filtros-container .row > div {
+    margin-bottom: 1rem;
+  }
+  
+  .filtros-container .text-end {
+    text-align: left !important;
+  }
+}
+
+/* Animaciones suaves */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Mejora en la legibilidad */
+.card-title {
+  color: var(--text-dark);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
 }

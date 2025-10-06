@@ -1,0 +1,26 @@
+/* app.component.css */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 0; /* Ajusta según necesites si agregas navbar */
+}
+
+/* Si decides agregar un header/navbar más tarde */
+.app-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Footer opcional */
+.app-footer {
+  background: var(--text-dark);
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+}
