@@ -10,7 +10,7 @@ import { AuditoriaCategoria, AuditoriaProducto } from '../../../models/auditoria
 @Component({
   selector: 'app-product-audit',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './product-audit.component.html',
   styleUrl: './product-audit.component.css'
 })
