@@ -104,44 +104,55 @@ export class UserAuthService {
   }
 
   forgotPassword(email: string): Observable<any> {
-    return this.http.post<{message: string}>(
-      `${this.apiAuth}/forgot-password`,
-      { email }
-    ).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Forgot password error:', error);
-        let errorMessage = 'Error al enviar el código de recuperación';
-        
-        if (error.status === 404) {
-          errorMessage = 'Email no encontrado en el sistema';
-        } else if (error.status === 500) {
-          errorMessage = 'Error del servidor. Intenta más tarde.';
-        }
-        
-        return throwError(() => errorMessage);
-      })
-    );
-  }
+  return this.http.post<{message: string}>(
+    `${this.apiAuth}/forgot-password`,
+    { email }
+  ).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('Forgot password error:', error);
+      
+      let errorMessage = 'Error al enviar el código de recuperación';
+      
+      if (error.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error.status === 404) {
+        errorMessage = 'El email ingresado no se encuentra registrado en el sistema';
+      } else if (error.status === 400) {
+        errorMessage = error.error?.message || 'Email inválido o cuenta desactivada';
+      } else if (error.status === 500) {
+        errorMessage = 'Error del servidor. Por favor intenta más tarde.';
+      } else if (error.status === 0) {
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+      }
+      
+      return throwError(() => new Error(errorMessage));
+    })
+  );
+}
 
-  resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<any> {
-    return this.http.post<{message: string}>(
-      `${this.apiAuth}/reset-password`,
-      { token, newPassword, confirmNewPassword }
-    ).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Reset password error:', error);
-        let errorMessage = 'Error al restablecer la contraseña';
-        
-        if (error.status === 400) {
-          errorMessage = 'Código inválido o expirado';
-        } else if (error.status === 500) {
-          errorMessage = 'Error del servidor. Intenta más tarde.';
-        }
-        
-        return throwError(() => errorMessage);
-      })
-    );
-  }
+resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<any> {
+  return this.http.post<{message: string}>(
+    `${this.apiAuth}/reset-password`,
+    { token, newPassword, confirmNewPassword }
+  ).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('Reset password error:', error);
+      
+      let errorMessage = 'Error al restablecer la contraseña';
+      
+      if (error.error?.message) {
+        // Usar mensaje específico del backend
+        errorMessage = error.error.message;
+      } else if (error.status === 400) {
+        errorMessage = 'Código inválido o expirado';
+      } else if (error.status === 500) {
+        errorMessage = 'Error del servidor. Por favor intenta más tarde.';
+      }
+      
+      return throwError(() => errorMessage);
+    })
+  );
+}
 
   loginWithGoogle(): Observable<AuthResponse> {
     return new Observable(observer => {
