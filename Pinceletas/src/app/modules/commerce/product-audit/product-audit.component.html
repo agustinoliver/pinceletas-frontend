@@ -1,0 +1,341 @@
+<!-- product-audit.component.html -->
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 text-primary">
+      <i class="fas fa-clipboard-list me-2"></i>
+      Auditorías del Sistema
+    </h1>
+    <button 
+      (click)="volverALista()"
+      class="btn btn-outline-primary"
+    >
+      <i class="fas fa-arrow-left me-2"></i>
+      Volver a la Lista
+    </button>
+  </div>
+
+  <!-- Selector de Tipo -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-12">
+          <div class="btn-group w-100" role="group">
+            <button
+              type="button"
+              (click)="cambiarTipoAuditoria(true)"
+              [class]="mostrarProductos ? 'btn btn-primary' : 'btn btn-outline-primary'"
+              class="btn"
+            >
+              <i class="fas fa-box me-2"></i>
+              Auditorías de Productos
+              <span class="badge bg-light text-dark ms-2">{{auditoriasProductos.length}}</span>
+            </button>
+            
+            <button
+              type="button"
+              (click)="cambiarTipoAuditoria(false)"
+              [class]="!mostrarProductos ? 'btn btn-success' : 'btn btn-outline-success'"
+              class="btn"
+            >
+              <i class="fas fa-tags me-2"></i>
+              Auditorías de Categorías
+              <span class="badge bg-light text-dark ms-2">{{auditoriasCategorias.length}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-filter me-2"></i>
+        Filtros
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- Filtro por Fecha Inicio -->
+        <div class="col-md-3">
+          <label for="fechaInicio" class="form-label fw-bold">Fecha desde:</label>
+          <input
+            type="date"
+            class="form-control"
+            id="fechaInicio"
+            [(ngModel)]="filtroFechaInicio"
+            (change)="aplicarFiltros()"
+          />
+        </div>
+
+        <!-- Filtro por Fecha Fin -->
+        <div class="col-md-3">
+          <label for="fechaFin" class="form-label fw-bold">Fecha hasta:</label>
+          <input
+            type="date"
+            class="form-control"
+            id="fechaFin"
+            [(ngModel)]="filtroFechaFin"
+            (change)="aplicarFiltros()"
+          />
+        </div>
+
+        <!-- Filtro por Acción -->
+        <div class="col-md-3">
+          <label for="accion" class="form-label fw-bold">Acción:</label>
+          <select
+            class="form-select"
+            id="accion"
+            [(ngModel)]="filtroAccion"
+            (change)="aplicarFiltros()"
+          >
+            <option value="todas">Todas las acciones</option>
+            <option *ngFor="let accion of getAccionesUnicas()" [value]="accion">
+              {{ accion }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Botón Limpiar Filtros -->
+        <div class="col-md-3">
+          <button
+            class="btn btn-outline-danger w-100"
+            (click)="limpiarFiltros()"
+            title="Limpiar todos los filtros"
+          >
+            <i class="fas fa-trash me-2"></i>
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Contador de resultados -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="alert alert-info py-2 mb-0" *ngIf="!cargando">
+            <small>
+              <i class="fas fa-info-circle me-1"></i>
+              Mostrando 
+              <strong>
+                {{ mostrarProductos ? auditoriasProductosFiltradas.length : auditoriasCategoriasFiltradas.length }}
+              </strong>
+              de 
+              <strong>
+                {{ mostrarProductos ? auditoriasProductos.length : auditoriasCategorias.length }}
+              </strong>
+              registros
+              <span *ngIf="filtroFechaInicio || filtroFechaFin || filtroAccion !== 'todas'">
+                (filtrados)
+              </span>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-2">Cargando auditorías...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !cargando" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  <!-- Listado de Auditorías de Productos -->
+  <div *ngIf="mostrarProductos && !cargando">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="h4 text-primary">
+        <i class="fas fa-box me-2"></i>
+        Auditorías de Productos
+      </h3>
+      <span class="badge bg-primary fs-6">
+        Mostrando: {{ auditoriasProductosFiltradas.length }} / {{ auditoriasProductos.length }}
+      </span>
+    </div>
+    
+    <div *ngIf="auditoriasProductosFiltradas.length === 0" class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No se encontraron auditorías</h4>
+        <p class="text-muted" *ngIf="filtroFechaInicio || filtroFechaFin || filtroAccion !== 'todas'">
+          Intenta con otros filtros o ajusta los criterios de búsqueda
+        </p>
+        <p class="text-muted" *ngIf="!filtroFechaInicio && !filtroFechaFin && filtroAccion === 'todas'">
+          No hay registros de auditoría para productos
+        </p>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="auditoriasProductosFiltradas.length > 0">
+      <div class="col-12">
+        <div *ngFor="let auditoria of auditoriasProductosFiltradas" class="card shadow-sm mb-3">
+          <div class="card-header bg-light">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-cube me-2 text-primary"></i>
+                  Producto ID: {{ auditoria.productoId }}
+                </h5>
+                <small class="text-muted">
+                  <i class="fas fa-user me-1"></i>
+                  Usuario ID: {{ auditoria.usuarioId }}
+                </small>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <span [class]="getBadgeClass(auditoria.accion)" class="fs-6">
+                  <i [class]="getIconoAccion(auditoria.accion)" class="me-1"></i>
+                  {{ auditoria.accion }}
+                </span>
+                <br>
+                <small class="text-muted">
+                  <i class="fas fa-clock me-1"></i>
+                  {{ formatearFecha(auditoria.fechaAccion) }}
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="row">
+              <!-- Valores Anteriores -->
+              <div class="col-md-6 mb-3" *ngIf="auditoria.valoresAnteriores">
+                <h6 class="text-danger">
+                  <i class="fas fa-arrow-left me-1"></i>
+                  Valores Anteriores
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body p-3">
+                    <pre class="mb-0 audit-data">{{ parseJson(auditoria.valoresAnteriores) | json }}</pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Valores Nuevos -->
+              <div class="col-md-6 mb-3" *ngIf="auditoria.valoresNuevos">
+                <h6 class="text-success">
+                  <i class="fas fa-arrow-right me-1"></i>
+                  Valores Nuevos
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body p-3">
+                    <pre class="mb-0 audit-data">{{ parseJson(auditoria.valoresNuevos) | json }}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!auditoria.valoresAnteriores && !auditoria.valoresNuevos" 
+                 class="text-center text-muted py-3">
+              <i class="fas fa-info-circle me-2"></i>
+              No hay datos específicos para mostrar en esta auditoría
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de Auditorías de Categorías -->
+  <div *ngIf="!mostrarProductos && !cargando">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="h4 text-success">
+        <i class="fas fa-tags me-2"></i>
+        Auditorías de Categorías
+      </h3>
+      <span class="badge bg-success fs-6">
+        Mostrando: {{ auditoriasCategoriasFiltradas.length }} / {{ auditoriasCategorias.length }}
+      </span>
+    </div>
+    
+    <div *ngIf="auditoriasCategoriasFiltradas.length === 0" class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No se encontraron auditorías</h4>
+        <p class="text-muted" *ngIf="filtroFechaInicio || filtroFechaFin || filtroAccion !== 'todas'">
+          Intenta con otros filtros o ajusta los criterios de búsqueda
+        </p>
+        <p class="text-muted" *ngIf="!filtroFechaInicio && !filtroFechaFin && filtroAccion === 'todas'">
+          No hay registros de auditoría para categorías
+        </p>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="auditoriasCategoriasFiltradas.length > 0">
+      <div class="col-12">
+        <div *ngFor="let auditoria of auditoriasCategoriasFiltradas" class="card shadow-sm mb-3">
+          <div class="card-header bg-light">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-tag me-2 text-success"></i>
+                  Categoría ID: {{ auditoria.categoriaId }}
+                </h5>
+                <small class="text-muted">
+                  <i class="fas fa-user me-1"></i>
+                  Usuario ID: {{ auditoria.usuarioId }}
+                </small>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <span [class]="getBadgeClass(auditoria.accion)" class="fs-6">
+                  <i [class]="getIconoAccion(auditoria.accion)" class="me-1"></i>
+                  {{ auditoria.accion }}
+                </span>
+                <br>
+                <small class="text-muted">
+                  <i class="fas fa-clock me-1"></i>
+                  {{ formatearFecha(auditoria.fechaAccion) }}
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="row">
+              <!-- Valores Anteriores -->
+              <div class="col-md-6 mb-3" *ngIf="auditoria.valoresAnteriores">
+                <h6 class="text-danger">
+                  <i class="fas fa-arrow-left me-1"></i>
+                  Valores Anteriores
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body p-3">
+                    <pre class="mb-0 audit-data">{{ parseJson(auditoria.valoresAnteriores) | json }}</pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Valores Nuevos -->
+              <div class="col-md-6 mb-3" *ngIf="auditoria.valoresNuevos">
+                <h6 class="text-success">
+                  <i class="fas fa-arrow-right me-1"></i>
+                  Valores Nuevos
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body p-3">
+                    <pre class="mb-0 audit-data">{{ parseJson(auditoria.valoresNuevos) | json }}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!auditoria.valoresAnteriores && !auditoria.valoresNuevos" 
+                 class="text-center text-muted py-3">
+              <i class="fas fa-info-circle me-2"></i>
+              No hay datos específicos para mostrar en esta auditoría
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

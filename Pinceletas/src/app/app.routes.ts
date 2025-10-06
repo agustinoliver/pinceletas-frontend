@@ -41,6 +41,13 @@ export const routes: Routes = [
     // canActivate: [authGuard]
   },
   {
+  path: 'admin/audits',
+  loadComponent: () =>
+    import('./modules/commerce/product-audit/product-audit.component')
+      .then(m => m.ProductAuditComponent),
+  //canActivate: [authGuard]
+},
+  {
     path: '',
     redirectTo: 'productlist',
     pathMatch: 'full'

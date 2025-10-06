@@ -27,7 +27,14 @@
             <i class="fas fa-cog me-1"></i>Admin
           </a>
         </li>
+        <!-- Menú Admin de Auditorias - Solo visible para administradores -->
+         <li class="nav-item" *ngIf="isAdmin">
+          <a class="nav-link" routerLink="admin/audits" routerLinkActive="active">
+            <i class="fas fa-cog me-1"></i>Auditorias
+          </a>
+         </li>
       </ul>
+      
       
       <ul class="navbar-nav">
         <!-- Opciones para usuarios NO autenticados -->
