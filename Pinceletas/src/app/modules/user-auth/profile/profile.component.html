@@ -36,8 +36,10 @@
                   type="text"
                   class="form-control"
                   formControlName="nombre"
-                  [class.is-invalid]="personalDataForm.get('nombre')?.invalid && personalDataForm.get('nombre')?.touched">
-                <div class="invalid-feedback">El nombre es requerido</div>
+                  [class.is-invalid]="personalDataForm.get('nombre')?.invalid && (personalDataForm.get('nombre')?.touched || personalDataSubmitted)">
+                <div class="invalid-feedback" *ngIf="personalDataForm.get('nombre')?.errors?.['required'] && (personalDataForm.get('nombre')?.touched || personalDataSubmitted)">
+                  El nombre es requerido
+                </div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Apellido <span class="text-danger">*</span></label>
@@ -45,8 +47,10 @@
                   type="text"
                   class="form-control"
                   formControlName="apellido"
-                  [class.is-invalid]="personalDataForm.get('apellido')?.invalid && personalDataForm.get('apellido')?.touched">
-                <div class="invalid-feedback">El apellido es requerido</div>
+                  [class.is-invalid]="personalDataForm.get('apellido')?.invalid && (personalDataForm.get('apellido')?.touched || personalDataSubmitted)">
+                <div class="invalid-feedback" *ngIf="personalDataForm.get('apellido')?.errors?.['required'] && (personalDataForm.get('apellido')?.touched || personalDataSubmitted)">
+                  El apellido es requerido
+                </div>
               </div>
             </div>
 
@@ -56,11 +60,11 @@
                 type="email"
                 class="form-control"
                 formControlName="email"
-                [class.is-invalid]="personalDataForm.get('email')?.invalid && personalDataForm.get('email')?.touched">
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('email')?.errors?.['required']">
+                [class.is-invalid]="personalDataForm.get('email')?.invalid && (personalDataForm.get('email')?.touched || personalDataSubmitted)">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('email')?.errors?.['required'] && (personalDataForm.get('email')?.touched || personalDataSubmitted)">
                 El email es requerido
               </div>
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('email')?.errors?.['email']">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('email')?.errors?.['email'] && (personalDataForm.get('email')?.touched || personalDataSubmitted)">
                 Email inválido
               </div>
             </div>
@@ -71,18 +75,18 @@
                 type="tel"
                 class="form-control"
                 formControlName="telefono"
-                [class.is-invalid]="personalDataForm.get('telefono')?.invalid && personalDataForm.get('telefono')?.touched"
+                [class.is-invalid]="personalDataForm.get('telefono')?.invalid && (personalDataForm.get('telefono')?.touched || personalDataSubmitted)"
                 placeholder="Ej: +34 612 345 678 o 612345678">
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['required']">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['required'] && (personalDataForm.get('telefono')?.touched || personalDataSubmitted)">
                 El teléfono es requerido
               </div>
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidChars']">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidChars'] && (personalDataForm.get('telefono')?.touched || personalDataSubmitted)">
                 El teléfono solo puede contener números y los caracteres +, -, (, ), espacios
               </div>
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidLength']">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidLength'] && (personalDataForm.get('telefono')?.touched || personalDataSubmitted)">
                 El teléfono debe tener entre 8 y 15 dígitos
               </div>
-              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidFormat']">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidFormat'] && (personalDataForm.get('telefono')?.touched || personalDataSubmitted)">
                 Formato de teléfono inválido
               </div>
               <small class="form-text text-muted">
@@ -93,7 +97,7 @@
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="personalDataForm.invalid || isLoading">
+              [disabled]="isLoading">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
               Guardar Cambios
             </button>
@@ -118,7 +122,7 @@
                 [control]="currentPasswordControl"
                 placeholder="Tu contraseña actual">
               </app-password-toggle>
-              <div class="invalid-feedback d-block" *ngIf="securityForm.get('currentPassword')?.invalid && securityForm.get('currentPassword')?.touched">
+              <div class="invalid-feedback d-block" *ngIf="securityForm.get('currentPassword')?.errors?.['required'] && (securityForm.get('currentPassword')?.touched || securitySubmitted)">
                 La contraseña actual es requerida
               </div>
             </div>
@@ -130,7 +134,7 @@
                 [control]="newPasswordControl"
                 placeholder="Mínimo 6 caracteres con mayúscula, minúscula y número">
               </app-password-toggle>
-              <div class="invalid-feedback d-block" *ngIf="securityForm.get('newPassword')?.invalid && securityForm.get('newPassword')?.touched">
+              <div class="invalid-feedback d-block" *ngIf="(securityForm.get('newPassword')?.invalid && (securityForm.get('newPassword')?.touched || securitySubmitted))">
                 <div *ngIf="securityForm.get('newPassword')?.errors?.['required']">
                   La nueva contraseña es requerida
                 </div>
@@ -152,7 +156,7 @@
                 [control]="confirmNewPasswordControl"
                 placeholder="Repite tu nueva contraseña">
               </app-password-toggle>
-              <div class="invalid-feedback d-block" *ngIf="securityForm.get('confirmNewPassword')?.invalid && securityForm.get('confirmNewPassword')?.touched">
+              <div class="invalid-feedback d-block" *ngIf="(securityForm.get('confirmNewPassword')?.invalid && (securityForm.get('confirmNewPassword')?.touched || securitySubmitted))">
                 <div *ngIf="securityForm.get('confirmNewPassword')?.errors?.['required']">
                   Confirma tu nueva contraseña
                 </div>
@@ -162,7 +166,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-warning" [disabled]="securityForm.invalid || isLoading">
+            <button type="submit" class="btn btn-warning" [disabled]="isLoading">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
               Cambiar Contraseña
             </button>
@@ -172,7 +176,7 @@
     </div>
   </div>
 
-  <!-- Dirección (el resto del template permanece igual) -->
+  <!-- Dirección -->
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm">
@@ -203,7 +207,7 @@
                     <i class="fas fa-th me-1"></i>Manzana y Lote
                   </label>
                 </div>
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('tipoDireccion')?.invalid && addressForm.get('tipoDireccion')?.touched">
+                <div class="invalid-feedback d-block" *ngIf="addressForm.get('tipoDireccion')?.errors?.['required'] && (addressForm.get('tipoDireccion')?.touched || addressSubmitted)">
                   El tipo de dirección es requerido
                 </div>
               </div>
@@ -214,23 +218,29 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Calle <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="calle"
-                       [class.is-invalid]="addressForm.get('calle')?.invalid && addressForm.get('calle')?.touched"
+                       [class.is-invalid]="addressForm.get('calle')?.invalid && (addressForm.get('calle')?.touched || addressSubmitted)"
                        placeholder="Nombre de la calle">
-                <div class="invalid-feedback">La calle es requerida</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('calle')?.errors?.['required'] && (addressForm.get('calle')?.touched || addressSubmitted)">
+                  La calle es requerida
+                </div>
               </div>
               <div class="col-md-3 mb-3">
                 <label class="form-label">Número <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="numero"
-                       [class.is-invalid]="addressForm.get('numero')?.invalid && addressForm.get('numero')?.touched"
+                       [class.is-invalid]="addressForm.get('numero')?.invalid && (addressForm.get('numero')?.touched || addressSubmitted)"
                        placeholder="Número">
-                <div class="invalid-feedback">El número es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('numero')?.errors?.['required'] && (addressForm.get('numero')?.touched || addressSubmitted)">
+                  El número es requerido
+                </div>
               </div>
               <div class="col-md-3 mb-3">
                 <label class="form-label">Piso/Depto <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="piso"
-                       [class.is-invalid]="addressForm.get('piso')?.invalid && addressForm.get('piso')?.touched"
+                       [class.is-invalid]="addressForm.get('piso')?.invalid && (addressForm.get('piso')?.touched || addressSubmitted)"
                        placeholder="Piso, departamento, etc.">
-                <div class="invalid-feedback">El piso/depto es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('piso')?.errors?.['required'] && (addressForm.get('piso')?.touched || addressSubmitted)">
+                  El piso/depto es requerido
+                </div>
               </div>
             </div>
 
@@ -239,23 +249,29 @@
               <div class="col-md-4 mb-3">
                 <label class="form-label">Manzana <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="manzana"
-                       [class.is-invalid]="addressForm.get('manzana')?.invalid && addressForm.get('manzana')?.touched"
+                       [class.is-invalid]="addressForm.get('manzana')?.invalid && (addressForm.get('manzana')?.touched || addressSubmitted)"
                        placeholder="Número o letra de manzana">
-                <div class="invalid-feedback">La manzana es requerida</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('manzana')?.errors?.['required'] && (addressForm.get('manzana')?.touched || addressSubmitted)">
+                  La manzana es requerida
+                </div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Lote <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="lote"
-                       [class.is-invalid]="addressForm.get('lote')?.invalid && addressForm.get('lote')?.touched"
+                       [class.is-invalid]="addressForm.get('lote')?.invalid && (addressForm.get('lote')?.touched || addressSubmitted)"
                        placeholder="Número o letra de lote">
-                <div class="invalid-feedback">El lote es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('lote')?.errors?.['required'] && (addressForm.get('lote')?.touched || addressSubmitted)">
+                  El lote es requerido
+                </div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Piso/Depto <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="piso"
-                       [class.is-invalid]="addressForm.get('piso')?.invalid && addressForm.get('piso')?.touched"
+                       [class.is-invalid]="addressForm.get('piso')?.invalid && (addressForm.get('piso')?.touched || addressSubmitted)"
                        placeholder="Piso, departamento, etc.">
-                <div class="invalid-feedback">El piso/depto es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('piso')?.errors?.['required'] && (addressForm.get('piso')?.touched || addressSubmitted)">
+                  El piso/depto es requerido
+                </div>
               </div>
             </div>
 
@@ -264,16 +280,20 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Barrio <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="barrio"
-                       [class.is-invalid]="addressForm.get('barrio')?.invalid && addressForm.get('barrio')?.touched"
+                       [class.is-invalid]="addressForm.get('barrio')?.invalid && (addressForm.get('barrio')?.touched || addressSubmitted)"
                        placeholder="Nombre del barrio">
-                <div class="invalid-feedback">El barrio es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('barrio')?.errors?.['required'] && (addressForm.get('barrio')?.touched || addressSubmitted)">
+                  El barrio es requerido
+                </div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Ciudad <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="ciudad"
-                       [class.is-invalid]="addressForm.get('ciudad')?.invalid && addressForm.get('ciudad')?.touched"
+                       [class.is-invalid]="addressForm.get('ciudad')?.invalid && (addressForm.get('ciudad')?.touched || addressSubmitted)"
                        placeholder="Nombre de la ciudad">
-                <div class="invalid-feedback">La ciudad es requerida</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('ciudad')?.errors?.['required'] && (addressForm.get('ciudad')?.touched || addressSubmitted)">
+                  La ciudad es requerida
+                </div>
               </div>
             </div>
 
@@ -281,35 +301,41 @@
               <div class="col-md-4 mb-3">
                 <label class="form-label">País <span class="text-danger">*</span></label>
                 <select class="form-select" formControlName="pais" (change)="onCountryChange($event)"
-                        [class.is-invalid]="addressForm.get('pais')?.invalid && addressForm.get('pais')?.touched">
+                        [class.is-invalid]="addressForm.get('pais')?.invalid && (addressForm.get('pais')?.touched || addressSubmitted)">
                   <option value="">Selecciona un país</option>
                   <option *ngFor="let country of countries" [value]="country.name">
                     {{ country.flag }} {{ country.name }}
                   </option>
                 </select>
-                <div class="invalid-feedback">El país es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('pais')?.errors?.['required'] && (addressForm.get('pais')?.touched || addressSubmitted)">
+                  El país es requerido
+                </div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Provincia/Estado <span class="text-danger">*</span></label>
                 <select class="form-select" formControlName="provincia"
-                        [class.is-invalid]="addressForm.get('provincia')?.invalid && addressForm.get('provincia')?.touched">
+                        [class.is-invalid]="addressForm.get('provincia')?.invalid && (addressForm.get('provincia')?.touched || addressSubmitted)">
                   <option value="">Selecciona una provincia</option>
                   <option *ngFor="let state of states" [value]="state.name">
                     {{ state.name }}
                   </option>
                 </select>
-                <div class="invalid-feedback">La provincia es requerida</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('provincia')?.errors?.['required'] && (addressForm.get('provincia')?.touched || addressSubmitted)">
+                  La provincia es requerida
+                </div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Código Postal <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="codigoPostal"
-                       [class.is-invalid]="addressForm.get('codigoPostal')?.invalid && addressForm.get('codigoPostal')?.touched"
+                       [class.is-invalid]="addressForm.get('codigoPostal')?.invalid && (addressForm.get('codigoPostal')?.touched || addressSubmitted)"
                        placeholder="Código postal">
-                <div class="invalid-feedback">El código postal es requerido</div>
+                <div class="invalid-feedback" *ngIf="addressForm.get('codigoPostal')?.errors?.['required'] && (addressForm.get('codigoPostal')?.touched || addressSubmitted)">
+                  El código postal es requerido
+                </div>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-info text-white" [disabled]="addressForm.invalid || isLoading">
+            <button type="submit" class="btn btn-info text-white" [disabled]="isLoading">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
               Guardar Dirección
             </button>

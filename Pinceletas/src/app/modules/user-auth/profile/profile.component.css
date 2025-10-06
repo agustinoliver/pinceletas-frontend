@@ -1,48 +1,100 @@
+/* Profile Component Styles con colores de marca */
+.container {
+  padding: 2rem 0;
+}
+
 /* Animaciones suaves */
 .card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 8px 25px rgba(237, 98, 12, 0.15) !important;
 }
 
-/* Headers de las tarjetas */
+/* Headers de las tarjetas con gradientes de marca */
 .card-header {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  padding: 1rem 1.5rem;
+  border-bottom: none;
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+}
+
+.card-header.bg-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+  color: white !important;
+}
+
+.card-header.bg-warning {
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%) !important;
+  color: var(--text-dark) !important;
+}
+
+.card-header.bg-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+  color: white !important;
 }
 
 .card-header h5 {
   margin: 0;
   font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.card-header i {
+  font-size: 1rem;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+/* Cuerpo de las tarjetas */
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Título principal */
+h1 {
+  color: var(--text-dark);
+  font-weight: 700;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+h1 i {
+  color: var(--primary-color);
+  margin-right: 0.75rem;
 }
 
 /* Formularios */
 .form-label {
   font-weight: 600;
-  color: #495057;
+  color: var(--text-dark);
   margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .form-control,
 .form-select {
-  border-radius: 6px;
-  border: 1px solid #ced4da;
-  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
   transition: all 0.2s ease;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.15);
+  outline: none;
 }
 
 .form-control.is-invalid,
 .form-select.is-invalid {
-  border-color: #dc3545;
+  border-color: var(--danger-color);
   background-image: none;
 }
 
@@ -54,20 +106,23 @@
 .invalid-feedback {
   font-size: 0.875rem;
   margin-top: 0.25rem;
+  color: var(--danger-color);
+  display: block;
 }
 
 /* Botones */
 .btn {
-  padding: 0.6rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   border: none;
+  font-size: 0.95rem;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn:active {
@@ -75,40 +130,67 @@
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #c14e09 100%);
+  color: white;
 }
 
 .btn-warning {
-  background-color: #ffc107;
-  color: #212529;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+  color: var(--text-dark);
 }
 
 .btn-warning:hover {
-  background-color: #e0a800;
+  background: linear-gradient(135deg, var(--accent-hover) 0%, #d6d85a 100%);
+  color: var(--text-dark);
 }
 
 .btn-info {
-  background-color: #17a2b8;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
 }
 
 .btn-info:hover {
-  background-color: #117a8b;
+  background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+  color: white;
 }
 
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .btn .spinner-border-sm {
   width: 1rem;
   height: 1rem;
   border-width: 0.15em;
+}
+
+/* Radio buttons para tipo de dirección */
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
+}
+
+.form-check-label {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.form-check-label i {
+  color: var(--primary-color);
+  margin-right: 0.5rem;
 }
 
 /* Alertas */
@@ -132,15 +214,15 @@
 }
 
 .alert-success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #f0fff4;
+  color: #2d5016;
   border-left: 4px solid #28a745;
 }
 
 .alert-danger {
-  background-color: #f8d7da;
+  background-color: #fee;
   color: #721c24;
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid var(--danger-color);
 }
 
 .alert .btn-close {
@@ -152,42 +234,65 @@
   opacity: 1;
 }
 
-/* Título principal */
-h1 {
-  color: #333;
-  font-weight: 700;
+/* Texto de ayuda */
+.form-text {
+  color: var(--text-light) !important;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.text-danger {
+  color: var(--danger-color) !important;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
+}
+
+/* Selects mejorados */
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.5rem;
+}
+
+/* Sombras mejoradas */
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Grid y espaciado */
+.row {
   margin-bottom: 1.5rem;
 }
 
-h1 i {
-  color: #007bff;
+.row:last-child {
+  margin-bottom: 0;
 }
 
-/* Espaciado de filas en formularios */
-.row .col-md-6:first-child,
-.row .col-md-4:first-child,
-.row .col-md-3:first-child {
-  padding-right: 0.75rem;
-}
-
-.row .col-md-6:last-child,
-.row .col-md-4:last-child,
-.row .col-md-3:last-child {
-  padding-left: 0.75rem;
+.col-md-6, .col-md-4, .col-md-3 {
+  margin-bottom: 1rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .container {
+    padding: 1rem 0;
+  }
+
   .card-header {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
   }
 
   .card-body {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   h1 {
     font-size: 1.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .btn {
@@ -198,36 +303,64 @@ h1 i {
   .row .col-md-6,
   .row .col-md-4,
   .row .col-md-3 {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .form-check-inline {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
   }
 }
 
-/* Iconos en los headers */
-.card-header i {
-  font-size: 1.1rem;
-  vertical-align: middle;
+@media (max-width: 576px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  .card-header h5 {
+    font-size: 1rem;
+  }
 }
 
-/* Mejora visual para selects */
-.form-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-  padding-right: 2.5rem;
+/* Estados de foco para accesibilidad */
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
-/* Sombras más suaves para las cards */
-.shadow-sm {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Transiciones suaves para inputs */
+/* Transiciones suaves para todos los inputs */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 input[type="password"],
 select {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Mejora visual para los grupos de formulario */
+.mb-3:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Estilos específicos para el campo de teléfono */
+input[type="tel"] {
+  font-family: 'Inter', monospace;
+}
+
+/* Estilos para los iconos en los headers */
+.card-header i.fa-user,
+.card-header i.fa-shield-alt,
+.card-header i.fa-home {
+  font-size: 1.1rem;
 }

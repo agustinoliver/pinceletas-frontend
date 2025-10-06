@@ -58,10 +58,13 @@ export class RegisterComponent implements OnInit {
       return null;
     }
 
+    // Eliminar espacios, guiones, paréntesis y otros caracteres especiales
     const cleanPhone = value.replace(/[\s\-\(\)\+]/g, '');
     
+    // Validar que solo contenga números
     const hasOnlyNumbers = /^\d+$/.test(cleanPhone);
     
+    // Validar longitud mínima y máxima para celulares (generalmente entre 8 y 15 dígitos)
     const isValidLength = cleanPhone.length >= 8 && cleanPhone.length <= 15;
     
     const isValidFormat = /^(\+?\d{1,3})?[\d\s\-\(\)]{8,15}$/.test(value);

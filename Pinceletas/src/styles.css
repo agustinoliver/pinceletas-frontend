@@ -3,14 +3,16 @@
 /* Variables de colores corporativos */
 /* Variables de colores corporativos SUAVIZADOS */
 :root {
-  --primary-color: #eb943c;    /* Naranja más suave */
-  --primary-hover: #eb851f;    /* Naranja oscuro más suave */
-  --accent-color: #EBED6D;     /* Amarillo de acento */
-  --accent-hover: #d6d93e;     /* Amarillo más oscuro para hover */
-  --text-dark: #2c3e50;        /* Texto oscuro formal */
-  --text-light: #6c757d;       /* Texto secundario */
-  --bg-light: #f8f9fa;         /* Fondo claro */
-  --border-color: #e9ecef;     /* Color de bordes */
+  --primary-color: #ED620C;     /* Naranja principal */
+  --primary-hover: #d4560a;     /* Naranja oscuro para hover */
+  --primary-light: #fef6f2;     /* Naranja muy suave para fondos */
+  --accent-color: #EBED6D;      /* Amarillo de acento */
+  --accent-hover: #e2e45a;      /* Amarillo más oscuro para hover */
+  --accent-light: #fcfdec;      /* Amarillo muy suave para fondos */
+  --text-dark: #2c3e50;         /* Texto oscuro formal */
+  --text-light: #6c757d;        /* Texto secundario */
+  --bg-light: #f8f9fa;          /* Fondo claro */
+  --border-color: #e9ecef;      /* Color de bordes */
   --success-color: #28a745;
   --warning-color: #ffc107;
   --danger-color: #dc3545;

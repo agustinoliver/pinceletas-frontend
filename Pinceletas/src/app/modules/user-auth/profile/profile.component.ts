@@ -25,7 +25,12 @@ export class ProfileComponent implements OnInit {
   errorMessage = '';
   tipoDireccion: 'calle' | 'manzana' = 'calle';
 
-  // Getters para los FormControls (SOLUCIÓN AL ERROR)
+  // Variables para controlar la validación
+  personalDataSubmitted = false;
+  addressSubmitted = false;
+  securitySubmitted = false;
+
+  // Getters para los FormControls
   get currentPasswordControl(): FormControl {
     return this.securityForm.get('currentPassword') as FormControl;
   }
@@ -42,7 +47,7 @@ export class ProfileComponent implements OnInit {
     private fb: FormBuilder,
     private authService: UserAuthService
   ) {
-    // Formulario de datos personales
+    // Formulario de datos personales - inicialmente no mostrar errores
     this.personalDataForm = this.fb.group({
       nombre: ['', [Validators.required]],
       apellido: ['', [Validators.required]],
@@ -50,7 +55,7 @@ export class ProfileComponent implements OnInit {
       telefono: ['', [Validators.required, this.phoneValidator]]
     });
 
-    // Formulario de dirección
+    // Formulario de dirección - inicialmente no mostrar errores
     this.addressForm = this.fb.group({
       tipoDireccion: ['calle', [Validators.required]],
       calle: [''],
@@ -65,7 +70,7 @@ export class ProfileComponent implements OnInit {
       codigoPostal: ['', [Validators.required]]
     });
 
-    // Formulario de seguridad
+    // Formulario de seguridad - inicialmente no mostrar errores
     this.securityForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
       newPassword: ['', [Validators.required, Validators.minLength(6), this.passwordValidator]],
@@ -257,6 +262,13 @@ export class ProfileComponent implements OnInit {
   }
 
   updatePersonalData(): void {
+    this.personalDataSubmitted = true;
+    
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.personalDataForm.controls).forEach(key => {
+      this.personalDataForm.get(key)?.markAsTouched();
+    });
+
     if (this.personalDataForm.valid && this.user) {
       this.isLoading = true;
       const userData: UpdateUserRequest = this.personalDataForm.value;
@@ -265,6 +277,7 @@ export class ProfileComponent implements OnInit {
         next: () => {
           this.showSuccess('Datos personales actualizados correctamente');
           this.isLoading = false;
+          this.personalDataSubmitted = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al actualizar datos');
@@ -275,6 +288,13 @@ export class ProfileComponent implements OnInit {
   }
 
   updateAddress(): void {
+    this.addressSubmitted = true;
+    
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.addressForm.controls).forEach(key => {
+      this.addressForm.get(key)?.markAsTouched();
+    });
+
     if (this.addressForm.valid && this.user) {
       this.isLoading = true;
       const addressData: UpdateAddressRequest = this.addressForm.value;
@@ -283,6 +303,7 @@ export class ProfileComponent implements OnInit {
         next: () => {
           this.showSuccess('Dirección actualizada correctamente');
           this.isLoading = false;
+          this.addressSubmitted = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al actualizar dirección');
@@ -293,6 +314,13 @@ export class ProfileComponent implements OnInit {
   }
 
   changePassword(): void {
+    this.securitySubmitted = true;
+    
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.securityForm.controls).forEach(key => {
+      this.securityForm.get(key)?.markAsTouched();
+    });
+
     if (this.securityForm.valid && this.user) {
       this.isLoading = true;
       const passwordData: ChangePasswordRequest = this.securityForm.value;
@@ -302,6 +330,7 @@ export class ProfileComponent implements OnInit {
           this.showSuccess('Contraseña cambiada correctamente');
           this.securityForm.reset();
           this.isLoading = false;
+          this.securitySubmitted = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al cambiar contraseña');
