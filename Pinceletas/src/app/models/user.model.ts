@@ -8,9 +8,11 @@ export interface User {
   activo: boolean;
   calle?: string;
   numero?: string;
-  ciudad?: string;
+  manzana?: string;
+  lote?: string;
   piso?: string;
   barrio?: string;
+  ciudad?: string;
   pais?: string;
   provincia?: string;
   codigoPostal?: string;
@@ -43,12 +45,15 @@ export interface ChangePasswordRequest {
 export interface UpdateAddressRequest {
   calle?: string;
   numero?: string;
-  ciudad?: string;
+  manzana?: string;
+  lote?: string;
   piso?: string;
   barrio?: string;
+  ciudad?: string;
   pais?: string;
   provincia?: string;
   codigoPostal?: string;
+  tipoDireccion?: 'calle' | 'manzana';
 }
 
 export interface UpdateUserRequest {

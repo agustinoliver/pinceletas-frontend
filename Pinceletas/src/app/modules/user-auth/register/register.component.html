@@ -71,39 +71,42 @@
               </div>
             </div>
 
-            <!-- Password -->
             <div class="mb-3">
-              <label for="password" class="form-label">Contraseña</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                formControlName="password"
-                [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-                placeholder="Mínimo 6 caracteres">
-              <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['required']">
-                La contraseña es requerida
+              <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+              <app-password-toggle 
+                [control]="passwordControl"
+                placeholder="Mínimo 6 caracteres con mayúscula, minúscula y número">
+              </app-password-toggle>
+              <div class="invalid-feedback d-block" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+                <div *ngIf="registerForm.get('password')?.errors?.['required']">
+                  La contraseña es requerida
+                </div>
+                <div *ngIf="registerForm.get('password')?.errors?.['minlength']">
+                  Mínimo 6 caracteres
+                </div>
+                <div *ngIf="registerForm.get('password')?.errors?.['passwordRequirements']">
+                  Debe contener al menos una mayúscula, una minúscula y un número
+                </div>
               </div>
-              <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['minlength']">
-                La contraseña debe tener al menos 6 caracteres
-              </div>
+              <small class="form-text text-muted">
+                La contraseña debe tener al menos 6 caracteres, incluyendo una mayúscula, una minúscula y un número.
+              </small>
             </div>
 
-            <!-- Confirm Password -->
+            <!-- Confirm Password Field Corregido -->
             <div class="mb-3">
-              <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-              <input
-                type="password"
-                class="form-control"
-                id="confirmPassword"
-                formControlName="confirmPassword"
-                [class.is-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+              <label for="confirmPassword" class="form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
+              <app-password-toggle 
+                [control]="confirmPasswordControl"
                 placeholder="Repite tu contraseña">
-              <div class="invalid-feedback" *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">
-                Confirma tu contraseña
-              </div>
-              <div class="invalid-feedback" *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">
-                Las contraseñas no coinciden
+              </app-password-toggle>
+              <div class="invalid-feedback d-block" *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">
+                  Confirma tu contraseña
+                </div>
+                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">
+                  Las contraseñas no coinciden
+                </div>
               </div>
             </div>
 

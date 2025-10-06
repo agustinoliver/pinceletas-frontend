@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserAuthService } from '../../../services/user-auth.service';
 import { User, UpdateUserRequest, UpdateAddressRequest, ChangePasswordRequest } from '../../../models/user.model';
 import { Country, State } from '../../../models/location.model';
+import { PasswordToggleComponent } from '../password-toggle/password-toggle.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PasswordToggleComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
@@ -22,11 +23,26 @@ export class ProfileComponent implements OnInit {
   isLoading = false;
   successMessage = '';
   errorMessage = '';
+  tipoDireccion: 'calle' | 'manzana' = 'calle';
+
+  // Getters para los FormControls (SOLUCIÓN AL ERROR)
+  get currentPasswordControl(): FormControl {
+    return this.securityForm.get('currentPassword') as FormControl;
+  }
+
+  get newPasswordControl(): FormControl {
+    return this.securityForm.get('newPassword') as FormControl;
+  }
+
+  get confirmNewPasswordControl(): FormControl {
+    return this.securityForm.get('confirmNewPassword') as FormControl;
+  }
 
   constructor(
     private fb: FormBuilder,
     private authService: UserAuthService
   ) {
+    // Formulario de datos personales
     this.personalDataForm = this.fb.group({
       nombre: ['', [Validators.required]],
       apellido: ['', [Validators.required]],
@@ -34,21 +50,32 @@ export class ProfileComponent implements OnInit {
       telefono: ['', [Validators.required]]
     });
 
+    // Formulario de dirección
     this.addressForm = this.fb.group({
+      tipoDireccion: ['calle', [Validators.required]],
       calle: [''],
       numero: [''],
-      ciudad: [''],
-      piso: [''],
-      barrio: [''],
-      pais: [''],
-      provincia: [''],
-      codigoPostal: ['']
+      manzana: [''],
+      lote: [''],
+      piso: ['', [Validators.required]],
+      barrio: ['', [Validators.required]],
+      ciudad: ['', [Validators.required]],
+      pais: ['', [Validators.required]],
+      provincia: ['', [Validators.required]],
+      codigoPostal: ['', [Validators.required]]
     });
 
+    // Formulario de seguridad
     this.securityForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.minLength(6), this.passwordValidator]],
       confirmNewPassword: ['', [Validators.required]]
+    }, { validators: this.passwordMatchValidator });
+
+    // Suscribirse a cambios en el tipo de dirección
+    this.addressForm.get('tipoDireccion')?.valueChanges.subscribe(value => {
+      this.tipoDireccion = value;
+      this.updateAddressValidators();
     });
   }
 
@@ -63,6 +90,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserData(user: User): void {
+    // Cargar datos personales
     this.personalDataForm.patchValue({
       nombre: user.nombre,
       apellido: user.apellido,
@@ -70,18 +98,30 @@ export class ProfileComponent implements OnInit {
       telefono: user.telefono
     });
 
+    // Determinar tipo de dirección
+    let tipoDireccion = 'calle';
+    if ((user.manzana || user.lote) && !user.calle && !user.numero) {
+      tipoDireccion = 'manzana';
+    }
+
+    // Cargar datos de dirección
     this.addressForm.patchValue({
+      tipoDireccion: tipoDireccion,
       calle: user.calle || '',
       numero: user.numero || '',
-      ciudad: user.ciudad || '',
+      manzana: user.manzana || '',
+      lote: user.lote || '',
       piso: user.piso || '',
       barrio: user.barrio || '',
+      ciudad: user.ciudad || '',
       pais: user.pais || '',
       provincia: user.provincia || '',
       codigoPostal: user.codigoPostal || ''
     });
 
-    // Si hay un país seleccionado, cargar sus estados
+    this.updateAddressValidators();
+
+    // Cargar estados si hay país seleccionado
     if (user.pais) {
       const country = this.countries.find(c => c.name === user.pais);
       if (country) {
@@ -92,11 +132,70 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  private updateAddressValidators(): void {
+    const calleControl = this.addressForm.get('calle');
+    const numeroControl = this.addressForm.get('numero');
+    const manzanaControl = this.addressForm.get('manzana');
+    const loteControl = this.addressForm.get('lote');
+
+    // Limpiar validadores existentes
+    [calleControl, numeroControl, manzanaControl, loteControl].forEach(control => {
+      control?.clearValidators();
+      control?.updateValueAndValidity();
+    });
+
+    if (this.tipoDireccion === 'calle') {
+      calleControl?.setValidators([Validators.required]);
+      numeroControl?.setValidators([Validators.required]);
+    } else {
+      manzanaControl?.setValidators([Validators.required]);
+      loteControl?.setValidators([Validators.required]);
+    }
+
+    // Actualizar validadores
+    [calleControl, numeroControl, manzanaControl, loteControl].forEach(control => {
+      control?.updateValueAndValidity();
+    });
+  }
+
+  // Validador personalizado para contraseña
+  private passwordValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    
+    if (!value) {
+      return null;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(value);
+    const hasLowerCase = /[a-z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+
+    const passwordValid = hasUpperCase && hasLowerCase && hasNumber;
+
+    if (!passwordValid) {
+      return { 'passwordRequirements': true };
+    }
+
+    return null;
+  }
+
+  // Validador para coincidencia de contraseñas
+  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('newPassword');
+    const confirmPassword = control.get('confirmNewPassword');
+    
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+    return null;
+  }
+
   loadCountries(): void {
     this.authService.getAllCountries().subscribe(countries => {
       this.countries = countries;
       
-      // Después de cargar países, cargar estados si hay país seleccionado
+      // Cargar estados si hay país seleccionado
       if (this.user?.pais) {
         const country = this.countries.find(c => c.name === this.user!.pais);
         if (country) {
@@ -112,17 +211,16 @@ export class ProfileComponent implements OnInit {
     const countryName = event.target.value;
     
     if (countryName) {
-      // Buscar el código del país por su nombre
       const country = this.countries.find(c => c.name === countryName);
       
       if (country) {
-        // Obtener estados usando el código
         this.authService.getStatesByCountry(country.code).subscribe(states => {
           this.states = states;
+          // Resetear provincia cuando cambia el país
+          this.addressForm.patchValue({ provincia: '' });
         });
       }
     } else {
-      // Si no hay país seleccionado, limpiar estados
       this.states = [];
       this.addressForm.patchValue({ provincia: '' });
     }
@@ -136,11 +234,10 @@ export class ProfileComponent implements OnInit {
       this.authService.updateUserProfile(this.user.email, userData).subscribe({
         next: () => {
           this.showSuccess('Datos personales actualizados correctamente');
+          this.isLoading = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al actualizar datos');
-        },
-        complete: () => {
           this.isLoading = false;
         }
       });
@@ -155,11 +252,10 @@ export class ProfileComponent implements OnInit {
       this.authService.updateUserAddress(this.user.email, addressData).subscribe({
         next: () => {
           this.showSuccess('Dirección actualizada correctamente');
+          this.isLoading = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al actualizar dirección');
-        },
-        complete: () => {
           this.isLoading = false;
         }
       });
@@ -175,11 +271,10 @@ export class ProfileComponent implements OnInit {
         next: () => {
           this.showSuccess('Contraseña cambiada correctamente');
           this.securityForm.reset();
+          this.isLoading = false;
         },
         error: (error) => {
           this.showError(error.error?.message || 'Error al cambiar contraseña');
-        },
-        complete: () => {
           this.isLoading = false;
         }
       });

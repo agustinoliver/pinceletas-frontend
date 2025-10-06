@@ -31,7 +31,7 @@
           <form [formGroup]="personalDataForm" (ngSubmit)="updatePersonalData()">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Nombre</label>
+                <label class="form-label">Nombre <span class="text-danger">*</span></label>
                 <input
                   type="text"
                   class="form-control"
@@ -40,7 +40,7 @@
                 <div class="invalid-feedback">El nombre es requerido</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Apellido</label>
+                <label class="form-label">Apellido <span class="text-danger">*</span></label>
                 <input
                   type="text"
                   class="form-control"
@@ -51,7 +51,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label">Email <span class="text-danger">*</span></label>
               <input
                 type="email"
                 class="form-control"
@@ -66,7 +66,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Teléfono</label>
+              <label class="form-label">Teléfono <span class="text-danger">*</span></label>
               <input
                 type="tel"
                 class="form-control"
@@ -98,44 +98,56 @@
         <div class="card-body">
           <form [formGroup]="securityForm" (ngSubmit)="changePassword()">
             <div class="mb-3">
-              <label class="form-label">Contraseña actual</label>
-              <input
-                type="password"
-                class="form-control"
-                formControlName="currentPassword"
-                [class.is-invalid]="securityForm.get('currentPassword')?.invalid && securityForm.get('currentPassword')?.touched">
-              <div class="invalid-feedback">La contraseña actual es requerida</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Nueva contraseña</label>
-              <input
-                type="password"
-                class="form-control"
-                formControlName="newPassword"
-                [class.is-invalid]="securityForm.get('newPassword')?.invalid && securityForm.get('newPassword')?.touched">
-              <div class="invalid-feedback" *ngIf="securityForm.get('newPassword')?.errors?.['required']">
-                La nueva contraseña es requerida
-              </div>
-              <div class="invalid-feedback" *ngIf="securityForm.get('newPassword')?.errors?.['minlength']">
-                Mínimo 6 caracteres
+              <label class="form-label">Contraseña actual <span class="text-danger">*</span></label>
+              <app-password-toggle 
+                [control]="currentPasswordControl"
+                placeholder="Tu contraseña actual">
+              </app-password-toggle>
+              <div class="invalid-feedback d-block" *ngIf="securityForm.get('currentPassword')?.invalid && securityForm.get('currentPassword')?.touched">
+                La contraseña actual es requerida
               </div>
             </div>
 
+            <!-- Nueva contraseña -->
             <div class="mb-3">
-              <label class="form-label">Confirma nueva contraseña</label>
-              <input
-                type="password"
-                class="form-control"
-                formControlName="confirmNewPassword"
-                [class.is-invalid]="securityForm.get('confirmNewPassword')?.invalid && securityForm.get('confirmNewPassword')?.touched">
-              <div class="invalid-feedback">Confirma tu nueva contraseña</div>
+              <label class="form-label">Nueva contraseña <span class="text-danger">*</span></label>
+              <app-password-toggle 
+                [control]="newPasswordControl"
+                placeholder="Mínimo 6 caracteres con mayúscula, minúscula y número">
+              </app-password-toggle>
+              <div class="invalid-feedback d-block" *ngIf="securityForm.get('newPassword')?.invalid && securityForm.get('newPassword')?.touched">
+                <div *ngIf="securityForm.get('newPassword')?.errors?.['required']">
+                  La nueva contraseña es requerida
+                </div>
+                <div *ngIf="securityForm.get('newPassword')?.errors?.['minlength']">
+                  Mínimo 6 caracteres
+                </div>
+                <div *ngIf="securityForm.get('newPassword')?.errors?.['passwordRequirements']">
+                  Debe contener al menos una mayúscula, una minúscula y un número
+                </div>
+              </div>
+              <small class="form-text text-muted">
+                La contraseña debe tener al menos 6 caracteres, incluyendo una mayúscula, una minúscula y un número.
+              </small>
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-warning"
-              [disabled]="securityForm.invalid || isLoading">
+            <div class="mb-3">
+              <label class="form-label">Confirma nueva contraseña <span class="text-danger">*</span></label>
+              <app-password-toggle 
+                [control]="confirmNewPasswordControl"
+                placeholder="Repite tu nueva contraseña">
+              </app-password-toggle>
+              <div class="invalid-feedback d-block" *ngIf="securityForm.get('confirmNewPassword')?.invalid && securityForm.get('confirmNewPassword')?.touched">
+                <div *ngIf="securityForm.get('confirmNewPassword')?.errors?.['required']">
+                  Confirma tu nueva contraseña
+                </div>
+                <div *ngIf="securityForm.get('confirmNewPassword')?.errors?.['passwordMismatch']">
+                  Las contraseñas no coinciden
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-warning" [disabled]="securityForm.invalid || isLoading">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
               Cambiar Contraseña
             </button>
@@ -145,7 +157,7 @@
     </div>
   </div>
 
-  <!-- Dirección -->
+  <!-- Dirección (el resto del template permanece igual) -->
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm">
@@ -156,61 +168,133 @@
         </div>
         <div class="card-body">
           <form [formGroup]="addressForm" (ngSubmit)="updateAddress()">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Calle</label>
-                <input type="text" class="form-control" formControlName="calle">
-              </div>
-              <div class="col-md-3 mb-3">
-                <label class="form-label">Número</label>
-                <input type="text" class="form-control" formControlName="numero">
-              </div>
-              <div class="col-md-3 mb-3">
-                <label class="form-label">Piso/Depto</label>
-                <input type="text" class="form-control" formControlName="piso">
+            
+            <!-- Selector de tipo de dirección -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <label class="form-label fw-bold">Tipo de Dirección <span class="text-danger">*</span></label>
+                <div></div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" formControlName="tipoDireccion" 
+                         id="tipoCalle" value="calle">
+                  <label class="form-check-label" for="tipoCalle">
+                    <i class="fas fa-road me-1"></i>Calle y Número
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" formControlName="tipoDireccion" 
+                         id="tipoManzana" value="manzana">
+                  <label class="form-check-label" for="tipoManzana">
+                    <i class="fas fa-th me-1"></i>Manzana y Lote
+                  </label>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="addressForm.get('tipoDireccion')?.invalid && addressForm.get('tipoDireccion')?.touched">
+                  El tipo de dirección es requerido
+                </div>
               </div>
             </div>
 
+            <!-- Formato Calle y Número -->
+            <div *ngIf="tipoDireccion === 'calle'" class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Calle <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="calle"
+                       [class.is-invalid]="addressForm.get('calle')?.invalid && addressForm.get('calle')?.touched"
+                       placeholder="Nombre de la calle">
+                <div class="invalid-feedback">La calle es requerida</div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Número <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="numero"
+                       [class.is-invalid]="addressForm.get('numero')?.invalid && addressForm.get('numero')?.touched"
+                       placeholder="Número">
+                <div class="invalid-feedback">El número es requerido</div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Piso/Depto <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="piso"
+                       [class.is-invalid]="addressForm.get('piso')?.invalid && addressForm.get('piso')?.touched"
+                       placeholder="Piso, departamento, etc.">
+                <div class="invalid-feedback">El piso/depto es requerido</div>
+              </div>
+            </div>
+
+            <!-- Formato Manzana y Lote -->
+            <div *ngIf="tipoDireccion === 'manzana'" class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Manzana <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="manzana"
+                       [class.is-invalid]="addressForm.get('manzana')?.invalid && addressForm.get('manzana')?.touched"
+                       placeholder="Número o letra de manzana">
+                <div class="invalid-feedback">La manzana es requerida</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Lote <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="lote"
+                       [class.is-invalid]="addressForm.get('lote')?.invalid && addressForm.get('lote')?.touched"
+                       placeholder="Número o letra de lote">
+                <div class="invalid-feedback">El lote es requerido</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Piso/Depto <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="piso"
+                       [class.is-invalid]="addressForm.get('piso')?.invalid && addressForm.get('piso')?.touched"
+                       placeholder="Piso, departamento, etc.">
+                <div class="invalid-feedback">El piso/depto es requerido</div>
+              </div>
+            </div>
+
+            <!-- Campos comunes REQUERIDOS -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Barrio</label>
-                <input type="text" class="form-control" formControlName="barrio">
+                <label class="form-label">Barrio <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="barrio"
+                       [class.is-invalid]="addressForm.get('barrio')?.invalid && addressForm.get('barrio')?.touched"
+                       placeholder="Nombre del barrio">
+                <div class="invalid-feedback">El barrio es requerido</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Ciudad</label>
-                <input type="text" class="form-control" formControlName="ciudad">
+                <label class="form-label">Ciudad <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ciudad"
+                       [class.is-invalid]="addressForm.get('ciudad')?.invalid && addressForm.get('ciudad')?.touched"
+                       placeholder="Nombre de la ciudad">
+                <div class="invalid-feedback">La ciudad es requerida</div>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">País</label>
-                <select class="form-select" formControlName="pais" (change)="onCountryChange($event)">
+                <label class="form-label">País <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="pais" (change)="onCountryChange($event)"
+                        [class.is-invalid]="addressForm.get('pais')?.invalid && addressForm.get('pais')?.touched">
                   <option value="">Selecciona un país</option>
                   <option *ngFor="let country of countries" [value]="country.name">
                     {{ country.flag }} {{ country.name }}
                   </option>
                 </select>
+                <div class="invalid-feedback">El país es requerido</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Provincia/Estado</label>
-                <select class="form-select" formControlName="provincia">
+                <label class="form-label">Provincia/Estado <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="provincia"
+                        [class.is-invalid]="addressForm.get('provincia')?.invalid && addressForm.get('provincia')?.touched">
                   <option value="">Selecciona una provincia</option>
                   <option *ngFor="let state of states" [value]="state.name">
                     {{ state.name }}
                   </option>
                 </select>
+                <div class="invalid-feedback">La provincia es requerida</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Código Postal</label>
-                <input type="text" class="form-control" formControlName="codigoPostal">
+                <label class="form-label">Código Postal <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="codigoPostal"
+                       [class.is-invalid]="addressForm.get('codigoPostal')?.invalid && addressForm.get('codigoPostal')?.touched"
+                       placeholder="Código postal">
+                <div class="invalid-feedback">El código postal es requerido</div>
               </div>
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-info text-white"
-              [disabled]="isLoading">
+            <button type="submit" class="btn btn-info text-white" [disabled]="addressForm.invalid || isLoading">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
               Guardar Dirección
             </button>
