@@ -47,7 +47,7 @@ export class ProfileComponent implements OnInit {
       nombre: ['', [Validators.required]],
       apellido: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.required]]
+      telefono: ['', [Validators.required, this.phoneValidator]]
     });
 
     // Formulario de dirección
@@ -77,6 +77,36 @@ export class ProfileComponent implements OnInit {
       this.tipoDireccion = value;
       this.updateAddressValidators();
     });
+  }
+
+  private phoneValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    
+    if (!value) {
+      return null;
+    }
+
+    const cleanPhone = value.replace(/[\s\-\(\)\+]/g, '');
+    
+    const hasOnlyNumbers = /^\d+$/.test(cleanPhone);
+    
+    const isValidLength = cleanPhone.length >= 8 && cleanPhone.length <= 15;
+    
+    const isValidFormat = /^(\+?\d{1,3})?[\d\s\-\(\)]{8,15}$/.test(value);
+
+    if (!hasOnlyNumbers) {
+      return { 'phoneInvalidChars': true };
+    }
+
+    if (!isValidLength) {
+      return { 'phoneInvalidLength': true };
+    }
+
+    if (!isValidFormat) {
+      return { 'phoneInvalidFormat': true };
+    }
+
+    return null;
   }
 
   ngOnInit(): void {

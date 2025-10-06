@@ -1,30 +1,38 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
+import { PasswordToggleComponent } from '../password-toggle/password-toggle.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PasswordToggleComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  email: string = '';
-  password: string = '';
+  loginForm: FormGroup;
   loading: boolean = false;
   googleLoading: boolean = false;
   errorMessage: string = '';
   returnUrl: string = '/';
 
+  get passwordControl(): FormControl {
+    return this.loginForm.get('password') as FormControl;
+  }
+
   constructor(
+    private fb: FormBuilder,
     private authService: UserAuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
-    // Obtener returnUrl de los parámetros de ruta o usar '/'
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]]
+    });
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
@@ -32,8 +40,8 @@ export class LoginComponent {
    * Login normal con email y password
    */
   onSubmit(): void {
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Por favor completa todos los campos';
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Por favor completa todos los campos correctamente';
       return;
     }
 
@@ -41,8 +49,8 @@ export class LoginComponent {
     this.errorMessage = '';
 
     const loginData = {
-      email: this.email,
-      password: this.password
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
     };
 
     this.authService.login(loginData).subscribe({

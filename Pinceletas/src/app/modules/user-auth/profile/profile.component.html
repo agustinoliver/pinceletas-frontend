@@ -71,8 +71,23 @@
                 type="tel"
                 class="form-control"
                 formControlName="telefono"
-                [class.is-invalid]="personalDataForm.get('telefono')?.invalid && personalDataForm.get('telefono')?.touched">
-              <div class="invalid-feedback">El teléfono es requerido</div>
+                [class.is-invalid]="personalDataForm.get('telefono')?.invalid && personalDataForm.get('telefono')?.touched"
+                placeholder="Ej: +34 612 345 678 o 612345678">
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['required']">
+                El teléfono es requerido
+              </div>
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidChars']">
+                El teléfono solo puede contener números y los caracteres +, -, (, ), espacios
+              </div>
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidLength']">
+                El teléfono debe tener entre 8 y 15 dígitos
+              </div>
+              <div class="invalid-feedback" *ngIf="personalDataForm.get('telefono')?.errors?.['phoneInvalidFormat']">
+                Formato de teléfono inválido
+              </div>
+              <small class="form-text text-muted">
+                Ejemplos válidos: +34 612 345 678, 612-345-678, (612) 345 678, 612345678
+              </small>
             </div>
 
             <button

@@ -18,7 +18,6 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   returnUrl: string = '/productlist';
 
-  // Getters para los FormControls (SOLUCIÓN AL ERROR)
   get passwordControl(): FormControl {
     return this.registerForm.get('password') as FormControl;
   }
@@ -37,7 +36,7 @@ export class RegisterComponent implements OnInit {
       nombre: ['', [Validators.required]],
       apellido: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.required]],
+      telefono: ['', [Validators.required, this.phoneValidator]],
       password: ['', [Validators.required, Validators.minLength(6), this.passwordValidator]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
@@ -50,6 +49,36 @@ export class RegisterComponent implements OnInit {
     }
 
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/productlist';
+  }
+
+  private phoneValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    
+    if (!value) {
+      return null;
+    }
+
+    const cleanPhone = value.replace(/[\s\-\(\)\+]/g, '');
+    
+    const hasOnlyNumbers = /^\d+$/.test(cleanPhone);
+    
+    const isValidLength = cleanPhone.length >= 8 && cleanPhone.length <= 15;
+    
+    const isValidFormat = /^(\+?\d{1,3})?[\d\s\-\(\)]{8,15}$/.test(value);
+
+    if (!hasOnlyNumbers) {
+      return { 'phoneInvalidChars': true };
+    }
+
+    if (!isValidLength) {
+      return { 'phoneInvalidLength': true };
+    }
+
+    if (!isValidFormat) {
+      return { 'phoneInvalidFormat': true };
+    }
+
+    return null;
   }
 
   private passwordValidator(control: AbstractControl): ValidationErrors | null {
