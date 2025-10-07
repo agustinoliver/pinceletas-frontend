@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { CommonModule } from '@angular/common';
 import { UserAuthService } from '../../../services/user-auth.service';
 import { PasswordToggleComponent } from "../password-toggle/password-toggle.component";
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
@@ -116,24 +117,138 @@ export class RegisterComponent implements OnInit {
     return null;
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.registerForm.controls).forEach(key => {
+      this.registerForm.get(key)?.markAsTouched();
+    });
+
     if (this.registerForm.valid) {
+      // Mostrar confirmación antes del registro
+      const result = await this.mostrarConfirmacionRegistro();
+      
+      if (!result.isConfirmed) {
+        return;
+      }
+
       this.isLoading = true;
       this.errorMessage = '';
 
       this.authService.register(this.registerForm.value).subscribe({
-        next: () => {
-          // ✅ Redirigir a la URL guardada después del registro
-          this.router.navigateByUrl(this.returnUrl);
+        next: (response) => {
+          this.isLoading = false;
+          this.mostrarAlertaExito('¡Registro exitoso!', 'Tu cuenta ha sido creada correctamente')
+            .then(() => {
+              // ✅ Redirigir a la URL guardada después del registro
+              this.router.navigateByUrl(this.returnUrl);
+            });
         },
         error: (error) => {
-          this.errorMessage = error.error?.message || 'Error al registrarse';
           this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
+          let mensajeError = 'Error al registrarse';
+          
+          if (error.error?.message) {
+            mensajeError = error.error.message;
+          } else if (error.status === 400) {
+            mensajeError = 'Datos de registro inválidos';
+          } else if (error.status === 409) {
+            mensajeError = 'El email ya está registrado';
+          } else if (error.status === 500) {
+            mensajeError = 'Error del servidor. Por favor intenta más tarde.';
+          }
+          
+          this.mostrarAlertaError(mensajeError);
         }
       });
+    } else {
+      this.mostrarAlertaError('Por favor completa todos los campos correctamente');
     }
+  }
+
+  // Métodos de SweetAlert2
+
+  private mostrarConfirmacionRegistro(): Promise<any> {
+    const userData = this.registerForm.value;
+    
+    return Swal.fire({
+      title: 'Confirmar Registro',
+      html: `
+        <div class="text-start">
+          <p>¿Estás seguro de que quieres crear tu cuenta con los siguientes datos?</p>
+          <div class="mt-3">
+            <strong>Nombre:</strong> ${userData.nombre} ${userData.apellido}<br>
+            <strong>Email:</strong> ${userData.email}<br>
+            <strong>Teléfono:</strong> ${userData.telefono}
+          </div>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, crear cuenta',
+      cancelButtonText: 'Revisar datos',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
+  }
+
+  private mostrarAlertaExito(titulo: string, mensaje: string): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#ed620c',
+      timer: 3000,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error en el registro',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  // Mostrar información de términos (opcional)
+  mostrarTerminos(): void {
+    Swal.fire({
+      title: 'Términos y Condiciones',
+      html: `
+        <div class="text-start">
+          <p>Al registrarte, aceptas nuestros términos y condiciones:</p>
+          <ul>
+            <li>Debes proporcionar información veraz y actualizada</li>
+            <li>Eres responsable de mantener la confidencialidad de tu cuenta</li>
+            <li>Nos comprometemos a proteger tu privacidad</li>
+          </ul>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#ed620c',
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
   }
 }

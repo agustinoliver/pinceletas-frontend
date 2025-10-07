@@ -119,13 +119,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Error Message -->
-        <div class="alert alert-danger" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </div>
-
-        <!-- Submit Button - EXACTAMENTE COMO ESTABA -->
         <button
           type="submit"
           class="btn btn-primary w-100 mb-3"
@@ -138,6 +131,14 @@
         <div class="text-center">
           <span>¿Ya tienes cuenta? </span>
           <a routerLink="/login" class="text-decoration-none">Inicia sesión</a>
+        </div>
+
+        <!-- Información de términos (opcional) -->
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            Al registrarte, aceptas nuestros 
+            <a href="javascript:void(0)" (click)="mostrarTerminos()" class="text-decoration-none">términos y condiciones</a>
+          </small>
         </div>
       </form>
     </div>

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, FormControl } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
 import { PasswordToggleComponent } from '../password-toggle/password-toggle.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-reset-password',
@@ -50,10 +51,21 @@ export class ResetPasswordComponent implements OnInit {
     return this.resetForm.get('confirmPassword') as FormControl;
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.resetForm.controls).forEach(key => {
+      this.resetForm.get(key)?.markAsTouched();
+    });
+
     if (this.resetForm.invalid) {
-      this.errorMessage = 'Por favor corrige los errores del formulario';
-      this.resetForm.markAllAsTouched();
+      this.mostrarAlertaError('Por favor corrige los errores del formulario');
+      return;
+    }
+
+    // Mostrar confirmación antes de restablecer
+    const result = await this.mostrarConfirmacionRestablecer();
+    
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -66,19 +78,42 @@ export class ResetPasswordComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.passwordReset = true;
+        this.mostrarAlertaExito('¡Contraseña restablecida!', 'Tu contraseña ha sido cambiada exitosamente.')
+          .then(() => {
+            this.router.navigate(['/login']);
+          });
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = typeof error === 'string'
-          ? error
-          : 'Error al restablecer la contraseña. Verifica el código.';
+        let mensajeError = 'Error al restablecer la contraseña. Verifica el código.';
+        
+        if (typeof error === 'string') {
+          mensajeError = error;
+        } else if (error?.error?.message) {
+          mensajeError = error.error.message;
+        } else if (error?.status === 400) {
+          mensajeError = 'Código inválido o expirado. Solicita un nuevo código.';
+        } else if (error?.status === 404) {
+          mensajeError = 'Código no encontrado. Verifica el código ingresado.';
+        } else if (error?.status === 500) {
+          mensajeError = 'Error del servidor. Por favor intenta más tarde.';
+        }
+        
+        this.mostrarAlertaError(mensajeError);
       }
     });
   }
 
-  resendCode(): void {
+  async resendCode(): Promise<void> {
     if (!this.email) {
-      this.errorMessage = 'Email no disponible para reenviar código';
+      this.mostrarAlertaError('Email no disponible para reenviar código');
+      return;
+    }
+
+    // Mostrar confirmación para reenviar código
+    const result = await this.mostrarConfirmacionReenvio();
+    
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -88,11 +123,21 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.forgotPassword(this.email).subscribe({
       next: () => {
         this.loading = false;
-        alert('Código reenviado exitosamente. Revisa tu email.');
+        this.mostrarAlertaExito('Código reenviado', 'Se ha enviado un nuevo código a tu email.', 'info', 3000);
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.errorMessage = 'Error al reenviar el código';
+        let mensajeError = 'Error al reenviar el código';
+        
+        if (error?.error?.message) {
+          mensajeError = error.error.message;
+        } else if (error?.status === 404) {
+          mensajeError = 'Email no encontrado en el sistema';
+        } else if (error?.status === 500) {
+          mensajeError = 'Error del servidor. Por favor intenta más tarde.';
+        }
+        
+        this.mostrarAlertaError(mensajeError);
       }
     });
   }
@@ -121,5 +166,104 @@ export class ResetPasswordComponent implements OnInit {
 
   goToLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  // Métodos de SweetAlert2
+
+  private mostrarConfirmacionRestablecer(): Promise<any> {
+    return Swal.fire({
+      title: 'Restablecer Contraseña',
+      text: '¿Estás seguro de que quieres restablecer tu contraseña?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, restablecer',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
+  }
+
+  private mostrarConfirmacionReenvio(): Promise<any> {
+    return Swal.fire({
+      title: 'Reenviar Código',
+      html: `¿Quieres que reenviemos un nuevo código a <strong>${this.email}</strong>?`,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, reenviar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
+  }
+
+  private mostrarAlertaExito(
+    titulo: string, 
+    mensaje: string, 
+    icon: 'success' | 'info' = 'success', 
+    timer: number = 2000
+  ): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: icon,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#ed620c',
+      timer: timer,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  // Mostrar información sobre el código (opcional)
+  mostrarInfoCodigo(): void {
+    Swal.fire({
+      title: 'Código de Verificación',
+      html: `
+        <div class="text-start">
+          <p>El código de verificación:</p>
+          <ul>
+            <li>Debe tener exactamente <strong>6 dígitos</strong></li>
+            <li>Es válido por <strong>15 minutos</strong></li>
+            <li>Se envió al email: <strong>${this.email}</strong></li>
+            <li>Si no lo recibes, verifica la carpeta de spam</li>
+          </ul>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#ed620c',
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
   }
 }

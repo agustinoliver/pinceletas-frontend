@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-forgot-password',
@@ -24,63 +25,57 @@ export class ForgotPasswordComponent {
   ) {}
 
   onSubmit() {
-  // Validar email
-  if (!this.isValidEmail(this.email)) {
-    this.showEmailError = true;
-    this.errorMessage = 'Por favor ingresa un email válido';
-    return;
-  }
-
-  this.loading = true;
-  this.errorMessage = '';
-  this.successMessage = '';
-  this.showEmailError = false;
-
-  this.authService.forgotPassword(this.email).subscribe({
-    next: (response: any) => {
-      this.loading = false;
-      
-      // SIEMPRE mostrar mensaje de éxito (según la lógica actual del backend)
-      this.successMessage = response.message || 'Código enviado correctamente. Revisa tu email.';
-      
-      // Redirigir después de 2 segundos SOLO si fue exitoso
-      setTimeout(() => {
-        this.router.navigate(['/reset-password'], {
-          queryParams: { email: this.email }
-        });
-      }, 2000);
-    },
-    error: (error: any) => {
-      this.loading = false;
-      
-      // Manejar diferentes tipos de errores
-      if (error?.message) {
-        // Error con mensaje específico
-        this.errorMessage = error.message;
-      } else if (error?.error?.message) {
-        // Error del backend con mensaje específico
-        this.errorMessage = error.error.message;
-      } else if (typeof error === 'string') {
-        // Error como string
-        this.errorMessage = error;
-      } else if (error?.status === 404) {
-        // Error 404 - email no encontrado
-        this.errorMessage = 'El email ingresado no se encuentra registrado en el sistema';
-      } else if (error?.status === 400) {
-        // Error 400 - datos inválidos
-        this.errorMessage = 'Email inválido o cuenta desactivada';
-      } else if (error?.status === 500) {
-        // Error del servidor
-        this.errorMessage = 'Error del servidor. Por favor intenta más tarde.';
-      } else {
-        // Error genérico
-        this.errorMessage = 'Error al enviar el código. Intenta nuevamente.';
-      }
-      
-      console.error('Error en recuperación:', error);
+    // Validar email
+    if (!this.isValidEmail(this.email)) {
+      this.showEmailError = true;
+      this.mostrarAlertaError('Por favor ingresa un email válido');
+      return;
     }
-  });
-}
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.showEmailError = false;
+
+    this.authService.forgotPassword(this.email).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        
+        // Mostrar alerta de éxito
+        this.mostrarAlertaExito(response.message || 'Código enviado correctamente. Revisa tu email.')
+          .then(() => {
+            // Redirigir después de que el usuario cierre la alerta
+            this.router.navigate(['/reset-password'], {
+              queryParams: { email: this.email }
+            });
+          });
+      },
+      error: (error: any) => {
+        this.loading = false;
+        
+        // Manejar diferentes tipos de errores
+        let mensajeError = 'Error al enviar el código. Intenta nuevamente.';
+        
+        if (error?.message) {
+          mensajeError = error.message;
+        } else if (error?.error?.message) {
+          mensajeError = error.error.message;
+        } else if (typeof error === 'string') {
+          mensajeError = error;
+        } else if (error?.status === 404) {
+          mensajeError = 'El email ingresado no se encuentra registrado en el sistema';
+        } else if (error?.status === 400) {
+          mensajeError = 'Email inválido o cuenta desactivada';
+        } else if (error?.status === 500) {
+          mensajeError = 'Error del servidor. Por favor intenta más tarde.';
+        }
+        
+        // Mostrar alerta de error
+        this.mostrarAlertaError(mensajeError);
+        console.error('Error en recuperación:', error);
+      }
+    });
+  }
 
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,5 +84,58 @@ export class ForgotPasswordComponent {
 
   goToLogin() {
     this.router.navigate(['/login']);
+  }
+
+  // Método para mostrar alertas de éxito
+  private mostrarAlertaExito(mensaje: string): Promise<any> {
+    return Swal.fire({
+      title: '¡Éxito!',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#ed620c',
+      timer: 3000,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  // Método para mostrar alertas de error
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  // Método para mostrar confirmación antes de enviar (opcional)
+  private mostrarConfirmacion(): Promise<any> {
+    return Swal.fire({
+      title: '¿Enviar código de recuperación?',
+      text: `Se enviará un código al email: ${this.email}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, enviar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
   }
 }

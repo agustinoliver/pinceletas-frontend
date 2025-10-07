@@ -5,6 +5,7 @@ import { UserAuthService } from '../../../services/user-auth.service';
 import { User, UpdateUserRequest, UpdateAddressRequest, ChangePasswordRequest } from '../../../models/user.model';
 import { Country, State } from '../../../models/location.model';
 import { PasswordToggleComponent } from '../password-toggle/password-toggle.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-profile',
@@ -261,7 +262,7 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  updatePersonalData(): void {
+  async updatePersonalData(): Promise<void> {
     this.personalDataSubmitted = true;
     
     // Marcar todos los campos como touched para mostrar errores
@@ -270,24 +271,36 @@ export class ProfileComponent implements OnInit {
     });
 
     if (this.personalDataForm.valid && this.user) {
+      // Mostrar confirmación antes de actualizar
+      const result = await this.mostrarConfirmacion(
+        'Actualizar datos personales',
+        '¿Estás seguro de que quieres actualizar tus datos personales?'
+      );
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
       this.isLoading = true;
       const userData: UpdateUserRequest = this.personalDataForm.value;
 
       this.authService.updateUserProfile(this.user.email, userData).subscribe({
         next: () => {
-          this.showSuccess('Datos personales actualizados correctamente');
           this.isLoading = false;
           this.personalDataSubmitted = false;
+          this.mostrarAlertaExito('Datos personales actualizados correctamente');
         },
         error: (error) => {
-          this.showError(error.error?.message || 'Error al actualizar datos');
           this.isLoading = false;
+          this.mostrarAlertaError(error.error?.message || 'Error al actualizar datos personales');
         }
       });
+    } else {
+      this.mostrarAlertaError('Por favor completa todos los campos correctamente');
     }
   }
 
-  updateAddress(): void {
+  async updateAddress(): Promise<void> {
     this.addressSubmitted = true;
     
     // Marcar todos los campos como touched para mostrar errores
@@ -296,24 +309,36 @@ export class ProfileComponent implements OnInit {
     });
 
     if (this.addressForm.valid && this.user) {
+      // Mostrar confirmación antes de actualizar
+      const result = await this.mostrarConfirmacion(
+        'Actualizar dirección',
+        '¿Estás seguro de que quieres actualizar tu dirección?'
+      );
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
       this.isLoading = true;
       const addressData: UpdateAddressRequest = this.addressForm.value;
 
       this.authService.updateUserAddress(this.user.email, addressData).subscribe({
         next: () => {
-          this.showSuccess('Dirección actualizada correctamente');
           this.isLoading = false;
           this.addressSubmitted = false;
+          this.mostrarAlertaExito('Dirección actualizada correctamente');
         },
         error: (error) => {
-          this.showError(error.error?.message || 'Error al actualizar dirección');
           this.isLoading = false;
+          this.mostrarAlertaError(error.error?.message || 'Error al actualizar dirección');
         }
       });
+    } else {
+      this.mostrarAlertaError('Por favor completa todos los campos de dirección correctamente');
     }
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     this.securitySubmitted = true;
     
     // Marcar todos los campos como touched para mostrar errores
@@ -322,24 +347,113 @@ export class ProfileComponent implements OnInit {
     });
 
     if (this.securityForm.valid && this.user) {
+      // Mostrar confirmación antes de cambiar contraseña
+      const result = await this.mostrarConfirmacion(
+        'Cambiar contraseña',
+        '¿Estás seguro de que quieres cambiar tu contraseña?',
+        'warning'
+      );
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
       this.isLoading = true;
       const passwordData: ChangePasswordRequest = this.securityForm.value;
 
       this.authService.changePassword(this.user.email, passwordData).subscribe({
         next: () => {
-          this.showSuccess('Contraseña cambiada correctamente');
-          this.securityForm.reset();
           this.isLoading = false;
           this.securitySubmitted = false;
+          this.securityForm.reset();
+          this.mostrarAlertaExito('Contraseña cambiada correctamente', 'success', 3000)
+            .then(() => {
+              // Opcional: Cerrar sesión después de cambiar contraseña
+              // this.authService.logout();
+            });
         },
         error: (error) => {
-          this.showError(error.error?.message || 'Error al cambiar contraseña');
           this.isLoading = false;
+          let mensajeError = 'Error al cambiar contraseña';
+          
+          if (error.error?.message) {
+            mensajeError = error.error.message;
+          } else if (error.status === 401) {
+            mensajeError = 'La contraseña actual es incorrecta';
+          } else if (error.status === 400) {
+            mensajeError = 'La nueva contraseña no cumple con los requisitos de seguridad';
+          }
+          
+          this.mostrarAlertaError(mensajeError);
         }
       });
+    } else {
+      this.mostrarAlertaError('Por favor completa todos los campos de seguridad correctamente');
     }
   }
 
+  // Métodos de SweetAlert2
+
+  private mostrarAlertaExito(
+    mensaje: string, 
+    icon: 'success' | 'info' = 'success', 
+    timer: number = 2000
+  ): Promise<any> {
+    return Swal.fire({
+      title: '¡Éxito!',
+      text: mensaje,
+      icon: icon,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#ed620c',
+      timer: timer,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacion(
+    titulo: string, 
+    texto: string, 
+    icon: 'warning' | 'question' | 'info' = 'question'
+  ): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: icon,
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      }
+    });
+  }
+
+  // Métodos originales mantenidos por compatibilidad (pueden eliminarse gradualmente)
   private showSuccess(message: string): void {
     this.successMessage = message;
     this.errorMessage = '';
