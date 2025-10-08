@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core'; 
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-edit',
@@ -50,7 +51,6 @@ export class ProductEditComponent implements OnInit {
   cargandoProducto = false;
   cargandoCategorias = false;
   mensaje = '';
-  // Cambia esta línea en las propiedades del componente:
   tipoMensaje: 'success' | 'error' | 'warning' | '' = '';
   imagenPrevia: string | null = null;
   imagenCambiada = false;
@@ -89,7 +89,7 @@ export class ProductEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando categorías:', error);
-        this.mostrarMensaje('Error cargando categorías', 'error');
+        this.mostrarAlertaError('Error cargando categorías');
         this.cargandoCategorias = false;
       }
     });
@@ -130,12 +130,12 @@ export class ProductEditComponent implements OnInit {
         
         // Mostrar mensaje si la categoría no existe
         if (categoriaId > 0 && !categoriaExiste) {
-          this.mostrarMensaje('La categoría original de este producto ya no existe. Por favor seleccione una nueva categoría.', 'warning');
+          this.mostrarAlertaAdvertencia('La categoría original de este producto ya no existe. Por favor seleccione una nueva categoría.');
         }
       },
       error: (error) => {
         console.error('Error cargando producto:', error);
-        this.mostrarMensaje('Error cargando producto', 'error');
+        this.mostrarAlertaError('Error cargando producto');
         this.cargandoProducto = false;
       }
     });
@@ -148,14 +148,14 @@ export class ProductEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando opciones:', error);
-        this.mostrarMensaje('Error cargando opciones de producto', 'error');
+        this.mostrarAlertaError('Error cargando opciones de producto');
       }
     });
   }
 
   crearCategoria(): void {
     if (!this.nuevaCategoria.nombre.trim()) {
-      this.mostrarMensaje('El nombre de la categoría es requerido', 'error');
+      this.mostrarAlertaError('El nombre de la categoría es requerido');
       return;
     }
 
@@ -166,47 +166,55 @@ export class ProductEditComponent implements OnInit {
           this.categorias.push(categoriaCreada);
           this.producto.categoriaId = categoriaCreada.id;
           this.nuevaCategoria.nombre = '';
-          this.mostrarMensaje('Categoría creada exitosamente', 'success');
+          this.mostrarAlertaExito('Categoría creada exitosamente');
           this.cargando = false;
         },
         error: (error) => {
           console.error('Error creando categoría:', error);
-          this.mostrarMensaje('Error creando categoría', 'error');
+          this.mostrarAlertaError('Error creando categoría');
           this.cargando = false;
         }
       });
   }
 
   eliminarCategoria(categoria: Categoria): void {
-    if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`)) {
+    if (!this.puedeEliminarCategoria(categoria)) {
+      this.mostrarAlertaError('No se puede eliminar: La categoría tiene productos asociados');
       return;
     }
 
-    this.eliminandoCategoria = categoria.id;
-    this.commerceService.eliminarCategoria(categoria.id, this.producto.usuarioId)
-      .subscribe({
-        next: () => {
-          this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-          
-          if (this.producto.categoriaId === categoria.id) {
-            this.producto.categoriaId = 0;
-            this.mostrarMensaje('Categoría eliminada. El producto ahora no tiene categoría asignada.', 'warning');
-          }
-          
-          this.mostrarMensaje('Categoría eliminada exitosamente', 'success');
-          this.eliminandoCategoria = null;
-        },
-        error: (error) => {
-          console.error('Error eliminando categoría:', error);
-          this.mostrarMensaje('Error eliminando categoría', 'error');
-          this.eliminandoCategoria = null;
-        }
-      });
+    this.mostrarConfirmacionEliminacion(
+      `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`,
+      'Esta acción no se puede deshacer'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminandoCategoria = categoria.id;
+        this.commerceService.eliminarCategoria(categoria.id, this.producto.usuarioId)
+          .subscribe({
+            next: () => {
+              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+              
+              if (this.producto.categoriaId === categoria.id) {
+                this.producto.categoriaId = 0;
+                this.mostrarAlertaAdvertencia('Categoría eliminada. El producto ahora no tiene categoría asignada.');
+              }
+              
+              this.mostrarAlertaExito('Categoría eliminada exitosamente');
+              this.eliminandoCategoria = null;
+            },
+            error: (error) => {
+              console.error('Error eliminando categoría:', error);
+              this.mostrarAlertaError('Error eliminando categoría');
+              this.eliminandoCategoria = null;
+            }
+          });
+      }
+    });
   }
 
   crearOpcion(): void {
     if (!this.nuevaOpcion.tipo.trim()) {
-      this.mostrarMensaje('El tipo de opción es requerido', 'error');
+      this.mostrarAlertaError('El tipo de opción es requerido');
       return;
     }
 
@@ -216,37 +224,40 @@ export class ProductEditComponent implements OnInit {
         next: (opcionCreada) => {
           this.opciones.push(opcionCreada);
           this.nuevaOpcion.tipo = '';
-          this.mostrarMensaje('Opción creada exitosamente', 'success');
+          this.mostrarAlertaExito('Opción creada exitosamente');
           this.cargando = false;
         },
         error: (error) => {
           console.error('Error creando opción:', error);
-          this.mostrarMensaje('Error creando opción de producto', 'error');
+          this.mostrarAlertaError('Error creando opción de producto');
           this.cargando = false;
         }
       });
   }
 
   eliminarOpcion(opcion: OpcionProducto): void {
-    if (!confirm(`¿Estás seguro de que quieres eliminar la opción "${opcion.tipo}"?`)) {
-      return;
-    }
-
-    this.eliminandoOpcion = opcion.id;
-    this.commerceService.eliminarOpcionProducto(opcion.id)
-      .subscribe({
-        next: () => {
-          this.opciones = this.opciones.filter(o => o.id !== opcion.id);
-          this.producto.opcionesIds = this.producto.opcionesIds.filter(id => id !== opcion.id);
-          this.mostrarMensaje('Opción eliminada exitosamente', 'success');
-          this.eliminandoOpcion = null;
-        },
-        error: (error) => {
-          console.error('Error eliminando opción:', error);
-          this.mostrarMensaje('Error eliminando opción de producto', 'error');
-          this.eliminandoOpcion = null;
-        }
-      });
+    this.mostrarConfirmacionEliminacion(
+      `¿Estás seguro de que quieres eliminar la opción "${opcion.tipo}"?`,
+      'Esta acción no se puede deshacer'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminandoOpcion = opcion.id;
+        this.commerceService.eliminarOpcionProducto(opcion.id)
+          .subscribe({
+            next: () => {
+              this.opciones = this.opciones.filter(o => o.id !== opcion.id);
+              this.producto.opcionesIds = this.producto.opcionesIds.filter(id => id !== opcion.id);
+              this.mostrarAlertaExito('Opción eliminada exitosamente');
+              this.eliminandoOpcion = null;
+            },
+            error: (error) => {
+              console.error('Error eliminando opción:', error);
+              this.mostrarAlertaError('Error eliminando opción de producto');
+              this.eliminandoOpcion = null;
+            }
+          });
+      }
+    });
   }
 
   onOpcionSeleccionada(event: any, opcionId: number): void {
@@ -277,29 +288,33 @@ export class ProductEditComponent implements OnInit {
   actualizarProducto(): void {
     // Validaciones básicas
     if (!this.producto.nombre.trim()) {
-      this.mostrarMensaje('El nombre del producto es requerido', 'error');
+      this.mostrarAlertaError('El nombre del producto es requerido');
       return;
     }
 
     if (this.producto.precio <= 0) {
-      this.mostrarMensaje('El precio debe ser mayor a 0', 'error');
+      this.mostrarAlertaError('El precio debe ser mayor a 0');
       return;
     }
 
     if (this.producto.categoriaId === 0) {
-      this.mostrarMensaje('Debe seleccionar una categoría', 'error');
+      this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
 
-    this.cargando = true;
+    this.mostrarConfirmacionActualizacion().then((result) => {
+      if (result.isConfirmed) {
+        this.cargando = true;
 
-    if (this.imagenCambiada && this.producto.imagen) {
-      // USAR EL NUEVO MÉTODO PARA ACTUALIZAR CON IMAGEN
-      this.actualizarConImagen();
-    } else {
-      // Actualizar sin cambiar imagen
-      this.actualizarSinImagen();
-    }
+        if (this.imagenCambiada && this.producto.imagen) {
+          // USAR EL NUEVO MÉTODO PARA ACTUALIZAR CON IMAGEN
+          this.actualizarConImagen();
+        } else {
+          // Actualizar sin cambiar imagen
+          this.actualizarSinImagen();
+        }
+      }
+    });
   }
 
   private actualizarConImagen(): void {
@@ -317,11 +332,11 @@ export class ProductEditComponent implements OnInit {
         console.error('Error actualizando producto con imagen:', error);
         
         if (error.status === 403) {
-          this.mostrarMensaje('Error de permisos. Verifica que estés autenticado correctamente.', 'error');
+          this.mostrarAlertaError('Error de permisos. Verifica que estés autenticado correctamente.');
         } else if (error.status === 404) {
-          this.mostrarMensaje('Producto no encontrado', 'error');
+          this.mostrarAlertaError('Producto no encontrado');
         } else {
-          this.mostrarMensaje('Error actualizando producto con imagen. Verifica que el archivo sea válido.', 'error');
+          this.mostrarAlertaError('Error actualizando producto con imagen. Verifica que el archivo sea válido.');
         }
         
         this.cargando = false;
@@ -345,11 +360,11 @@ export class ProductEditComponent implements OnInit {
         console.error('Error actualizando producto:', error);
         
         if (error.status === 403) {
-          this.mostrarMensaje('Error de permisos. Verifica que estés autenticado correctamente.', 'error');
+          this.mostrarAlertaError('Error de permisos. Verifica que estés autenticado correctamente.');
         } else if (error.status === 404) {
-          this.mostrarMensaje('Producto no encontrado', 'error');
+          this.mostrarAlertaError('Producto no encontrado');
         } else {
-          this.mostrarMensaje('Error actualizando producto', 'error');
+          this.mostrarAlertaError('Error actualizando producto');
         }
         
         this.cargando = false;
@@ -358,7 +373,11 @@ export class ProductEditComponent implements OnInit {
   }
 
   private procesarActualizacionExitosa(productoActualizado: Producto): void {
-    this.mostrarMensaje('Producto actualizado exitosamente', 'success');
+    this.mostrarAlertaExito('Producto actualizado exitosamente')
+      .then(() => {
+        this.router.navigate(['/admin/products']);
+      });
+    
     this.cargando = false;
     
     // Actualizar los datos locales
@@ -370,14 +389,16 @@ export class ProductEditComponent implements OnInit {
       this.imagenPrevia = this.getImagenUrl(productoActualizado.imagen);
       this.imagenCambiada = false;
     }
-    
-    setTimeout(() => {
-      this.router.navigate(['/admin/products']);
-    }, 2000);
   }
 
   cancelarEdicion(): void {
-    if (confirm('¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.')) {
+    if (this.hayCambiosSinGuardar()) {
+      this.mostrarConfirmacionCancelacion().then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/admin/products']);
+        }
+      });
+    } else {
       this.router.navigate(['/admin/products']);
     }
   }
@@ -388,25 +409,25 @@ export class ProductEditComponent implements OnInit {
     return `http://localhost:8080${imagenPath}`;
   }
 
-  mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'warning'): void {
-  this.mensaje = mensaje;
-  this.tipoMensaje = tipo;
-  setTimeout(() => {
-    this.mensaje = '';
-    this.tipoMensaje = '';
-  }, 5000);
-  }
-
   limpiarImagen(): void {
-    this.producto.imagen = null;
-    this.imagenCambiada = false;
-    this.imagenPrevia = this.producto.imagenActual ? this.getImagenUrl(this.producto.imagenActual) : null;
-    
-    // Resetear el input file
-    const fileInput = document.getElementById('imagen') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
+    this.mostrarConfirmacion(
+      '¿Estás seguro de que quieres cancelar el cambio de imagen?',
+      'La nueva imagen seleccionada se descartará'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.producto.imagen = null;
+        this.imagenCambiada = false;
+        this.imagenPrevia = this.producto.imagenActual ? this.getImagenUrl(this.producto.imagenActual) : null;
+        
+        // Resetear el input file
+        const fileInput = document.getElementById('imagen') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+        
+        this.mostrarAlertaExito('Cambio de imagen cancelado');
+      }
+    });
   }
 
   // Verificar si una categoría puede ser eliminada
@@ -436,5 +457,136 @@ export class ProductEditComponent implements OnInit {
       JSON.stringify(this.producto.opcionesIds) !== JSON.stringify(this.productoOriginal.opciones.map(op => op.id)) ||
       this.imagenCambiada
     );
+  }
+
+  // MÉTODOS SWEETALERT2
+  private mostrarAlertaExito(mensaje: string): Promise<any> {
+    return Swal.fire({
+      title: '¡Éxito!',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#28a745',
+      timer: 3000,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaAdvertencia(mensaje: string): void {
+    Swal.fire({
+      title: 'Advertencia',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#ffc107',
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacionEliminacion(titulo: string, texto: string): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacionActualizacion(): Promise<any> {
+    return Swal.fire({
+      title: '¿Actualizar producto?',
+      text: 'Se guardarán los cambios realizados en el producto',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacionCancelacion(): Promise<any> {
+    return Swal.fire({
+      title: '¿Cancelar edición?',
+      text: 'Los cambios no guardados se perderán',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Seguir editando',
+      confirmButtonColor: '#6c757d',
+      cancelButtonColor: '#ffc107',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacion(titulo: string, texto: string): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
   }
 }

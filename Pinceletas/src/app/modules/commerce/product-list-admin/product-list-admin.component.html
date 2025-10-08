@@ -17,14 +17,7 @@
         </button>
       </div>
 
-      <!-- Mensajes -->
-      <div *ngIf="mensaje" class="alert" 
-           [class.alert-success]="tipoMensaje === 'success'" 
-           [class.alert-danger]="tipoMensaje === 'error'">
-        <i class="fas" [class.fa-check-circle]="tipoMensaje === 'success'" 
-           [class.fa-exclamation-circle]="tipoMensaje === 'error'" class="me-2"></i>
-        {{ mensaje }}
-      </div>
+      <!-- Eliminamos los mensajes de alerta nativos ya que usamos SweetAlert -->
 
       <!-- Loading -->
       <div *ngIf="cargando" class="text-center py-5">

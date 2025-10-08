@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Categoria } from '../../../models/categoria.model';
 import { OpcionProducto } from '../../../models/producto.model';
 import { CommerceService } from '../../../services/commerce.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-create',
@@ -22,7 +23,7 @@ export class ProductCreateComponent implements OnInit {
     activo: true,
     categoriaId: 0,
     opcionesIds: [] as number[],
-    usuarioId: 1, // Por defecto, puedes hacerlo dinámico según el usuario logueado
+    usuarioId: 1,
     imagen: null as File | null
   };
 
@@ -71,7 +72,7 @@ export class ProductCreateComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando categorías:', error);
-        this.mostrarMensaje('Error cargando categorías', 'error');
+        this.mostrarAlertaError('Error cargando categorías');
       }
     });
   }
@@ -83,19 +84,18 @@ export class ProductCreateComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando opciones:', error);
-        this.mostrarMensaje('Error cargando opciones de producto', 'error');
+        this.mostrarAlertaError('Error cargando opciones de producto');
       }
     });
   }
 
-  // NUEVO MÉTODO: Volver a la lista de productos
   volverALista(): void {
     this.router.navigate(['/admin/products']);
   }
 
   crearCategoria(): void {
     if (!this.nuevaCategoria.nombre.trim()) {
-      this.mostrarMensaje('El nombre de la categoría es requerido', 'error');
+      this.mostrarAlertaError('El nombre de la categoría es requerido');
       return;
     }
 
@@ -106,47 +106,54 @@ export class ProductCreateComponent implements OnInit {
           this.categorias.push(categoriaCreada);
           this.producto.categoriaId = categoriaCreada.id;
           this.nuevaCategoria.nombre = '';
-          this.mostrarMensaje('Categoría creada exitosamente', 'success');
+          this.mostrarAlertaExito('Categoría creada exitosamente');
           this.cargando = false;
         },
         error: (error) => {
           console.error('Error creando categoría:', error);
-          this.mostrarMensaje('Error creando categoría', 'error');
+          this.mostrarAlertaError('Error creando categoría');
           this.cargando = false;
         }
       });
   }
 
   eliminarCategoria(categoria: Categoria): void {
-    if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`)) {
+    if (!this.puedeEliminarCategoria(categoria)) {
+      this.mostrarAlertaError('No se puede eliminar: La categoría tiene productos asociados');
       return;
     }
 
-    this.eliminandoCategoria = categoria.id;
-    this.commerceService.eliminarCategoria(categoria.id, this.producto.usuarioId)
-      .subscribe({
-        next: () => {
-          this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-          
-          // Si la categoría eliminada estaba seleccionada, resetear la selección
-          if (this.producto.categoriaId === categoria.id) {
-            this.producto.categoriaId = 0;
-          }
-          
-          this.mostrarMensaje('Categoría eliminada exitosamente', 'success');
-          this.eliminandoCategoria = null;
-        },
-        error: (error) => {
-          console.error('Error eliminando categoría:', error);
-          this.mostrarMensaje('Error eliminando categoría', 'error');
-          this.eliminandoCategoria = null;
-        }
-      });
+    this.mostrarConfirmacionEliminacion(
+      `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`,
+      'Esta acción no se puede deshacer'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminandoCategoria = categoria.id;
+        this.commerceService.eliminarCategoria(categoria.id, this.producto.usuarioId)
+          .subscribe({
+            next: () => {
+              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+              
+              if (this.producto.categoriaId === categoria.id) {
+                this.producto.categoriaId = 0;
+              }
+              
+              this.mostrarAlertaExito('Categoría eliminada exitosamente');
+              this.eliminandoCategoria = null;
+            },
+            error: (error) => {
+              console.error('Error eliminando categoría:', error);
+              this.mostrarAlertaError('Error eliminando categoría');
+              this.eliminandoCategoria = null;
+            }
+          });
+      }
+    });
   }
 
   crearOpcion(): void {
     if (!this.nuevaOpcion.tipo.trim()) {
-      this.mostrarMensaje('El tipo de opción es requerido', 'error');
+      this.mostrarAlertaError('El tipo de opción es requerido');
       return;
     }
 
@@ -156,40 +163,42 @@ export class ProductCreateComponent implements OnInit {
         next: (opcionCreada) => {
           this.opciones.push(opcionCreada);
           this.nuevaOpcion.tipo = '';
-          this.mostrarMensaje('Opción creada exitosamente', 'success');
+          this.mostrarAlertaExito('Opción creada exitosamente');
           this.cargando = false;
         },
         error: (error) => {
           console.error('Error creando opción:', error);
-          this.mostrarMensaje('Error creando opción de producto', 'error');
+          this.mostrarAlertaError('Error creando opción de producto');
           this.cargando = false;
         }
       });
   }
 
   eliminarOpcion(opcion: OpcionProducto): void {
-    if (!confirm(`¿Estás seguro de que quieres eliminar la opción "${opcion.tipo}"?`)) {
-      return;
-    }
-
-    this.eliminandoOpcion = opcion.id;
-    this.commerceService.eliminarOpcionProducto(opcion.id)
-      .subscribe({
-        next: () => {
-          this.opciones = this.opciones.filter(o => o.id !== opcion.id);
-          
-          // Remover la opción de las seleccionadas si estaba seleccionada
-          this.producto.opcionesIds = this.producto.opcionesIds.filter(id => id !== opcion.id);
-          
-          this.mostrarMensaje('Opción eliminada exitosamente', 'success');
-          this.eliminandoOpcion = null;
-        },
-        error: (error) => {
-          console.error('Error eliminando opción:', error);
-          this.mostrarMensaje('Error eliminando opción de producto', 'error');
-          this.eliminandoOpcion = null;
-        }
-      });
+    this.mostrarConfirmacionEliminacion(
+      `¿Estás seguro de que quieres eliminar la opción "${opcion.tipo}"?`,
+      'Esta acción no se puede deshacer'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminandoOpcion = opcion.id;
+        this.commerceService.eliminarOpcionProducto(opcion.id)
+          .subscribe({
+            next: () => {
+              this.opciones = this.opciones.filter(o => o.id !== opcion.id);
+              
+              this.producto.opcionesIds = this.producto.opcionesIds.filter(id => id !== opcion.id);
+              
+              this.mostrarAlertaExito('Opción eliminada exitosamente');
+              this.eliminandoOpcion = null;
+            },
+            error: (error) => {
+              console.error('Error eliminando opción:', error);
+              this.mostrarAlertaError('Error eliminando opción de producto');
+              this.eliminandoOpcion = null;
+            }
+          });
+      }
+    });
   }
 
   onOpcionSeleccionada(event: any, opcionId: number): void {
@@ -205,7 +214,6 @@ export class ProductCreateComponent implements OnInit {
     if (file) {
       this.producto.imagen = file;
       
-      // Crear preview de la imagen
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagenPrevia = e.target.result;
@@ -215,19 +223,18 @@ export class ProductCreateComponent implements OnInit {
   }
 
   crearProducto(): void {
-    // Validaciones básicas
     if (!this.producto.nombre.trim()) {
-      this.mostrarMensaje('El nombre del producto es requerido', 'error');
+      this.mostrarAlertaError('El nombre del producto es requerido');
       return;
     }
 
     if (this.producto.precio <= 0) {
-      this.mostrarMensaje('El precio debe ser mayor a 0', 'error');
+      this.mostrarAlertaError('El precio debe ser mayor a 0');
       return;
     }
 
     if (this.producto.categoriaId === 0) {
-      this.mostrarMensaje('Debe seleccionar una categoría', 'error');
+      this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
 
@@ -235,43 +242,117 @@ export class ProductCreateComponent implements OnInit {
     this.commerceService.crearProducto(this.producto, this.producto.imagen)
       .subscribe({
         next: (productoCreado) => {
-          this.mostrarMensaje('Producto creado exitosamente', 'success');
+          this.mostrarAlertaExito('Producto creado exitosamente')
+            .then(() => {
+              this.router.navigate(['/admin/products']);
+            });
           this.cargando = false;
-          
-          // Redirigir después de 2 segundos
-          setTimeout(() => {
-            this.router.navigate(['/admin/products']);
-          }, 2000);
         },
         error: (error) => {
           console.error('Error creando producto:', error);
-          this.mostrarMensaje('Error creando producto', 'error');
+          this.mostrarAlertaError('Error creando producto');
           this.cargando = false;
         }
       });
   }
 
-  mostrarMensaje(mensaje: string, tipo: 'success' | 'error'): void {
-    this.mensaje = mensaje;
-    this.tipoMensaje = tipo;
-    setTimeout(() => {
-      this.mensaje = '';
-      this.tipoMensaje = '';
-    }, 5000);
+  limpiarFormulario(): void {
+    this.mostrarConfirmacion(
+      '¿Estás seguro de que quieres limpiar el formulario?',
+      'Se perderán todos los datos ingresados'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.producto = {
+          nombre: '',
+          descripcion: '',
+          precio: 0,
+          activo: true,
+          categoriaId: 0,
+          opcionesIds: [],
+          usuarioId: 1,
+          imagen: null
+        };
+        this.imagenPrevia = null;
+        this.nuevaCategoria.nombre = '';
+        this.nuevaOpcion.tipo = '';
+        this.mostrarAlertaExito('Formulario limpiado correctamente');
+      }
+    });
   }
 
-  limpiarFormulario(): void {
-    this.producto = {
-      nombre: '',
-      descripcion: '',
-      precio: 0,
-      activo: true,
-      categoriaId: 0,
-      opcionesIds: [],
-      usuarioId: 1,
-      imagen: null
-    };
-    this.imagenPrevia = null;
+  // Métodos de SweetAlert
+  private mostrarAlertaExito(mensaje: string): Promise<any> {
+    return Swal.fire({
+      title: '¡Éxito!',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#28a745',
+      timer: 3000,
+      timerProgressBar: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33',
+      showClass: {
+        popup: 'animate__animated animate__shakeX'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacionEliminacion(titulo: string, texto: string): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  }
+
+  private mostrarConfirmacion(titulo: string, texto: string): Promise<any> {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
   }
 
   // Verificar si una categoría puede ser eliminada (no tiene productos)
