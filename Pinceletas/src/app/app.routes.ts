@@ -46,7 +46,14 @@ export const routes: Routes = [
     import('./modules/commerce/product-audit/product-audit.component')
       .then(m => m.ProductAuditComponent),
   //canActivate: [authGuard]
-},
+  },
+  {
+    path: 'favorites',
+    loadComponent: () =>
+      import('./modules/commerce/favorites-list/favorites-list.component')
+       .then(m => m.FavoritesListComponent),
+    canActivate: [authGuard] // Solo usuarios autenticados pueden ver favoritos
+  },
   {
     path: '',
     redirectTo: 'productlist',

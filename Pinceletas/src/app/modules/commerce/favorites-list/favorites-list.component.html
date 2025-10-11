@@ -1,0 +1,198 @@
+<!-- src/app/modules/commerce/favorites-list/favorites-list.component.html -->
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="mb-1">
+            <i class="fas fa-heart text-danger me-2"></i>
+            Mis Favoritos
+          </h1>
+          <p class="text-muted mb-0">Tus productos guardados</p>
+        </div>
+        <button class="btn btn-outline-secondary" (click)="volverAProductos()">
+          <i class="fas fa-arrow-left me-2"></i>
+          Volver a Productos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body filtros-container">
+          <div class="row align-items-end">
+            <!-- Filtro por categoría -->
+            <div class="col-md-5 mb-2">
+              <label for="categoria" class="form-label fw-bold text-secondary">Filtrar por categoría:</label>
+              <select 
+                id="categoria" 
+                class="form-select border-primary" 
+                [(ngModel)]="categoriaSeleccionada" 
+                (change)="aplicarFiltros()">
+                <option value="todas">Todas las categorías</option>
+                <option *ngFor="let cat of categoriasUnicas" [value]="cat">
+                  {{ cat }}
+                </option>
+              </select>
+            </div>
+          
+            <!-- Filtro por nombre -->
+            <div class="col-md-5 mb-2">
+              <label for="busqueda" class="form-label fw-bold text-secondary">Buscar por nombre:</label>
+              <div class="input-group">
+                <span class="input-group-text bg-primary text-white">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input
+                  id="busqueda"
+                  type="text"
+                  class="form-control border-primary"
+                  [(ngModel)]="filtroNombre"
+                  (input)="aplicarFiltros()"
+                  placeholder="Buscar en favoritos..."
+                />
+              </div>
+            </div>
+          
+            <!-- Botón limpiar filtros -->
+            <div class="col-md-2 mb-2 text-end">
+              <button 
+                class="btn btn-outline-secondary mt-4 w-100" 
+                (click)="limpiarFiltros()"
+                title="Limpiar filtros">
+                <i class="fas fa-trash me-1"></i> Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-2">Cargando tus favoritos...</p>
+  </div>
+
+  <!-- Contador -->
+  <div *ngIf="!cargando" class="row mb-3">
+    <div class="col-12">
+      <div class="alert alert-info py-2">
+        <i class="fas fa-info-circle me-2"></i>
+        Mostrando <strong>{{ favoritosFiltrados.length }}</strong> de <strong>{{ favoritos.length }}</strong> productos favoritos
+      </div>
+    </div>
+  </div>
+
+  <!-- Productos Favoritos -->
+  <div class="row" *ngIf="!cargando && favoritosFiltrados.length > 0">
+    <div class="col-12">
+      <div class="row">
+        <div 
+          class="col-lg-4 col-md-6 mb-4" 
+          *ngFor="let favorito of favoritosFiltrados">
+          <div 
+            class="card producto-card h-100 border-0 shadow-sm favorite-card"
+            (click)="verDetalleProducto(favorito.producto.id)">
+            <!-- Badge de favorito -->
+            <div class="favorite-badge">
+              <i class="fas fa-heart text-danger"></i>
+            </div>
+
+            <div class="image-container">
+              <img 
+                [src]="getImagenUrl(favorito.producto.imagen)" 
+                class="card-img-top product-image" 
+                [alt]="favorito.producto.nombre"
+                (error)="handleImageError($event)"
+              />
+              <div class="image-placeholder" *ngIf="!favorito.producto.imagen">
+                <i class="fas fa-image"></i>
+                <span>Imagen no disponible</span>
+              </div>
+            </div>
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-dark">{{ favorito.producto.nombre }}</h5>
+              
+              <!-- Categoría -->
+              <div class="mb-2">
+                <small class="badge bg-secondary">
+                  {{ favorito.producto.categoria?.nombre || 'Sin categoría' }}
+                </small>
+              </div>
+
+              <!-- Indicador de opciones disponibles -->
+              <div *ngIf="favorito.producto.opciones && favorito.producto.opciones.length > 0" class="mb-2">
+                <small class="badge bg-accent text-dark">
+                  <i class="fas fa-cog me-1"></i>
+                  {{ favorito.producto.opciones.length }} opción(es)
+                </small>
+              </div>
+
+              <p class="card-text text-muted small flex-grow-1">
+                {{ favorito.producto.descripcion || 'Sin descripción' }}
+              </p>
+
+              <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="h5 text-primary mb-0">
+                    <strong>${{ favorito.producto.precio }}</strong>
+                  </p>
+                  
+                  <!-- Botones de acción -->
+                  <div class="btn-group" role="group">
+                    <button 
+                      type="button" 
+                      class="btn btn-success btn-sm"
+                      (click)="agregarAlCarrito(favorito, $event)"
+                      title="Agregar al carrito">
+                      <i class="fas fa-shopping-cart"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-danger btn-sm"
+                      (click)="eliminarFavorito(favorito, $event)"
+                      title="Eliminar de favoritos">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <small class="text-muted">Click para ver detalles</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay favoritos -->
+  <div class="row" *ngIf="!cargando && favoritosFiltrados.length === 0">
+    <div class="col-12 text-center">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5">
+          <i class="fas fa-heart-broken fa-3x text-secondary mb-3"></i>
+          <h4 class="text-secondary">No hay productos favoritos</h4>
+          <p class="text-muted" *ngIf="filtroNombre || categoriaSeleccionada !== 'todas'">
+            Intenta con otros filtros o términos de búsqueda
+          </p>
+          <p class="text-muted" *ngIf="!filtroNombre && categoriaSeleccionada === 'todas' && favoritos.length === 0">
+            Aún no has agregado productos a tus favoritos
+          </p>
+          <button class="btn btn-primary mt-3" (click)="volverAProductos()">
+            <i class="fas fa-store me-2"></i>
+            Explorar Productos
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

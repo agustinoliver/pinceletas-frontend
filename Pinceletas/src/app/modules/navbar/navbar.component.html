@@ -20,7 +20,13 @@
             <i class="fas fa-store me-1"></i>Productos
           </a>
         </li>
-        
+        <!-- ✅ NUEVO: Menú Favoritos - Solo visible para usuarios autenticados -->
+        <li class="nav-item" *ngIf="isLoggedIn && !isAdmin">
+          <a class="nav-link nav-link-custom" routerLink="/favorites" routerLinkActive="active">
+            <i class="fas fa-heart me-1"></i>Favoritos
+          </a>
+        </li>
+              
         <!-- Menú Admin - Solo visible para administradores -->
         <li class="nav-item" *ngIf="isAdmin">
           <a class="nav-link nav-link-custom" routerLink="/admin/products" routerLinkActive="active">

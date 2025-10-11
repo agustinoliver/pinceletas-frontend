@@ -6,6 +6,7 @@ import { Categoria } from '../models/categoria.model';
 import { commerceEnviroment } from '../enviroment/commerce-enviroment';
 import { AuditoriaCategoria } from '../models/auditorias.model';
 import { AuditoriaProducto } from '../models/auditorias.model';
+import { Favorito } from '../models/favorito.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class CommerceService {
   private apiProductos = commerceEnviroment.apiProductos;
   private apiCategorias = commerceEnviroment.apiCategorias;
   private apiOpciones = commerceEnviroment.apiOpciones;
+  private apiFavoritos = commerceEnviroment.apiFavoritos;
 
   constructor(private http: HttpClient) {}
 
@@ -206,5 +208,20 @@ export class CommerceService {
   getAuditoriasCategorias(): Observable<AuditoriaCategoria[]> {
     return this.http.get<AuditoriaCategoria[]>(`${this.apiCategorias}/auditoria`);
   }
-  
+
+  // ===============================
+  // MÉTODOS DE FAVORITOS
+  // ===============================
+
+  getFavoritos(usuarioId: number): Observable<Favorito[]> {
+    return this.http.get<Favorito[]>(`${this.apiFavoritos}/${usuarioId}`);
+  }
+
+  agregarFavorito(favoritoData: any): Observable<Favorito> {
+    return this.http.post<Favorito>(this.apiFavoritos, favoritoData);
+  }
+
+  eliminarFavorito(usuarioId: number, productoId: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiFavoritos}?usuarioId=${usuarioId}&productoId=${productoId}`);
+}
 }

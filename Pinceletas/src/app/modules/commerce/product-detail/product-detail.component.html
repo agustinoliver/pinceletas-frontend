@@ -63,9 +63,13 @@
             <i class="fas fa-shopping-cart me-2"></i>
             Agregar al Carrito
           </button>
-          <button class="btn btn-outline-secondary btn-lg">
+          <button 
+            class="btn btn-outline-danger btn-lg"
+            (click)="toggleFavorito()"
+            [class.btn-danger]="esFavorito"
+            [class.btn-outline-danger]="!esFavorito">
             <i class="fas fa-heart me-2"></i>
-            Favorito
+            {{ esFavorito ? 'En Favoritos' : 'Agregar a Favoritos' }}
           </button>
         </div>
 
