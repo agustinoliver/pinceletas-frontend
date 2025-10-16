@@ -2,6 +2,7 @@ export interface Favorito {
   id: number;
   usuarioId: number;
   producto: {
+    descuentoPorcentaje: number;
     id: number;
     nombre: string;
     descripcion: string;
@@ -17,4 +18,5 @@ export interface Favorito {
       tipo: string;
     }>;
   };
+  opcionSeleccionada?: number; // ✅ NUEVO: Para guardar la opción seleccionada
 }

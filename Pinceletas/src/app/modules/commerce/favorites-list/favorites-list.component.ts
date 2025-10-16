@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Favorito } from '../../../models/favorito.model';
 import { CommerceService } from '../../../services/commerce.service';
 import { UserAuthService } from '../../../services/user-auth.service';
+import { calcularPrecioConDescuento } from '../../../models/producto.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -46,9 +47,13 @@ export class FavoritesListComponent implements OnInit{
     this.cargando = true;
     this.commerceService.getFavoritos(this.usuarioId).subscribe({
       next: (data) => {
-        console.log('Favoritos recibidos:', data); // ✅ Para debug
-        this.favoritos = data;
-        this.favoritosFiltrados = [...data];
+        console.log('Favoritos recibidos:', data);
+        // ✅ INICIALIZAR opcionSeleccionada para cada favorito
+        this.favoritos = data.map(favorito => ({
+          ...favorito,
+          opcionSeleccionada: undefined
+        }));
+        this.favoritosFiltrados = [...this.favoritos];
         this.extraerCategoriasUnicas();
         this.cargando = false;
       },
@@ -58,6 +63,10 @@ export class FavoritesListComponent implements OnInit{
         this.cargando = false;
       }
     });
+  }
+  // ✅ NUEVO: Método para manejar cambios en la selección de opciones
+  onOpcionChange(favorito: Favorito): void {
+    console.log('Opción seleccionada:', favorito.opcionSeleccionada);
   }
 
   extraerCategoriasUnicas(): void {
@@ -98,10 +107,12 @@ export class FavoritesListComponent implements OnInit{
     this.favoritosFiltrados = [...this.favoritos];
   }
 
-  verDetalleProducto(productoId: number): void {
-    // ✅ Pasar correctamente la ruta de retorno
+  verDetalleProducto(productoId: number, opciones?: any): void {
     this.router.navigate(['/productdetail', productoId], { 
-      state: { returnUrl: '/favorites' } 
+      state: { 
+        returnUrl: '/favorites',
+        opciones: opciones // Opcional: pasar información de opciones
+      } 
     });
   }
 
@@ -134,8 +145,33 @@ export class FavoritesListComponent implements OnInit{
   agregarAlCarrito(favorito: Favorito, event: Event): void {
     event.stopPropagation();
     
-    console.log('Agregando al carrito:', favorito.producto);
-    this.mostrarAlertaExito(`"${favorito.producto.nombre}" agregado al carrito`);
+    // ✅ VALIDAR: Si el producto tiene opciones, debe tener una seleccionada
+    if (favorito.producto.opciones && favorito.producto.opciones.length > 0 && !favorito.opcionSeleccionada) {
+      this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
+      return;
+    }
+    
+    const carritoRequest = {
+      productoId: favorito.producto.id,
+      cantidad: 1,
+      opcionSeleccionadaId: favorito.opcionSeleccionada || null
+    };
+    
+    this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
+      next: () => {
+        this.mostrarAlertaExito(`"${favorito.producto.nombre}" agregado al carrito`);
+        // ✅ OPCIONAL: Limpiar la selección después de agregar
+        favorito.opcionSeleccionada = undefined;
+      },
+      error: (error) => {
+        console.error('Error agregando al carrito:', error);
+        if (error.error?.message?.includes('ya está en el carrito')) {
+          this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
+        } else {
+          this.mostrarAlertaError('Error al agregar el producto al carrito');
+        }
+      }
+    });
   }
 
   getImagenUrl(imagenPath: string): string {
@@ -157,6 +193,17 @@ export class FavoritesListComponent implements OnInit{
 
   volverAProductos(): void {
     this.router.navigate(['/productlist']);
+  }
+
+  calcularPrecioProducto(favorito: Favorito) {
+    return calcularPrecioConDescuento(
+      favorito.producto.precio,
+      favorito.producto.descuentoPorcentaje || 0
+    );
+  }
+
+  tieneDescuento(favorito: Favorito): boolean {
+    return (favorito.producto.descuentoPorcentaje || 0) > 0;
   }
 
   // Métodos SweetAlert

@@ -24,7 +24,8 @@ export class ProductCreateComponent implements OnInit {
     categoriaId: 0,
     opcionesIds: [] as number[],
     usuarioId: 1,
-    imagen: null as File | null
+    imagen: null as File | null,
+    descuentoPorcentaje: 0
   };
 
   // Datos para nuevas categorías y opciones
@@ -237,6 +238,10 @@ export class ProductCreateComponent implements OnInit {
       this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
+    if (this.producto.descuentoPorcentaje < 0 || this.producto.descuentoPorcentaje > 100) {
+      this.mostrarAlertaError('El descuento debe estar entre 0 y 100');
+      return;
+    }
 
     this.cargando = true;
     this.commerceService.crearProducto(this.producto, this.producto.imagen)
@@ -270,7 +275,8 @@ export class ProductCreateComponent implements OnInit {
           categoriaId: 0,
           opcionesIds: [],
           usuarioId: 1,
-          imagen: null
+          imagen: null,
+          descuentoPorcentaje: 0
         };
         this.imagenPrevia = null;
         this.nuevaCategoria.nombre = '';

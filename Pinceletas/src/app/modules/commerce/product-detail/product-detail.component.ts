@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Producto } from '../../../models/producto.model';
+import { calcularPrecioConDescuento, Producto } from '../../../models/producto.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommerceService } from '../../../services/commerce.service';
 import { UserAuthService } from '../../../services/user-auth.service';
 import Swal from 'sweetalert2';
+import { CarritoRequest } from '../../../models/carrito.model';
 
 @Component({
   selector: 'app-product-detail',
@@ -134,21 +135,46 @@ export class ProductDetailComponent implements OnInit {
   }
 
   agregarAlCarrito(): void {
-    if (this.producto) {
-      // Validar que si tiene opciones, esté seleccionada una
-      if (this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
-        alert('Por favor selecciona una opción antes de agregar al carrito');
-        return;
-      }
-      
-      // Aquí iría la lógica para agregar al carrito
-      console.log('Producto agregado al carrito:', {
-        producto: this.producto,
-        opcionSeleccionada: this.opcionSeleccionada
-      });
-      
-      alert('Producto agregado al carrito');
+  if (this.producto) {
+    // Validar que si tiene opciones, esté seleccionada una
+    if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
+      this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
+      return;
     }
+    
+    // Preparar datos para agregar al carrito
+    const carritoRequest: CarritoRequest = {
+      productoId: this.producto.id,
+      cantidad: 1,
+      opcionSeleccionadaId: this.opcionSeleccionada || null // ✅ CORREGIDO: Usar null en lugar de undefined
+    };
+    
+    // Llamar al servicio para agregar al carrito
+    this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
+      next: () => {
+        this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
+      },
+      error: (error) => {
+        console.error('Error agregando al carrito:', error);
+        if (error.error?.message?.includes('ya está en el carrito')) {
+          this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
+        } else {
+          this.mostrarAlertaError('Error al agregar el producto al carrito');
+        }
+      }
+    });
+  }
+}
+  calcularPrecio() {
+    if (!this.producto) return null;
+    return calcularPrecioConDescuento(
+      this.producto.precio,
+      this.producto.descuentoPorcentaje || 0
+    );
+  }
+
+  tieneDescuento(): boolean {
+    return this.producto ? (this.producto.descuentoPorcentaje || 0) > 0 : false;
   }
   private mostrarAlertaExito(mensaje: string): void {
     Swal.fire({

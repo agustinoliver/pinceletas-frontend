@@ -106,6 +106,13 @@
               <i class="fas fa-heart text-danger"></i>
             </div>
 
+            <!-- Badge de descuento -->
+            <div *ngIf="tieneDescuento(favorito)" class="position-absolute top-0 end-0 m-2">
+              <span class="badge bg-danger">
+                <i class="fas fa-tag me-1"></i>{{ favorito.producto.descuentoPorcentaje }}% OFF
+              </span>
+            </div>
+
             <div class="image-container">
               <img 
                 [src]="getImagenUrl(favorito.producto.imagen)" 
@@ -136,36 +143,44 @@
                   {{ favorito.producto.opciones.length }} opción(es)
                 </small>
               </div>
-
               <p class="card-text text-muted small flex-grow-1">
                 {{ favorito.producto.descripcion || 'Sin descripción' }}
               </p>
 
               <div class="mt-auto">
-                <div class="d-flex justify-content-between align-items-center">
+                <!-- Precios con descuento -->
+                <div *ngIf="tieneDescuento(favorito)" class="mb-2">
+                  <p class="text-muted text-decoration-line-through mb-1" style="font-size: 0.9rem;">
+                    ${{ favorito.producto.precio }}
+                  </p>
+                  <p class="h5 text-danger mb-0">
+                    <strong>${{ calcularPrecioProducto(favorito).precioFinal.toFixed(2) }}</strong>
+                  </p>
+                </div>
+                <div *ngIf="!tieneDescuento(favorito)">
                   <p class="h5 text-primary mb-0">
                     <strong>${{ favorito.producto.precio }}</strong>
                   </p>
-                  
-                  <!-- Botones de acción -->
-                  <div class="btn-group" role="group">
-                    <button 
-                      type="button" 
-                      class="btn btn-success btn-sm"
-                      (click)="agregarAlCarrito(favorito, $event)"
-                      title="Agregar al carrito">
-                      <i class="fas fa-shopping-cart"></i>
-                    </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-danger btn-sm"
-                      (click)="eliminarFavorito(favorito, $event)"
-                      title="Eliminar de favoritos">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
                 </div>
-                <small class="text-muted">Click para ver detalles</small>
+                
+                <!-- Botones de acción -->
+                <div class="btn-group w-100 mt-2" role="group">
+                  <button 
+                    type="button" 
+                    class="btn btn-success btn-sm flex-grow-1"
+                    (click)="agregarAlCarrito(favorito, $event)"
+                    title="Agregar al carrito">
+                    <i class="fas fa-shopping-cart"></i>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-danger btn-sm flex-grow-1"
+                    (click)="eliminarFavorito(favorito, $event)"
+                    title="Eliminar de favoritos">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+                <small class="text-muted d-block mt-2">Click para ver detalles</small>
               </div>
             </div>
           </div>

@@ -1,0 +1,104 @@
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-edit me-2"></i>
+          Editar Estado del Pedido
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrar()"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Información del pedido -->
+        <div class="card border-light bg-light mb-4" *ngIf="pedido">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Número de Pedido</label>
+                <p class="mb-0 fw-bold">{{ pedido.numeroPedido }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Cliente</label>
+                <p class="mb-0">{{ pedido.emailContacto }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Total</label>
+                <p class="mb-0 text-success fw-bold">${{ pedido.total.toFixed(2) }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Estado Actual</label>
+                <div>
+                  <span class="badge bg-secondary">
+                    {{ pedido.estado }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selector de estados -->
+        <div class="mb-4">
+          <label class="form-label fw-bold mb-3">
+            Nuevo Estado <span class="text-danger">*</span>
+          </label>
+          <div class="row g-3">
+            <div *ngFor="let estado of estados" class="col-md-6">
+              <div 
+                class="card estado-card h-100"
+                [class.border-primary]="nuevoEstado === estado.value"
+                [class.shadow-sm]="nuevoEstado === estado.value"
+                (click)="seleccionarEstado(estado.value)"
+                style="cursor: pointer;">
+                <div class="card-body p-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      [id]="'estado-' + estado.value"
+                      [value]="estado.value"
+                      [(ngModel)]="nuevoEstado"
+                      name="estado">
+                    <label class="form-check-label w-100" [for]="'estado-' + estado.value" style="cursor: pointer;">
+                      <div class="d-flex align-items-center">
+                        <i [class]="'fas fa-' + estado.icon + ' fa-2x text-' + estado.color + ' me-3'"></i>
+                        <div>
+                          <div class="fw-bold">{{ estado.label }}</div>
+                          <small class="text-muted">{{ estado.descripcion }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Alerta según el estado -->
+        <div class="alert" [class]="'alert-' + getTipoAlerta()" *ngIf="getMensajeAlerta()">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Atención:</strong> {{ getMensajeAlerta() }}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="cerrar()">
+          <i class="fas fa-times me-2"></i>
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="guardarCambios()"
+          [disabled]="!nuevoEstado || nuevoEstado === pedido?.estado">
+          <i class="fas fa-save me-2"></i>
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

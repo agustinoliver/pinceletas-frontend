@@ -1,0 +1,41 @@
+.mis-pedidos-container {
+  background-color: var(--bg-light);
+  min-height: 100vh;
+}
+
+/* Header personalizado */
+.d-flex.justify-content-between h1 {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
+}
+
+/* Botones de acción en mis-pedidos */
+.btn-outline-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(237, 98, 12, 0.2);
+}
+
+/* Mensaje sin pedidos */
+.fa-shopping-bag {
+  color: var(--text-light);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border: none;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #c14e09 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(237, 98, 12, 0.3);
+}
