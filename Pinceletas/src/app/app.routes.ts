@@ -46,6 +46,7 @@ export const routes: Routes = [
     import('./modules/commerce/product-audit/product-audit.component')
       .then(m => m.ProductAuditComponent),
   //canActivate: [authGuard]
+<<<<<<< HEAD
 },
 {
     path: 'admin/dashboard',
@@ -53,6 +54,69 @@ export const routes: Routes = [
       import('./modules/dashboard/dashboard-user-act-inac/dashboard-user-act-inac.component')
         .then(m => m.DashboardUserActInacComponent),
     // canActivate: [authGuard] // Solo usuarios autenticados pueden acceder al dashboard
+=======
+  },
+  {
+    path: 'favorites',
+    loadComponent: () =>
+      import('./modules/commerce/favorites-list/favorites-list.component')
+       .then(m => m.FavoritesListComponent),
+    canActivate: [authGuard] // Solo usuarios autenticados pueden ver favoritos
+  },
+  {
+    path: 'carrito',
+    loadComponent: () =>
+      import('./modules/commerce/carrito-list/carrito-list.component')
+        .then(m => m.CarritoListComponent),
+    canActivate: [authGuard] // Solo usuarios autenticados
+  },
+  {
+    path: 'mis-pedidos',
+    loadComponent: () =>
+      import('./modules/commerce/mis-pedidos/mis-pedidos.component')
+        .then(m => m.MisPedidosComponent),
+    canActivate: [authGuard] // Solo usuarios autenticados
+  },
+  {
+    path: 'pedidos/detalle/:id',
+    loadComponent: () =>
+      import('./modules/commerce/detalle-pedido/detalle-pedido.component')
+        .then(m => m.DetallePedidoComponent),
+    canActivate: [authGuard] // Solo usuarios autenticados
+  },
+  {
+    path: 'admin/pedidos',
+    loadComponent: () =>
+      import('./modules/commerce/gestion-pedidos/gestion-pedidos.component')
+        .then(m => m.GestionPedidosComponent),
+    canActivate: [authGuard] // Solo administradores
+  },
+  {
+    path: 'admin/pedidos/detalle/:id',
+    loadComponent: () =>
+      import('./modules/commerce/detalle-pedido/detalle-pedido.component')
+        .then(m => m.DetallePedidoComponent),
+    canActivate: [authGuard] // Solo administradores
+  },
+  // RUTAS DE PAGO (públicas o según necesidad)
+  {
+    path: 'payment/success',
+    loadComponent: () =>
+      import('./modules/commerce/payment-success/payment-success.component')
+        .then(m => m.PaymentSuccessComponent)
+  },
+  {
+    path: 'payment/failure',
+    loadComponent: () =>
+      import('./modules/commerce/payment-failure/payment-failure.component')
+        .then(m => m.PaymentFailureComponent)
+  },
+  {
+    path: 'payment/pending',
+    loadComponent: () =>
+      import('./modules/commerce/payment-pending/payment-pending.component')
+        .then(m => m.PaymentPendingComponent)
+>>>>>>> 753c23a9fc715da7f588b4971b0b5c8d40a82ae4
   },
   {
     path: '',

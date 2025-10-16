@@ -30,7 +30,8 @@ export class ProductEditComponent implements OnInit {
     opcionesIds: [] as number[],
     usuarioId: 1,
     imagen: null as File | null,
-    imagenActual: '' // Ruta de la imagen actual
+    imagenActual: '', // Ruta de la imagen actual
+    descuentoPorcentaje: 0
   };
 
   // Datos para nuevas categorías y opciones
@@ -111,11 +112,12 @@ export class ProductEditComponent implements OnInit {
           descripcion: producto.descripcion || '',
           precio: producto.precio,
           activo: producto.activo,
-          categoriaId: categoriaExiste ? categoriaId : 0, // Solo asignar si existe
+          categoriaId: categoriaExiste ? categoriaId : 0,
           opcionesIds: producto.opciones.map(op => op.id),
           usuarioId: 1,
           imagen: null,
-          imagenActual: producto.imagen
+          imagenActual: producto.imagen,
+          descuentoPorcentaje: producto.descuentoPorcentaje || 0
         };
         
         // CORRECCIÓN: Forzar la detección de cambios
@@ -301,6 +303,10 @@ export class ProductEditComponent implements OnInit {
       this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
+    if (this.producto.descuentoPorcentaje < 0 || this.producto.descuentoPorcentaje > 100) {
+      this.mostrarAlertaError('El descuento debe estar entre 0 y 100');
+      return;
+    }
 
     this.mostrarConfirmacionActualizacion().then((result) => {
       if (result.isConfirmed) {
@@ -454,6 +460,7 @@ export class ProductEditComponent implements OnInit {
       this.producto.precio !== this.productoOriginal.precio ||
       this.producto.activo !== this.productoOriginal.activo ||
       this.producto.categoriaId !== (this.productoOriginal.categoria?.id || 0) ||
+      this.producto.descuentoPorcentaje !== (this.productoOriginal.descuentoPorcentaje || 0) ||
       JSON.stringify(this.producto.opcionesIds) !== JSON.stringify(this.productoOriginal.opciones.map(op => op.id)) ||
       this.imagenCambiada
     );

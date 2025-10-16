@@ -1,0 +1,38 @@
+.payment-pending-container {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-pending-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: slideIn 0.5s ease;
+}
+
+.fa-clock {
+  color: #ffc107;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.text-warning {
+  color: #856404 !important;
+  font-weight: 600;
+}
+
+.payment-pending-card .card-body {
+  padding: 3rem 2rem;
+}

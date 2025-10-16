@@ -65,6 +65,11 @@
             class="card producto-card h-100 border-0"
             (click)="verDetalleProducto(producto.id)"
             style="cursor: pointer;">
+            <div *ngIf="tieneDescuento(producto)" class="position-absolute top-0 end-0 m-2">
+              <span class="badge bg-danger">
+                <i class="fas fa-tag me-1"></i>{{ producto.descuentoPorcentaje }}% OFF
+              </span>
+            </div>
             <div class="image-container">
               <img 
                 [src]="getImagenUrl(producto.imagen)" 
@@ -89,9 +94,19 @@
               </div>
 
               <div class="mt-auto">
-                <p class="h5 text-primary mb-0">
-                  <strong>${{ producto.precio }}</strong>
-                </p>
+                <div *ngIf="tieneDescuento(producto)" class="mb-2">
+                  <p class="text-muted text-decoration-line-through mb-1" style="font-size: 0.9rem;">
+                    ${{ producto.precio }}
+                  </p>
+                  <p class="h5 text-danger mb-0">
+                    <strong>${{ calcularPrecio(producto).precioFinal.toFixed(2) }}</strong>
+                  </p>
+                </div>
+                <div *ngIf="!tieneDescuento(producto)">
+                  <p class="h5 text-primary mb-0">
+                    <strong>${{ producto.precio }}</strong>
+                  </p>
+                </div>
                 <small class="text-muted">Click para ver detalles</small>
               </div>
             </div>

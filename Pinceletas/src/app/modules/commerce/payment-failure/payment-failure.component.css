@@ -1,0 +1,63 @@
+.payment-failure-container {
+  background: linear-gradient(135deg, #f8d7da 0%, #ffffff 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-failure-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: slideIn 0.5s ease;
+}
+
+.fa-times-circle {
+  color: var(--danger-color);
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+.text-danger {
+  color: var(--danger-color) !important;
+  font-weight: 600;
+}
+
+.payment-failure-card .card-body {
+  padding: 3rem 2rem;
+}
+
+/* Responsive para todos los payment */
+@media (max-width: 768px) {
+  .payment-failure-card .card-body,
+  .payment-pending-card .card-body {
+    padding: 2rem 1.5rem;
+  }
+  
+  .fa-times-circle,
+  .fa-clock {
+    font-size: 3.5rem !important;
+  }
+  
+  .d-grid.gap-2.d-md-block {
+    gap: 1rem !important;
+  }
+  
+  .d-grid.gap-2.d-md-block .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

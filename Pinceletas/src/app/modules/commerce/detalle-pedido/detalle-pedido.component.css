@@ -1,0 +1,146 @@
+.detalle-pedido-container {
+  background-color: var(--bg-light);
+  min-height: 100vh;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1.5rem;
+}
+
+.card-header.bg-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+}
+
+.card-header.bg-light {
+  background: linear-gradient(135deg, #ffffff 0%, var(--bg-light) 100%);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead {
+  background-color: var(--bg-light);
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  color: var(--text-dark);
+  padding: 1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 1rem;
+  border-color: var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(237, 98, 12, 0.05);
+  transition: all 0.2s ease;
+}
+
+/* Imagen del producto en detalle */
+.table img {
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.table img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Badges personalizados */
+.badge {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4em 0.8em;
+  border-radius: 6px;
+}
+
+.badge.bg-secondary {
+  background-color: var(--text-light) !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.badge.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--success-color) !important;
+}
+
+.badge.bg-danger {
+  background-color: var(--danger-color) !important;
+}
+
+/* Secciones de información */
+.card-body p {
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+}
+
+.card-body strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.text-success {
+  color: var(--success-color) !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+/* Botón volver */
+.btn-outline-secondary {
+  border-color: var(--text-light);
+  color: var(--text-light);
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--text-light);
+  border-color: var(--text-light);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.875rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .table img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}

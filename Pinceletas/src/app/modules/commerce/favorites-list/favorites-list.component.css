@@ -1,0 +1,220 @@
+/* favorites-list.component.css - Estilos actualizados para coincidir con la paleta */
+
+/* Variables de colores de la empresa */
+:root {
+  --primary-color: #ED620C;    /* Naranja principal */
+  --accent-color: #EBED6D;     /* Amarillo de acento */
+  --primary-hover: #d4560a;    /* Naranja más oscuro para hover */
+  --accent-hover: #e0e25a;     /* Amarillo más oscuro para hover */
+  --text-dark: #2c3e50;        /* Texto oscuro formal */
+  --text-light: #6c757d;       /* Texto secundario */
+  --bg-light: #f8f9fa;         /* Fondo claro */
+  --border-color: #e9ecef;     /* Color de bordes */
+  --danger-color: #dc3545;     /* Color para elementos de peligro */
+}
+
+/* Tarjetas de favoritos */
+.favorite-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color) !important;
+  background: white;
+  cursor: pointer;
+}
+
+.favorite-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(237, 98, 12, 0.15) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.favorite-card:hover .card-title {
+  color: var(--primary-color);
+}
+
+/* Badge de favorito */
+.favorite-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 2px solid var(--primary-color);
+}
+
+.favorite-badge i {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+/* Contenedor de imagen */
+.image-container {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.favorite-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-light);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+}
+
+.image-placeholder i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+/* Filtros actualizados */
+.filtros-container {
+  background: linear-gradient(135deg, #ffffff 0%, var(--bg-light) 100%);
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+.filtros-container .form-label {
+  color: var(--text-dark) !important;
+  font-weight: 600;
+}
+
+/* Botones personalizados */
+.btn-group .btn {
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+.btn-group .btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn-group .btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-success {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-success:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+/* Mejoras en los formularios */
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+.text-secondary {
+  color: var(--text-dark) !important;
+}
+
+/* Badge personalizado */
+.badge.bg-accent {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+  color: var(--text-dark) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--text-light) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-container {
+    height: 200px;
+  }
+  
+  .filtros-container .row > div {
+    margin-bottom: 1rem;
+  }
+  
+  .filtros-container .text-end {
+    text-align: left !important;
+  }
+  
+  .btn-group {
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    flex: 1;
+  }
+}
+
+/* Mejora en la legibilidad */
+.card-title {
+  color: var(--text-dark);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
+}
+
+/* Alertas personalizadas */
+.alert-info {
+  background-color: rgba(237, 98, 12, 0.1);
+  border-color: rgba(237, 98, 12, 0.2);
+  color: var(--text-dark);
+}

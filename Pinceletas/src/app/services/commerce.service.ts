@@ -6,6 +6,8 @@ import { Categoria } from '../models/categoria.model';
 import { commerceEnviroment } from '../enviroment/commerce-enviroment';
 import { AuditoriaCategoria } from '../models/auditorias.model';
 import { AuditoriaProducto } from '../models/auditorias.model';
+import { Favorito } from '../models/favorito.model';
+import { CarritoItem, CarritoRequest } from '../models/carrito.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,8 @@ export class CommerceService {
   private apiProductos = commerceEnviroment.apiProductos;
   private apiCategorias = commerceEnviroment.apiCategorias;
   private apiOpciones = commerceEnviroment.apiOpciones;
+  private apiFavoritos = commerceEnviroment.apiFavoritos;
+  private apiCarrito = commerceEnviroment.apiCarrito;
 
   constructor(private http: HttpClient) {}
 
@@ -50,16 +54,15 @@ export class CommerceService {
       formData.append('imagen', imagen);
     }
 
-    // Parámetros de consulta
     let params = new HttpParams()
       .set('nombre', productoData.nombre)
       .set('descripcion', productoData.descripcion)
       .set('precio', productoData.precio.toString())
       .set('activo', productoData.activo.toString())
       .set('categoriaId', productoData.categoriaId.toString())
-      .set('usuarioId', productoData.usuarioId.toString());
+      .set('usuarioId', productoData.usuarioId.toString())
+      .set('descuentoPorcentaje', (productoData.descuentoPorcentaje || 0).toString());
 
-    // Agregar opcionesIds si existen
     if (productoData.opcionesIds && productoData.opcionesIds.length > 0) {
       params = params.set('opcionesIds', productoData.opcionesIds.join(','));
     }
@@ -79,9 +82,10 @@ export class CommerceService {
       nombre: productoData.nombre,
       descripcion: productoData.descripcion,
       precio: productoData.precio,
-      imagen: productoData.imagenActual, // Imagen ya existente
+      imagen: productoData.imagenActual,
       activo: productoData.activo,
       categoriaId: productoData.categoriaId,
+      descuentoPorcentaje: productoData.descuentoPorcentaje || 0,
       opcionesIds: productoData.opcionesIds || []
     };
 
@@ -105,7 +109,8 @@ export class CommerceService {
       .set('precio', productoData.precio.toString())
       .set('activo', productoData.activo.toString())
       .set('categoriaId', productoData.categoriaId.toString())
-      .set('usuarioId', usuarioId.toString());
+      .set('usuarioId', usuarioId.toString())
+      .set('descuentoPorcentaje', (productoData.descuentoPorcentaje || 0).toString());
 
     if (productoData.opcionesIds && productoData.opcionesIds.length > 0) {
       params = params.set('opcionesIds', productoData.opcionesIds.join(','));
@@ -200,11 +205,72 @@ export class CommerceService {
     return this.http.get<AuditoriaProducto[]>(`${this.apiProductos}/auditorias`);
   }
 
-  /**
+    /**
    * Obtiene todas las auditorías de categorías
    */
-  getAuditoriasCategorias(): Observable<AuditoriaCategoria[]> {
-    return this.http.get<AuditoriaCategoria[]>(`${this.apiCategorias}/auditoria`);
+    getAuditoriasCategorias(): Observable<AuditoriaCategoria[]> {
+      return this.http.get<AuditoriaCategoria[]>(`${this.apiCategorias}/auditoria`);
+    }
+
+    // ===============================
+    // MÉTODOS DE FAVORITOS
+    // ===============================
+
+    getFavoritos(usuarioId: number): Observable<Favorito[]> {
+      return this.http.get<Favorito[]>(`${this.apiFavoritos}/${usuarioId}`);
+    }
+
+    agregarFavorito(favoritoData: any): Observable<Favorito> {
+      return this.http.post<Favorito>(this.apiFavoritos, favoritoData);
+    }
+
+    eliminarFavorito(usuarioId: number, productoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiFavoritos}?usuarioId=${usuarioId}&productoId=${productoId}`);
   }
-  
+
+  // ===============================
+  // MÉTODOS DE CARRITO
+  // ===============================
+
+  /**
+   * Obtiene todos los items del carrito de un usuario
+   * @param usuarioId - ID del usuario
+   */
+  getCarrito(usuarioId: number): Observable<CarritoItem[]> {
+    return this.http.get<CarritoItem[]>(`${this.apiCarrito}/${usuarioId}`);
+  }
+
+  /**
+   * Agrega un producto al carrito
+   * @param usuarioId - ID del usuario
+   * @param request - Datos del producto y cantidad
+   */
+  agregarAlCarrito(usuarioId: number, request: CarritoRequest): Observable<CarritoItem> {
+    return this.http.post<CarritoItem>(`${this.apiCarrito}?usuarioId=${usuarioId}`, request);
+  }
+
+  /**
+   * Modifica la cantidad de un item en el carrito
+   * @param itemId - ID del item del carrito
+   * @param nuevaCantidad - Nueva cantidad
+   */
+  modificarCantidadCarrito(itemId: number, nuevaCantidad: number): Observable<CarritoItem> {
+    return this.http.put<CarritoItem>(`${this.apiCarrito}/${itemId}?nuevaCantidad=${nuevaCantidad}`, {});
+  }
+
+  /**
+   * Elimina un item del carrito
+   * @param itemId - ID del item del carrito
+   */
+  eliminarDelCarrito(itemId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiCarrito}/${itemId}`);
+  }
+
+  /**
+   * Calcula el total del carrito
+   * @param usuarioId - ID del usuario
+   */
+  calcularTotalCarrito(usuarioId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiCarrito}/${usuarioId}/total`);
+  }
 }

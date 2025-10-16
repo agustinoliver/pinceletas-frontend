@@ -1,0 +1,296 @@
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="mb-1">
+            <i class="fas fa-shopping-cart text-primary me-2"></i>
+            Tu Carrito
+          </h1>
+          <p class="text-muted mb-0">Productos en tu carrito de compras</p>
+        </div>
+        <button class="btn btn-outline-secondary" (click)="volverAProductos()">
+          <i class="fas fa-arrow-left me-2"></i>
+          Seguir Comprando
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-2">Cargando tu carrito...</p>
+  </div>
+
+  <!-- Carrito con productos -->
+  <div *ngIf="!cargando && carrito.length > 0" class="row">
+    <!-- Lista de productos -->
+    <div class="col-lg-8 mb-4">
+      <div class="carrito-items">
+        <div 
+          *ngFor="let item of carrito" 
+          class="card carrito-item-card mb-3 shadow-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <!-- Imagen del producto -->
+              <div class="col-md-2 col-3">
+                <div class="carrito-image-container" (click)="verDetalleProducto(item.producto.id)">
+                  <img 
+                    [src]="getImagenUrl(item.producto.imagen)" 
+                    class="carrito-product-image" 
+                    [alt]="item.producto.nombre"
+                    (error)="handleImageError($event)"
+                  />
+                  <div class="image-placeholder" *ngIf="!item.producto.imagen">
+                    <i class="fas fa-image"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información del producto -->
+              <div class="col-md-4 col-9">
+                <h5 class="carrito-product-name mb-1" (click)="verDetalleProducto(item.producto.id)">
+                  {{ item.producto.nombre }}
+                </h5>
+                <p class="carrito-product-description text-muted mb-1">
+                  {{ item.producto.descripcion }}
+                </p>
+                <div *ngIf="tieneDescuento(item)" class="mb-1">
+                  <small class="text-muted text-decoration-line-through">
+                    ${{ item.producto.precio }}
+                  </small>
+                  <small class="text-danger ms-2">
+                    <strong>${{ calcularPrecioProducto(item).precioFinal.toFixed(2) }}</strong>
+                    <span class="badge bg-danger ms-1">{{ item.producto.descuentoPorcentaje }}% OFF</span>
+                  </small>
+                </div>
+                <div *ngIf="!tieneDescuento(item)" class="mb-1">
+                  <small class="text-muted">
+                    <strong>${{ item.producto.precio }}</strong>
+                  </small>
+                </div>
+                <small class="text-muted" *ngIf="getOpcionSeleccionada(item)">
+                  <i class="fas fa-cog me-1"></i>
+                  <strong>Opción:</strong> {{ getOpcionSeleccionada(item) }}
+                </small>
+              </div>
+
+              <!-- Selector de cantidad -->
+              <div class="col-md-2 col-6 text-center mt-2 mt-md-0">
+                <label class="form-label small text-muted mb-1">Cantidad</label>
+                <select 
+                  class="form-select form-select-sm cantidad-select" 
+                  [(ngModel)]="item.cantidad"
+                  (change)="modificarCantidad(item, item.cantidad)">
+                  <option *ngFor="let num of [1,2,3,4,5,6,7,8,9,10]" [value]="num">
+                    {{ num }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Precio -->
+              <div class="col-md-2 col-6 text-center mt-2 mt-md-0">
+                <label class="form-label small text-muted mb-1">Total</label>
+                <p class="carrito-price mb-0">
+                  <strong>${{ (calcularPrecioProducto(item).precioFinal * item.cantidad).toFixed(2) }}</strong>
+                </p>
+              </div>
+
+              <!-- Acciones -->
+              <div class="col-md-2 col-12 text-center mt-3 mt-md-0">
+                <button 
+                  class="btn btn-outline-danger btn-sm w-100 mb-2"
+                  (click)="eliminarItem(item, $event)"
+                  title="Eliminar del carrito">
+                  <i class="fas fa-trash me-1"></i>
+                  Eliminar
+                </button>
+                <button 
+                  class="btn btn-outline-success btn-sm w-100"
+                  (click)="comprarSoloEsteProducto(item, $event)"
+                  title="Comprar solo este producto">
+                  <i class="fas fa-shopping-bag me-1"></i>
+                  Comprar solo este
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen del carrito -->
+    <div class="col-lg-4">
+      <div class="card resumen-card shadow-sm sticky-top">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-file-invoice-dollar me-2"></i>
+            Resumen de Compra
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- ✅ NUEVA SECCIÓN: Selección de tipo de entrega -->
+        <div class="tipo-entrega-section mb-4">
+          <h6 class="mb-3">
+            <i class="fas fa-truck me-2"></i>
+            Método de Entrega
+          </h6>
+          
+          <div class="form-check mb-2">
+            <input 
+              class="form-check-input" 
+              type="radio" 
+              name="tipoEntrega" 
+              id="envio" 
+              value="envio"
+              [(ngModel)]="resumen.tipoEntrega"
+              (change)="actualizarResumen()">
+            <label class="form-check-label w-100" for="envio">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>
+                  <i class="fas fa-shipping-fast me-2"></i>
+                  Envío a domicilio
+                </span>
+                <span class="badge bg-success" *ngIf="resumen.envio === 0">
+                  GRATIS
+                </span>
+                <span class="text-muted" *ngIf="resumen.envio > 0">
+                  ${{ resumen.envio.toFixed(2) }}
+                </span>
+              </div>
+              <small class="text-muted d-block mt-1">
+                Recibe tu pedido en la puerta de tu casa
+              </small>
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="radio" 
+              name="tipoEntrega" 
+              id="retiro" 
+              value="retiro"
+              [(ngModel)]="resumen.tipoEntrega"
+              (change)="actualizarResumen()">
+            <label class="form-check-label w-100" for="retiro">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>
+                  <i class="fas fa-store me-2"></i>
+                  Retiro en local
+                </span>
+                <span class="badge bg-success">GRATIS</span>
+              </div>
+              <small class="text-muted d-block mt-1">
+                Retira tu pedido en nuestro local
+              </small>
+            </label>
+          </div>
+          
+          <!-- Información del local -->
+          <div class="alert alert-info mt-3 mb-0" *ngIf="resumen.tipoEntrega === 'retiro'">
+            <small>
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Dirección:</strong> Barrio Nuevo Jardin, M77 L68 Córdoba, Argentina<br>
+              <strong>Horario:</strong> Lunes a Viernes 9:00 - 18:00, Sábados 9:00 - 13:00
+            </small>
+          </div>
+        </div>
+
+        <hr class="mb-4">
+          <!-- Tabs: Concepto y Monto -->
+          <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+            <span class="text-muted small">Concepto</span>
+            <span class="text-muted small">Monto</span>
+          </div>
+
+          <!-- Subtotal -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-dark">
+              <i class="fas fa-tag me-2 text-muted"></i>
+              Subtotal
+            </span>
+            <span class="fw-bold">${{ resumen.subtotal.toFixed(2) }}</span>
+          </div>
+
+          <!-- Envío -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-dark">
+              <i class="fas fa-truck me-2 text-muted"></i>
+              {{ resumen.tipoEntrega === 'envio' ? 'Envío' : 'Retiro en local' }}
+            </span>
+            <span class="fw-bold" [class.text-success]="resumen.envio === 0">
+              {{ resumen.envio === 0 ? 'Gratis' : '$' + resumen.envio.toFixed(2) }}
+            </span>
+          </div>
+
+          <!-- Descuento -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-dark">
+              <i class="fas fa-percent me-2 text-muted"></i>
+              Descuento
+            </span>
+            <span class="fw-bold text-danger" *ngIf="resumen.descuento > 0">
+              -${{ resumen.descuento.toFixed(2) }}
+            </span>
+            <span class="text-muted" *ngIf="resumen.descuento === 0">
+              $0
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- Total -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="h5 mb-0">
+              <i class="fas fa-receipt me-2 text-primary"></i>
+              Total a pagar
+            </span>
+            <span class="h4 text-primary mb-0">
+              <strong>${{ resumen.total.toFixed(2) }}</strong>
+            </span>
+          </div>
+
+          <!-- Botón Completar Compra -->
+          <button 
+            class="btn btn-primary btn-lg w-100 mb-2"
+            (click)="completarCompra()">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ resumen.tipoEntrega === 'envio' ? 'Completar Compra' : 'Preparar para Retiro' }}
+          </button>
+
+          <!-- Info adicional -->
+          <div class="alert alert-info mb-0 mt-3">
+            <small>
+              <i class="fas fa-info-circle me-2"></i>
+              Envío gratis en compras mayores a $50.000
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando el carrito está vacío -->
+  <div class="row" *ngIf="!cargando && carrito.length === 0">
+    <div class="col-12 text-center">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5">
+          <i class="fas fa-shopping-cart fa-3x text-secondary mb-3"></i>
+          <h4 class="text-secondary">Tu carrito está vacío</h4>
+          <p class="text-muted">
+            Agrega productos a tu carrito para comenzar a comprar
+          </p>
+          <button class="btn btn-primary mt-3" (click)="volverAProductos()">
+            <i class="fas fa-store me-2"></i>
+            Explorar Productos
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

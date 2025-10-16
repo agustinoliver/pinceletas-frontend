@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommerceService } from '../../../services/commerce.service';
 import { Categoria} from '../../../models/categoria.model';
-import { Producto } from '../../../models/producto.model';
+import { calcularPrecioConDescuento, Producto } from '../../../models/producto.model';
 import { Router } from '@angular/router';
 
 @Component({
@@ -84,5 +84,16 @@ export class ProductListComponent implements OnInit {
     this.categoriaSeleccionada = 'todas';
     this.filtroNombre = '';
     this.aplicarFiltros();
+  }
+  calcularPrecio(producto: Producto) {
+    return calcularPrecioConDescuento(
+      producto.precio,
+      producto.descuentoPorcentaje || 0
+    );
+  }
+
+  // ✅ NUEVO: Verificar si el producto tiene descuento
+  tieneDescuento(producto: Producto): boolean {
+    return (producto.descuentoPorcentaje || 0) > 0;
   }
 }

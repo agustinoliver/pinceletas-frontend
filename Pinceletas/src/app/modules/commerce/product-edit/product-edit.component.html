@@ -78,6 +78,44 @@
                   </div>
                 </div>
 
+                <!-- Descuento Porcentaje -->
+                <div class="col-md-6 mb-3">
+                  <label for="descuento" class="form-label">Descuento (%)</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      id="descuento"
+                      class="form-control"
+                      [(ngModel)]="producto.descuentoPorcentaje"
+                      name="descuentoPorcentaje"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      placeholder="0"
+                      [disabled]="cargando"
+                    >
+                    <span class="input-group-text">%</span>
+                  </div>
+                  <small class="form-text text-muted">Rango: 0 a 100%</small>
+                </div>
+
+                <!-- Precio Final Calculado (solo lectura) -->
+                <div class="col-md-6 mb-3" *ngIf="producto.precio > 0">
+                  <label class="form-label">Precio Final</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="(producto.precio - (producto.precio * (producto.descuentoPorcentaje || 0) / 100)).toFixed(2)"
+                      disabled
+                    >
+                  </div>
+                  <small class="form-text text-success" *ngIf="(producto.descuentoPorcentaje || 0) > 0">
+                    Ahorras: ${{ (producto.precio * (producto.descuentoPorcentaje || 0) / 100).toFixed(2) }}
+                  </small>
+                </div>
+
                 <!-- Descripción -->
                 <div class="col-12 mb-3">
                   <label for="descripcion" class="form-label">Descripción</label>
