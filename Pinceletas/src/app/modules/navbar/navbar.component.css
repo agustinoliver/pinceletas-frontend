@@ -190,11 +190,35 @@
   padding: 0.5rem 0.7rem;
   border-radius: 6px;
   transition: all 0.3s ease;
+  background: transparent;
+  cursor: pointer;
 }
 
 .custom-toggler:hover {
   border-color: var(--primary-color);
   background: var(--primary-light);
+}
+
+/* Icono del toggler */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28237, 98, 12, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  transition: transform 0.3s ease;
+}
+
+/* Estados del menú móvil */
+.navbar-collapse.show {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive mejorado */
@@ -207,7 +231,7 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--border-color);
   }
-  
+
   /* Dropdown en móvil */
   .dropdown-menu {
     position: static;
@@ -218,8 +242,122 @@
     box-shadow: none;
     background: var(--primary-light);
   }
-  
+
   .dropdown-menu.show {
     display: block;
   }
+
+  /* Ajustes de espaciado en móvil */
+  .nav-link-custom {
+    padding: 0.8rem 1rem !important;
+    margin: 0.1rem 0;
+  }
+
+  .btn-register,
+  .btn-logout {
+    margin-left: 0;
+    margin-top: 0.3rem;
+  }
+
+  .user-welcome {
+    margin: 0.3rem 0;
+  }
+
+  /* Mejor alineación en móvil */
+  .navbar-nav {
+    text-align: center;
+  }
+}
+
+/* Estados de hover para todos los elementos interactivos */
+.nav-item {
+  transition: transform 0.2s ease;
+}
+
+.nav-item:hover {
+  transform: translateY(-1px);
+}
+
+/* Mejoras de accesibilidad */
+.nav-link-custom:focus,
+.dropdown-item:focus,
+.custom-toggler:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Efectos de transición suaves */
+.navbar-collapse,
+.dropdown-menu,
+.nav-link-custom,
+.dropdown-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Soporte para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .navbar-custom {
+    background: #1a1a1a !important;
+    border-bottom-color: #333;
+  }
+
+  .navbar-collapse {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+
+  .nav-link-custom {
+    color: #e0e0e0 !important;
+  }
+
+  .dropdown-menu {
+    background-color: #2d2d2d;
+    border-color: #444;
+  }
+
+  .dropdown-item {
+    color: #e0e0e0;
+  }
+
+  .dropdown-item:hover {
+    background-color: #3d3d3d;
+  }
+}
+
+/* Indicador visual para elementos activos */
+.nav-link-custom.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+}
+
+/* Mejora para el componente de notificaciones */
+app-dropdown-notification {
+  display: flex;
+  align-items: center;
+}
+
+/* Estados de carga */
+.navbar-brand.loading,
+.nav-link-custom.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Utilidades para variables CSS (si no las tienes definidas) */
+:root {
+  --primary-color: #ed620c;
+  --primary-hover: #d4560a;
+  --primary-light: rgba(237, 98, 12, 0.1);
+  --accent-color: #ff8c42;
+  --accent-light: rgba(255, 140, 66, 0.1);
+  --text-dark: #333333;
+  --danger-color: #dc3545;
+  --border-color: #dee2e6;
 }

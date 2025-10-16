@@ -16,6 +16,7 @@ import { DropdownNotificationComponent } from '../notificaciones/dropdown-notifi
 export class NavbarComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   isDropdownOpen = false;
+  isMenuCollapsed = true;
   private userSubscription?: Subscription;
 
   constructor(
@@ -61,12 +62,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isDropdownOpen = false;
   }
 
+  closeDropdownAndMenu(): void {
+    this.isDropdownOpen = false;
+    this.isMenuCollapsed = true;
+  }
+
+  toggleMenu(): void {
+    this.isMenuCollapsed = !this.isMenuCollapsed;
+    // Cerrar dropdown cuando se cierra el menú móvil
+    if (this.isMenuCollapsed) {
+      this.isDropdownOpen = false;
+    }
+  }
+
   logout(): void {
     this.authService.logout();
+    this.isMenuCollapsed = true;
+    this.isDropdownOpen = false;
     this.router.navigate(['/productlist']);
   }
 
   navigateToProfile(): void {
+    this.isMenuCollapsed = true;
+    this.isDropdownOpen = false;
     this.router.navigate(['/profile']);
   }
 

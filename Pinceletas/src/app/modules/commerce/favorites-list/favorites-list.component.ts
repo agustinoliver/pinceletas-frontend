@@ -241,4 +241,12 @@ export class FavoritesListComponent implements OnInit{
       reverseButtons: true
     });
   }
+
+  getCategoriaNombre(favorito: Favorito): string {
+  // Si categoria es null/undefined o nombre es null/undefined, retorna 'Sin categoría'
+  if (!favorito.producto.categoria || !favorito.producto.categoria.nombre) {
+    return 'Sin categoría';
+  }
+  return favorito.producto.categoria.nombre;
+  }
 }
