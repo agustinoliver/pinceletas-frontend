@@ -1,0 +1,48 @@
+<div class="notification-dropdown">
+  <!-- Botón de la campanita -->
+  <button class="notification-toggle" (click)="toggleDropdown()">
+    <i class="fas fa-bell"></i>
+    <span class="notification-badge" *ngIf="contadorNoLeidas > 0">
+      {{ contadorNoLeidas > 99 ? '99+' : contadorNoLeidas }}
+    </span>
+  </button>
+
+  <!-- Dropdown de notificaciones -->
+  <div class="notification-dropdown-menu" [class.show]="isOpen">
+    <div class="notification-header">
+      <h6 class="notification-title">
+        <i class="fas fa-bell me-2"></i>
+        Notificaciones
+        <span class="badge bg-primary ms-2" *ngIf="contadorNoLeidas > 0">
+          {{ contadorNoLeidas }}
+        </span>
+      </h6>
+      <button class="btn-mark-all-read" 
+              *ngIf="contadorNoLeidas > 0"
+              (click)="marcarTodasComoLeidas()"
+              title="Marcar todas como leídas">
+        <i class="fas fa-check-double"></i>
+      </button>
+    </div>
+
+    <div class="notification-list">
+      <div *ngIf="!tieneNotificaciones" class="empty-notifications">
+        <i class="fas fa-bell-slash"></i>
+        <p>No hay notificaciones</p>
+      </div>
+
+      <app-view-notification
+        *ngFor="let notificacion of notificaciones"
+        [notificacion]="notificacion"
+        (marcarLeida)="onMarcarLeida($event)"
+        (eliminarNotificacion)="onEliminarNotificacion($event)">
+      </app-view-notification>
+    </div>
+
+    <div class="notification-footer">
+      <small class="text-muted">
+        {{ notificaciones.length }} notificación{{ notificaciones.length !== 1 ? 'es' : '' }}
+      </small>
+    </div>
+  </div>
+</div>

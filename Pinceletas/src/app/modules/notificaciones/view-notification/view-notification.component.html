@@ -1,0 +1,35 @@
+<div class="notification-item" 
+     [class.unread]="notificacion.estado === 'NO_LEIDA'"
+     [class.read]="notificacion.estado === 'LEIDA'"
+     (click)="onLeerNotificacion()">
+  
+  <div class="notification-content">
+    <div class="notification-header">
+      <div class="notification-icon">
+        <i [class]="getIconoPorTipo() + ' ' + getColorPorTipo()"></i>
+      </div>
+      <div class="notification-title">
+        <strong>{{ notificacion.titulo }}</strong>
+      </div>
+      <button class="btn-close-notification" 
+              (click)="onEliminarNotificacion($event)"
+              aria-label="Eliminar notificación">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="notification-body">
+      <p class="notification-message">{{ notificacion.mensaje }}</p>
+      <div class="notification-meta">
+        <small class="text-muted">
+          <i class="fas fa-clock me-1"></i>
+          {{ notificacion.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+        </small>
+        <span class="badge notification-badge" 
+              [class]="notificacion.estado === 'NO_LEIDA' ? 'bg-primary' : 'bg-secondary'">
+          {{ notificacion.estado === 'NO_LEIDA' ? 'Nueva' : 'Leída' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

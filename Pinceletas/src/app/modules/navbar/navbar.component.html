@@ -7,13 +7,15 @@
     <button 
       class="navbar-toggler custom-toggler" 
       type="button" 
-      (click)="toggleMenu()"
-      [attr.aria-expanded]="!isMenuCollapsed"
+      data-bs-toggle="collapse" 
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
       aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     
-    <div class="collapse navbar-collapse" [class.show]="!isMenuCollapsed" id="navbarNav">
+    <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link nav-link-custom" routerLink="/productlist" routerLinkActive="active">
@@ -21,17 +23,40 @@
           </a>
         </li>
         
-        <!-- Menú Admin - Solo visible para administradores -->
-        <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link nav-link-custom" routerLink="/admin/products" routerLinkActive="active">
-            <i class="fas fa-cog me-1"></i>Admin
+        <!-- Dropdown de Administración - MANUAL -->
+        <li class="nav-item dropdown" *ngIf="isAdmin">
+          <a class="nav-link nav-link-custom dropdown-toggle" 
+             (click)="toggleDropdown($event)"
+             [class.show]="isDropdownOpen"
+             style="cursor: pointer;">
+            <i class="fas fa-cog me-1"></i>Administración
           </a>
-        </li>
-        <!-- Menú Admin de Auditorias - Solo visible para administradores -->
-        <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link nav-link-custom" routerLink="admin/audits" routerLinkActive="active">
-            <i class="fas fa-clipboard-check me-1"></i>Auditorias
-          </a>
+          <ul class="dropdown-menu" [class.show]="isDropdownOpen">
+            <li>
+              <a class="dropdown-item" 
+                 routerLink="/admin/products" 
+                 routerLinkActive="active"
+                 (click)="closeDropdown()">
+                <i class="fas fa-boxes me-2"></i>Gestión de Productos
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" 
+                 routerLink="/admin/audits" 
+                 routerLinkActive="active"
+                 (click)="closeDropdown()">
+                <i class="fas fa-clipboard-check me-2"></i>Auditorías
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" 
+                 routerLink="/admin/dashboard" 
+                 routerLinkActive="active"
+                 (click)="closeDropdown()">
+                <i class="fas fa-chart-bar me-2"></i>Dashboard
+              </a>
+            </li>
+          </ul>
         </li>
       </ul>
       
@@ -53,6 +78,11 @@
         
         <!-- Opciones para usuarios autenticados -->
         <ng-container *ngIf="isLoggedIn">
+          <!-- Dropdown de Notificaciones -->
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <app-dropdown-notification></app-dropdown-notification>
+          </li>
+
           <!-- Botón Mi Perfil -->
           <li class="nav-item">
             <a class="nav-link nav-link-custom" (click)="navigateToProfile()" style="cursor: pointer;">

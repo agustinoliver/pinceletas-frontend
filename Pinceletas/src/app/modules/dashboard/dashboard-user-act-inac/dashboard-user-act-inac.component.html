@@ -1,0 +1,217 @@
+<div class="dashboard-container">
+  <!-- Header del Dashboard -->
+  <div class="dashboard-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h1 class="dashboard-title">
+          <i class="fas fa-chart-line me-3 text-primary"></i>
+          Dashboard Administrativo
+        </h1>
+        <p class="dashboard-subtitle">Métricas y estadísticas del sistema</p>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" (click)="refreshDashboard()" [disabled]="loading">
+          <i class="fas fa-sync-alt me-2" [class.fa-spin]="loading"></i>
+          {{ loading ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Cargando dashboard...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      {{ error }}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="refreshDashboard()">
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="dashboardData && !loading" class="dashboard-content fade-in">
+    
+    <!-- Tarjetas de Resumen -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="summary-icon bg-primary">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="ms-3">
+                <h3 class="summary-value">{{ dashboardData.userStats.totalUsers }}</h3>
+                <p class="summary-label">Total Usuarios</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="summary-icon bg-success">
+                <i class="fas fa-user-check"></i>
+              </div>
+              <div class="ms-3">
+                <h3 class="summary-value">{{ dashboardData.userStats.activeUsers }}</h3>
+                <p class="summary-label">Usuarios Activos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="summary-icon bg-warning">
+                <i class="fas fa-user-clock"></i>
+              </div>
+              <div class="ms-3">
+                <h3 class="summary-value">{{ dashboardData.userStats.inactiveUsers }}</h3>
+                <p class="summary-label">Usuarios Inactivos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="summary-icon bg-info">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="ms-3">
+                <h3 class="summary-value">{{ dashboardData.userStats.activePercentage | number:'1.1-1' }}%</h3>
+                <p class="summary-label">Tasa de Activos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+      <!-- Gráfico de Torta -->
+      <div class="col-md-6">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-chart-pie me-2 text-primary"></i>
+              Distribución de Usuarios
+            </h5>
+          </div>
+          <div class="card-body">
+            <google-chart 
+              *ngIf="pieChartData.length > 0"
+              [type]="pieChartType"
+              [data]="pieChartData"
+              [columns]="pieChartColumns"
+              [options]="pieChartOptions">
+            </google-chart>
+            <div *ngIf="pieChartData.length === 0" class="text-center text-muted py-5">
+              <i class="fas fa-chart-pie fa-3x mb-3"></i>
+              <p>No hay datos para mostrar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Barras -->
+      <div class="col-md-6">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-chart-bar me-2 text-primary"></i>
+              Comparación de Usuarios
+            </h5>
+          </div>
+          <div class="card-body">
+            <google-chart 
+              *ngIf="barChartData.length > 0"
+              [type]="barChartType"
+              [data]="barChartData"
+              [columns]="barChartColumns"
+              [options]="barChartOptions">
+            </google-chart>
+            <div *ngIf="barChartData.length === 0" class="text-center text-muted py-5">
+              <i class="fas fa-chart-bar fa-3x mb-3"></i>
+              <p>No hay datos para mostrar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas del Sistema -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-cogs me-2 text-primary"></i>
+              Métricas del Sistema
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="metric-item">
+                  <div class="metric-label">Estado del Servicio</div>
+                  <div class="metric-value">
+                    <span [class]="getStatusBadgeClass(dashboardData.systemMetrics.serviceStatus)">
+                      {{ getStatusText(dashboardData.systemMetrics.serviceStatus) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="metric-item">
+                  <div class="metric-label">Total de Requests</div>
+                  <div class="metric-value text-primary">
+                    {{ dashboardData.systemMetrics.totalRequests | number }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="metric-item">
+                  <div class="metric-label">Uptime</div>
+                  <div class="metric-value text-success">
+                    {{ dashboardData.systemMetrics.uptimePercentage | number:'1.2-2' }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timestamp -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <div class="text-center text-muted">
+          <small>
+            <i class="fas fa-clock me-1"></i>
+            Última actualización: {{ dashboardData.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -47,6 +47,13 @@ export const routes: Routes = [
       .then(m => m.ProductAuditComponent),
   //canActivate: [authGuard]
 },
+{
+    path: 'admin/dashboard',
+    loadComponent: () =>
+      import('./modules/dashboard/dashboard-user-act-inac/dashboard-user-act-inac.component')
+        .then(m => m.DashboardUserActInacComponent),
+    // canActivate: [authGuard] // Solo usuarios autenticados pueden acceder al dashboard
+  },
   {
     path: '',
     redirectTo: 'productlist',

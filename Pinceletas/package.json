@@ -20,9 +20,11 @@
     "@angular/router": "^18.2.0",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@popperjs/core": "^2.11.8",
+    "angular-google-charts": "^16.1.0",
     "bootstrap": "^5.3.8",
     "firebase": "^12.3.0",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.25.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   },
