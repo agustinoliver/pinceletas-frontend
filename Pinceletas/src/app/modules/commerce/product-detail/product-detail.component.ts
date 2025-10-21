@@ -19,6 +19,8 @@ export class ProductDetailComponent implements OnInit {
   producto: Producto | null = null;
   opcionSeleccionada: number | null = null;
   esFavorito: boolean = false;
+  imagenPrincipal: string = ''; // ✅ NUEVO: Imagen actualmente mostrada
+  
   private backendUrl = 'http://localhost:8080';
   private usuarioId: number = 1;
   private returnUrl: string = '/productlist';
@@ -31,13 +33,11 @@ export class ProductDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ Obtener returnUrl del estado de navegación
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state && navigation.extras.state['returnUrl']) {
       this.returnUrl = navigation.extras.state['returnUrl'];
     }
 
-    // ✅ También intentar obtenerlo del historial si no está en la navegación actual
     const state = window.history.state;
     if (state && state.returnUrl) {
       this.returnUrl = state.returnUrl;
@@ -49,10 +49,19 @@ export class ProductDetailComponent implements OnInit {
       this.verificarFavorito(productId);
     });
   }
+
   cargarProducto(id: number): void {
     this.commerceService.getProductoById(id).subscribe({
       next: (producto) => {
         this.producto = producto;
+        console.log('📸 Producto cargado:', producto); // ✅ DEBUG
+        console.log('📸 Imágenes del producto:', producto.imagenes);
+        
+        // ✅ CORREGIDO: Establecer imagen principal
+        if (producto.imagenes && producto.imagenes.length > 0) {
+          this.imagenPrincipal = producto.imagenes[0];
+        }
+        
         // Si solo hay una opción, seleccionarla automáticamente
         if (producto.opciones && producto.opciones.length === 1) {
           this.opcionSeleccionada = producto.opciones[0].id;
@@ -65,8 +74,21 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  // ✅ NUEVO: Cambiar imagen principal
+  cambiarImagenPrincipal(imagen: string): void {
+    console.log('🖱️ Cambiando imagen principal a:', imagen);
+    console.log('🖱️ URL completa nueva imagen:', this.getImagenUrl(imagen));
+    this.imagenPrincipal = imagen;
+  }
+
+  // ✅ NUEVO: Manejar error en miniaturas
+  handleThumbnailError(event: any): void {
+    console.error('❌ Error cargando miniatura:', event);
+    const target = event.target;
+    target.style.display = 'none';
+  }
+
   verificarFavorito(productoId: number): void {
-    // Obtener usuario del servicio de autenticación
     const currentUser = this.authService.getCurrentUser();
     if (currentUser && currentUser.id) {
       this.usuarioId = currentUser.id;
@@ -81,11 +103,11 @@ export class ProductDetailComponent implements OnInit {
       });
     }
   }
+
   toggleFavorito(): void {
     if (!this.producto) return;
 
     if (this.esFavorito) {
-      // Eliminar de favoritos
       this.commerceService.eliminarFavorito(this.usuarioId, this.producto.id).subscribe({
         next: () => {
           this.esFavorito = false;
@@ -97,7 +119,6 @@ export class ProductDetailComponent implements OnInit {
         }
       });
     } else {
-      // Agregar a favoritos
       const favoritoData = {
         usuarioId: this.usuarioId,
         productoId: this.producto.id
@@ -117,9 +138,17 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getImagenUrl(imagenPath: string): string {
-    if (!imagenPath) return '';
-    if (imagenPath.startsWith('http')) return imagenPath;
-    return `${this.backendUrl}${imagenPath}`;
+    if (!imagenPath) {
+      console.warn('❌ imagenPath está vacío');
+      return '';
+    }
+    if (imagenPath.startsWith('http')) {
+      console.log('🌐 URL ya es completa:', imagenPath);
+      return imagenPath;
+    }
+    const urlCompleta = `${this.backendUrl}${imagenPath}`;
+    console.log('🔗 URL construida:', urlCompleta);
+    return urlCompleta;
   }
 
   seleccionarOpcion(event: any): void {
@@ -131,40 +160,39 @@ export class ProductDetailComponent implements OnInit {
   }
 
   handleImageError(event: any): void {
+    console.error('❌ Error cargando imagen principal:', event);
     event.target.style.display = 'none';
   }
 
   agregarAlCarrito(): void {
-  if (this.producto) {
-    // Validar que si tiene opciones, esté seleccionada una
-    if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
-      this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
-      return;
-    }
-    
-    // Preparar datos para agregar al carrito
-    const carritoRequest: CarritoRequest = {
-      productoId: this.producto.id,
-      cantidad: 1,
-      opcionSeleccionadaId: this.opcionSeleccionada || null // ✅ CORREGIDO: Usar null en lugar de undefined
-    };
-    
-    // Llamar al servicio para agregar al carrito
-    this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
-      next: () => {
-        this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
-      },
-      error: (error) => {
-        console.error('Error agregando al carrito:', error);
-        if (error.error?.message?.includes('ya está en el carrito')) {
-          this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
-        } else {
-          this.mostrarAlertaError('Error al agregar el producto al carrito');
-        }
+    if (this.producto) {
+      if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
+        this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
+        return;
       }
-    });
+      
+      const carritoRequest: CarritoRequest = {
+        productoId: this.producto.id,
+        cantidad: 1,
+        opcionSeleccionadaId: this.opcionSeleccionada || null
+      };
+      
+      this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
+        next: () => {
+          this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
+        },
+        error: (error) => {
+          console.error('Error agregando al carrito:', error);
+          if (error.error?.message?.includes('ya está en el carrito')) {
+            this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
+          } else {
+            this.mostrarAlertaError('Error al agregar el producto al carrito');
+          }
+        }
+      });
+    }
   }
-}
+
   calcularPrecio() {
     if (!this.producto) return null;
     return calcularPrecioConDescuento(
@@ -176,6 +204,7 @@ export class ProductDetailComponent implements OnInit {
   tieneDescuento(): boolean {
     return this.producto ? (this.producto.descuentoPorcentaje || 0) > 0 : false;
   }
+
   private mostrarAlertaExito(mensaje: string): void {
     Swal.fire({
       title: '¡Éxito!',
@@ -187,6 +216,7 @@ export class ProductDetailComponent implements OnInit {
       timerProgressBar: true
     });
   }
+
   private mostrarAlertaError(mensaje: string): void {
     Swal.fire({
       title: 'Error',

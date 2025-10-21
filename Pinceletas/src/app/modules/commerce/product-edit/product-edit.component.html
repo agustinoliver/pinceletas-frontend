@@ -138,41 +138,78 @@
 
                 <!-- Imagen -->
                 <div class="col-12 mb-3">
-                  <label for="imagen" class="form-label">Imagen del Producto</label>
+                  <label for="imagenes" class="form-label">Imágenes del Producto</label>
                   
-                  <!-- Imagen actual -->
-                  <div *ngIf="producto.imagenActual && !imagenCambiada" class="mb-3">
-                    <label class="form-label fw-bold">Imagen actual:</label>
-                    <div class="image-preview-container">
-                      <img [src]="getImagenUrl(producto.imagenActual)" alt="Imagen actual" class="img-thumbnail">
+                  <!-- Imágenes actuales -->
+                  <div *ngIf="producto.imagenesActuales && producto.imagenesActuales.length > 0 && !imagenesCambiadas" class="mb-3">
+                    <label class="form-label fw-bold">Imágenes actuales:</label>
+                    <div class="row">
+                      <div class="col-6 col-md-4 col-lg-3 mb-3" *ngFor="let imagen of producto.imagenesActuales; let i = index">
+                        <div class="image-preview-container position-relative">
+                          <img [src]="getImagenUrl(imagen)" alt="Imagen actual" class="img-thumbnail w-100">
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-1"
+                            (click)="eliminarImagen(i, true)"
+                            title="Eliminar imagen"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <small class="position-absolute bottom-0 start-0 m-1 bg-dark text-white px-1 rounded">
+                            {{ i + 1 }}
+                          </small>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <!-- Nueva imagen -->
+                  <!-- Nuevas imágenes -->
                   <input
                     type="file"
-                    id="imagen"
+                    id="imagenes"
                     class="form-control"
                     (change)="onImagenSeleccionada($event)"
-                    name="imagen"
+                    name="imagenes"
                     accept="image/*"
+                    multiple
                     [disabled]="cargando"
                   >
-                  <div class="form-text">Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 5MB</div>
+                  <div class="form-text">Puedes seleccionar hasta 5 imágenes. Formatos: JPG, PNG, GIF.</div>
+
+                  <!-- Opción para mantener imágenes existentes -->
+                  <div class="form-check mt-2" *ngIf="producto.imagenesActuales && producto.imagenesActuales.length > 0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="mantenerImagenes"
+                      [(ngModel)]="producto.mantenerImagenes"
+                      name="mantenerImagenes"
+                    >
+                    <label class="form-check-label" for="mantenerImagenes">
+                      Mantener imágenes existentes y agregar las nuevas
+                    </label>
+                  </div>
                   
-                  <!-- Preview de nueva imagen -->
-                  <div *ngIf="imagenPrevia && imagenCambiada" class="mt-3">
-                    <label class="form-label fw-bold">Nueva imagen (vista previa):</label>
-                    <div class="image-preview-container">
-                      <img [src]="imagenPrevia" alt="Preview" class="img-thumbnail">
-                      <button 
-                        type="button" 
-                        class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
-                        (click)="limpiarImagen()"
-                        title="Cancelar cambio de imagen"
-                      >
-                        <i class="fas fa-times"></i>
-                      </button>
+                  <!-- Preview de nuevas imágenes -->
+                  <div *ngIf="imagenPrevia.length > 0 && imagenesCambiadas" class="mt-3">
+                    <label class="form-label fw-bold">Nuevas imágenes (vista previa):</label>
+                    <div class="row">
+                      <div class="col-6 col-md-4 col-lg-3 mb-3" *ngFor="let preview of imagenPrevia; let i = index">
+                        <div class="image-preview-container position-relative">
+                          <img [src]="preview" alt="Preview" class="img-thumbnail w-100">
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-1"
+                            (click)="eliminarImagen(i, false)"
+                            title="Eliminar imagen"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <small class="position-absolute bottom-0 start-0 m-1 bg-dark text-white px-1 rounded">
+                            {{ i + 1 }}
+                          </small>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

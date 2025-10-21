@@ -7,7 +7,7 @@ export interface CarritoItem {
     nombre: string;
     descripcion: string;
     precio: number;
-    imagen: string;
+    imagenes: string[];
     activo: boolean;
     categoria?: {
       id: number;

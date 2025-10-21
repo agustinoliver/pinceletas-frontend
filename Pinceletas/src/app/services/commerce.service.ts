@@ -41,35 +41,6 @@ export class CommerceService {
   getProductoById(id: number): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiProductos}/${id}`);
   }
-
-  /**
-   * Crea un nuevo producto con imagen (multipart/form-data).
-   * @param productoData - Datos del producto
-   * @param imagen - Archivo de imagen del producto (opcional)
-   */
-  crearProducto(productoData: any, imagen: File | null): Observable<Producto> {
-    const formData = new FormData();
-
-    if (imagen) {
-      formData.append('imagen', imagen);
-    }
-
-    let params = new HttpParams()
-      .set('nombre', productoData.nombre)
-      .set('descripcion', productoData.descripcion)
-      .set('precio', productoData.precio.toString())
-      .set('activo', productoData.activo.toString())
-      .set('categoriaId', productoData.categoriaId.toString())
-      .set('usuarioId', productoData.usuarioId.toString())
-      .set('descuentoPorcentaje', (productoData.descuentoPorcentaje || 0).toString());
-
-    if (productoData.opcionesIds && productoData.opcionesIds.length > 0) {
-      params = params.set('opcionesIds', productoData.opcionesIds.join(','));
-    }
-
-    return this.http.post<Producto>(`${this.apiProductos}/productos`, formData, { params });
-  }
-
   /**
    * Actualiza un producto SIN cambiar la imagen (usa JSON).
    * @param id - ID del producto
@@ -126,6 +97,83 @@ export class CommerceService {
    */
   eliminarProducto(id: number, usuarioId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiProductos}/${id}?usuarioId=${usuarioId}`);
+  }
+  /**
+ * Crea un nuevo producto con múltiples imágenes
+ */
+  crearProducto(productoData: any, imagenes: File[] | null): Observable<Producto> {
+    const formData = new FormData();
+
+    // ✅ CORREGIDO: Agregar múltiples imágenes
+    if (imagenes && imagenes.length > 0) {
+      imagenes.forEach((imagen, index) => {
+        formData.append('imagenes', imagen);
+      });
+    }
+
+    let params = new HttpParams()
+      .set('nombre', productoData.nombre)
+      .set('descripcion', productoData.descripcion)
+      .set('precio', productoData.precio.toString())
+      .set('activo', productoData.activo.toString())
+      .set('categoriaId', productoData.categoriaId.toString())
+      .set('usuarioId', productoData.usuarioId.toString())
+      .set('descuentoPorcentaje', (productoData.descuentoPorcentaje || 0).toString());
+
+    if (productoData.opcionesIds && productoData.opcionesIds.length > 0) {
+      params = params.set('opcionesIds', productoData.opcionesIds.join(','));
+    }
+
+    // ✅ CORREGIDO: Usar el nuevo endpoint para múltiples imágenes
+    return this.http.post<Producto>(`${this.apiProductos}/productos-multiple`, formData, { params });
+  }
+
+  /**
+   * Actualiza un producto con múltiples imágenes
+   */
+  actualizarProductoConMultiplesImagenes(
+    id: number, 
+    productoData: any, 
+    imagenes: File[] | null,
+    mantenerImagenes: boolean = true,
+    usuarioId: number
+  ): Observable<Producto> {
+    const formData = new FormData();
+
+    // ✅ CORREGIDO: Agregar múltiples imágenes
+    if (imagenes && imagenes.length > 0) {
+      imagenes.forEach((imagen, index) => {
+        formData.append('imagenes', imagen);
+      });
+    }
+
+    let params = new HttpParams()
+      .set('nombre', productoData.nombre)
+      .set('descripcion', productoData.descripcion || '')
+      .set('precio', productoData.precio.toString())
+      .set('activo', productoData.activo.toString())
+      .set('categoriaId', productoData.categoriaId.toString())
+      .set('usuarioId', usuarioId.toString())
+      .set('mantenerImagenes', mantenerImagenes.toString())
+      .set('descuentoPorcentaje', (productoData.descuentoPorcentaje || 0).toString());
+
+    if (productoData.opcionesIds && productoData.opcionesIds.length > 0) {
+      params = params.set('opcionesIds', productoData.opcionesIds.join(','));
+    }
+
+    // ✅ CORREGIDO: Usar el nuevo endpoint para múltiples imágenes
+    return this.http.put<Producto>(
+      `${this.apiProductos}/${id}/con-multiples-imagenes`, 
+      formData, 
+      { params }
+    );
+  }
+
+  // ✅ NUEVO: Eliminar una imagen específica de un producto
+  eliminarImagenDeProducto(productoId: number, indiceImagen: number, usuarioId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiProductos}/${productoId}/imagenes/${indiceImagen}?usuarioId=${usuarioId}`
+    );
   }
 
   // ===============================

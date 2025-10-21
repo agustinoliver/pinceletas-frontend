@@ -50,7 +50,7 @@
                   <td class="ps-4">
                     <div class="image-container-admin">
                       <img 
-                        [src]="getImagenUrl(producto.imagen)" 
+                        [src]="getImagenUrl(producto.imagenes[0])" 
                         [alt]="producto.nombre"
                         class="product-image-admin"
                         (error)="handleImageError($event)"

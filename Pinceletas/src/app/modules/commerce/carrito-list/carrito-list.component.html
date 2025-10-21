@@ -39,15 +39,18 @@
               <!-- Imagen del producto -->
               <div class="col-md-2 col-3">
                 <div class="carrito-image-container" (click)="verDetalleProducto(item.producto.id)">
-                  <img 
-                    [src]="getImagenUrl(item.producto.imagen)" 
-                    class="carrito-product-image" 
+                  <img
+                    *ngIf="item.producto.imagenes && item.producto.imagenes.length > 0; else sinImagen"
+                    [src]="getImagenUrl(item.producto.imagenes[0])"
+                    class="carrito-product-image"
                     [alt]="item.producto.nombre"
                     (error)="handleImageError($event)"
                   />
-                  <div class="image-placeholder" *ngIf="!item.producto.imagen">
-                    <i class="fas fa-image"></i>
-                  </div>
+                  <ng-template #sinImagen>
+                    <div class="image-placeholder">
+                      <i class="fas fa-image"></i>
+                    </div>
+                  </ng-template>
                 </div>
               </div>
 

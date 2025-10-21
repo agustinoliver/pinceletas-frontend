@@ -114,16 +114,20 @@
             </div>
 
             <div class="image-container">
-              <img 
-                [src]="getImagenUrl(favorito.producto.imagen)" 
-                class="card-img-top product-image" 
+              <img
+                *ngIf="favorito.producto.imagenes && favorito.producto.imagenes.length > 0; else sinImagen"
+                [src]="getImagenUrl(favorito.producto.imagenes[0])"
+                class="card-img-top product-image"
                 [alt]="favorito.producto.nombre"
                 (error)="handleImageError($event)"
               />
-              <div class="image-placeholder" *ngIf="!favorito.producto.imagen">
-                <i class="fas fa-image"></i>
-                <span>Imagen no disponible</span>
-              </div>
+
+              <ng-template #sinImagen>
+                <div class="image-placeholder">
+                  <i class="fas fa-image"></i>
+                  <span>Imagen no disponible</span>
+                </div>
+              </ng-template>
             </div>
 
             <div class="card-body d-flex flex-column">

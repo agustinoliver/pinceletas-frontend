@@ -9,24 +9,45 @@
   </div>
 
   <div class="row">
-    <!-- Imagen del producto -->
+    <!-- Galería de imágenes del producto -->
     <div class="col-md-6 mb-4">
-      <div class="image-container-detail position-relative">
+      <!-- Carrusel de imágenes del producto -->
+      <div class="image-container-detail position-relative" *ngIf="producto?.imagenes?.length">
         <div *ngIf="tieneDescuento()" class="position-absolute top-0 end-0 m-3">
           <span class="badge bg-danger p-2" style="font-size: 1rem;">
             <i class="fas fa-tag me-1"></i>{{ producto.descuentoPorcentaje }}% OFF
           </span>
         </div>
-        <img 
-          [src]="getImagenUrl(producto.imagen)" 
-          class="img-fluid rounded shadow" 
-          alt="{{ producto.nombre }}"
-          (error)="handleImageError($event)"
-        />
-        <div class="image-placeholder-detail" *ngIf="!producto.imagen">
-          <i class="fas fa-image fa-3x"></i>
-          <span>Imagen no disponible</span>
+
+        <div id="carouselProducto" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <div *ngFor="let imagen of producto?.imagenes; let i = index"
+                class="carousel-item"
+                [class.active]="i === 0">
+              <img
+                [src]="getImagenUrl(imagen)"
+                class="d-block w-100 rounded shadow main-image"
+                alt="{{ producto.nombre }} - Imagen {{ i + 1 }}"
+                (error)="handleImageError($event)" />
+            </div>
+          </div>
+
+          <!-- Controles del carrusel -->
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselProducto" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselProducto" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
         </div>
+      </div>
+
+      <!-- Placeholder cuando no hay imágenes -->
+      <div class="image-placeholder-detail" *ngIf="!producto?.imagenes?.length">
+        <i class="fas fa-image fa-3x"></i>
+        <span>Imagen no disponible</span>
       </div>
     </div>
 
@@ -103,6 +124,13 @@
               <br>
               <strong [class]="producto.activo ? 'text-success' : 'text-danger'">
                 {{ producto.activo ? 'Disponible' : 'No disponible' }}
+              </strong>
+            </div>
+            <div class="col-6" *ngIf="producto.imagenes && producto.imagenes.length > 1">
+              <small class="text-muted">Imágenes:</small>
+              <br>
+              <strong class="text-info">
+                {{ producto.imagenes.length }} disponibles
               </strong>
             </div>
           </div>

@@ -10,7 +10,7 @@ export interface Producto {
   nombre: string;
   descripcion: string;
   precio: number;
-  imagen: string;
+  imagenes: string[];
   activo: boolean;
   opciones: OpcionProducto[];
   categoria?: Categoria;
@@ -25,7 +25,7 @@ export interface ProductoCreateRequest {
   categoriaId: number;
   opcionesIds: number[];
   usuarioId: number;
-  imagen: File | null;
+  imagenes: File[];
   descuentoPorcentaje?: number;
 }
 // ✅ NUEVO: Interfaz auxiliar para cálculos de precio
@@ -48,4 +48,10 @@ export function calcularPrecioConDescuento(precio: number, descuentoPorcentaje: 
     montoDescuento,
     precioFinal
   };
+}
+// ✅ NUEVO: Método para obtener imagen principal
+export function getImagenPrincipal(producto: Producto): string {
+  return producto.imagenes && producto.imagenes.length > 0 
+    ? producto.imagenes[0] 
+    : '';
 }

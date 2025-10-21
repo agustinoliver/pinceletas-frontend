@@ -29,8 +29,9 @@ export class ProductEditComponent implements OnInit {
     categoriaId: 0,
     opcionesIds: [] as number[],
     usuarioId: 1,
-    imagen: null as File | null,
-    imagenActual: '', // Ruta de la imagen actual
+    imagenes: [] as File[], // ✅ CAMBIADO: para nuevas imágenes
+    imagenesActuales: [] as string[], // ✅ NUEVO: imágenes existentes
+    mantenerImagenes: true, // ✅ NUEVO: flag para mantener imágenes
     descuentoPorcentaje: 0
   };
 
@@ -53,8 +54,8 @@ export class ProductEditComponent implements OnInit {
   cargandoCategorias = false;
   mensaje = '';
   tipoMensaje: 'success' | 'error' | 'warning' | '' = '';
-  imagenPrevia: string | null = null;
-  imagenCambiada = false;
+  imagenPrevia: string[] = []; // ✅ CAMBIADO: array para previews
+  imagenesCambiadas = false; // ✅ CAMBIADO
 
   // Estados para eliminación
   eliminandoCategoria: number | null = null;
@@ -107,7 +108,7 @@ export class ProductEditComponent implements OnInit {
         const categoriaExiste = this.categorias.some(cat => cat.id === categoriaId);
         
         this.producto = {
-          id: producto.id,
+         id: producto.id,
           nombre: producto.nombre,
           descripcion: producto.descripcion || '',
           precio: producto.precio,
@@ -115,8 +116,9 @@ export class ProductEditComponent implements OnInit {
           categoriaId: categoriaExiste ? categoriaId : 0,
           opcionesIds: producto.opciones.map(op => op.id),
           usuarioId: 1,
-          imagen: null,
-          imagenActual: producto.imagen,
+          imagenes: [], // ✅ CORREGIDO
+          imagenesActuales: producto.imagenes || [], // ✅ NUEVO
+          mantenerImagenes: true,
           descuentoPorcentaje: producto.descuentoPorcentaje || 0
         };
         
@@ -124,8 +126,8 @@ export class ProductEditComponent implements OnInit {
         this.cdr.detectChanges();
         
         // Cargar preview de imagen actual
-        if (producto.imagen) {
-          this.imagenPrevia = this.getImagenUrl(producto.imagen);
+        if (producto.imagenes && producto.imagenes.length > 0) {
+          this.imagenPrevia = producto.imagenes.map(img => this.getImagenUrl(img));
         }
         
         this.cargandoProducto = false;
@@ -272,18 +274,51 @@ export class ProductEditComponent implements OnInit {
     }
   }
 
+   // ✅ CORREGIDO: Manejar múltiples imágenes
   onImagenSeleccionada(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.producto.imagen = file;
-      this.imagenCambiada = true;
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      // Limitar a 5 imágenes máximo
+      const maxFiles = Math.min(files.length, 5);
       
-      // Crear preview de la nueva imagen
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenPrevia = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      for (let i = 0; i < maxFiles; i++) {
+        const file = files[i];
+        this.producto.imagenes.push(file);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imagenPrevia.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      this.imagenesCambiadas = true;
+    }
+  }
+  // ✅ NUEVO: Eliminar una imagen (nueva o existente)
+  eliminarImagen(index: number, esImagenExistente: boolean = false): void {
+    if (esImagenExistente) {
+      // Eliminar imagen existente del servidor
+      this.commerceService.eliminarImagenDeProducto(
+        this.productoId, 
+        index, 
+        this.producto.usuarioId
+      ).subscribe({
+        next: () => {
+          this.producto.imagenesActuales.splice(index, 1);
+          this.imagenPrevia.splice(index, 1);
+          this.mostrarAlertaExito('Imagen eliminada correctamente');
+        },
+        error: (error) => {
+          console.error('Error eliminando imagen:', error);
+          this.mostrarAlertaError('Error eliminando imagen');
+        }
+      });
+    } else {
+      // Eliminar imagen nueva (no subida aún)
+      this.producto.imagenes.splice(index - this.producto.imagenesActuales.length, 1);
+      this.imagenPrevia.splice(index, 1);
     }
   }
 
@@ -312,50 +347,42 @@ export class ProductEditComponent implements OnInit {
       if (result.isConfirmed) {
         this.cargando = true;
 
-        if (this.imagenCambiada && this.producto.imagen) {
-          // USAR EL NUEVO MÉTODO PARA ACTUALIZAR CON IMAGEN
-          this.actualizarConImagen();
+        if (this.imagenesCambiadas && this.producto.imagenes.length > 0) {
+          // ✅ CORREGIDO: Usar nuevo método para múltiples imágenes
+          this.actualizarConMultiplesImagenes();
         } else {
-          // Actualizar sin cambiar imagen
+          // Actualizar sin cambiar imágenes
           this.actualizarSinImagen();
         }
       }
     });
   }
-
-  private actualizarConImagen(): void {
-    // USAR DIRECTAMENTE EL NUEVO ENDPOINT
-    this.commerceService.actualizarProductoConImagen(
+  private actualizarConMultiplesImagenes(): void {
+    this.commerceService.actualizarProductoConMultiplesImagenes(
       this.productoId,
       this.producto,
-      this.producto.imagen!,
+      this.producto.imagenes,
+      this.producto.mantenerImagenes,
       this.producto.usuarioId
     ).subscribe({
       next: (productoActualizado) => {
         this.procesarActualizacionExitosa(productoActualizado);
       },
       error: (error) => {
-        console.error('Error actualizando producto con imagen:', error);
-        
-        if (error.status === 403) {
-          this.mostrarAlertaError('Error de permisos. Verifica que estés autenticado correctamente.');
-        } else if (error.status === 404) {
-          this.mostrarAlertaError('Producto no encontrado');
-        } else {
-          this.mostrarAlertaError('Error actualizando producto con imagen. Verifica que el archivo sea válido.');
-        }
-        
+        console.error('Error actualizando producto con imágenes:', error);
+        this.mostrarAlertaError('Error actualizando producto con imágenes');
         this.cargando = false;
       }
     });
   }
-
   private actualizarSinImagen(): void {
     this.commerceService.actualizarProducto(
       this.productoId,
       {
         ...this.producto,
-        imagenActual: this.producto.imagenActual // Mantener imagen actual
+        // ✅ CORREGIDO: Enviar datos correctos para actualización sin imágenes
+        imagen: this.producto.imagenesActuales.length > 0 ? this.producto.imagenesActuales[0] : '', // Para compatibilidad
+        imagenes: this.producto.imagenesActuales // ✅ NUEVO: Enviar array de imágenes
       },
       this.producto.usuarioId
     ).subscribe({
@@ -388,12 +415,13 @@ export class ProductEditComponent implements OnInit {
     
     // Actualizar los datos locales
     this.productoOriginal = productoActualizado;
-    this.producto.imagenActual = productoActualizado.imagen;
+    this.producto.imagenesActuales = productoActualizado.imagenes || [];
     
-    // Actualizar el preview de imagen si se cambió
-    if (this.imagenCambiada) {
-      this.imagenPrevia = this.getImagenUrl(productoActualizado.imagen);
-      this.imagenCambiada = false;
+    // ✅ CORREGIDO: Actualizar el preview de imágenes si se cambiaron
+    if (this.imagenesCambiadas) {
+      this.imagenPrevia = (productoActualizado.imagenes || []).map(img => this.getImagenUrl(img));
+      this.imagenesCambiadas = false;
+      this.producto.imagenes = []; // Limpiar imágenes nuevas
     }
   }
 
@@ -415,23 +443,25 @@ export class ProductEditComponent implements OnInit {
     return `http://localhost:8080${imagenPath}`;
   }
 
-  limpiarImagen(): void {
+  limpiarImagenes(): void {
     this.mostrarConfirmacion(
-      '¿Estás seguro de que quieres cancelar el cambio de imagen?',
-      'La nueva imagen seleccionada se descartará'
+      '¿Estás seguro de que quieres cancelar el cambio de imágenes?',
+      'Las nuevas imágenes seleccionadas se descartarán'
     ).then((result) => {
       if (result.isConfirmed) {
-        this.producto.imagen = null;
-        this.imagenCambiada = false;
-        this.imagenPrevia = this.producto.imagenActual ? this.getImagenUrl(this.producto.imagenActual) : null;
+        this.producto.imagenes = [];
+        this.imagenesCambiadas = false;
+        
+        // ✅ CORREGIDO: Restaurar previews de imágenes existentes
+        this.imagenPrevia = this.producto.imagenesActuales.map(img => this.getImagenUrl(img));
         
         // Resetear el input file
-        const fileInput = document.getElementById('imagen') as HTMLInputElement;
+        const fileInput = document.getElementById('imagenes') as HTMLInputElement;
         if (fileInput) {
           fileInput.value = '';
         }
         
-        this.mostrarAlertaExito('Cambio de imagen cancelado');
+        this.mostrarAlertaExito('Cambio de imágenes cancelado');
       }
     });
   }
@@ -462,7 +492,9 @@ export class ProductEditComponent implements OnInit {
       this.producto.categoriaId !== (this.productoOriginal.categoria?.id || 0) ||
       this.producto.descuentoPorcentaje !== (this.productoOriginal.descuentoPorcentaje || 0) ||
       JSON.stringify(this.producto.opcionesIds) !== JSON.stringify(this.productoOriginal.opciones.map(op => op.id)) ||
-      this.imagenCambiada
+      this.imagenesCambiadas || // ✅ CORREGIDO: usar imagenesCambiadas
+      // ✅ NUEVO: Verificar si se eliminaron imágenes existentes
+      JSON.stringify(this.producto.imagenesActuales) !== JSON.stringify(this.productoOriginal.imagenes || [])
     );
   }
 

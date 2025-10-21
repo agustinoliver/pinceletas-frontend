@@ -24,9 +24,10 @@ export class ProductCreateComponent implements OnInit {
     categoriaId: 0,
     opcionesIds: [] as number[],
     usuarioId: 1,
-    imagen: null as File | null,
+    imagenes: [] as File[],
     descuentoPorcentaje: 0
   };
+  
 
   // Datos para nuevas categorías y opciones
   nuevaCategoria = {
@@ -46,7 +47,7 @@ export class ProductCreateComponent implements OnInit {
   cargando = false;
   mensaje = '';
   tipoMensaje: 'success' | 'error' | '' = '';
-  imagenPrevia: string | null = null;
+  imagenPrevia: string[] = [];
 
   // Estados para eliminación
   eliminandoCategoria: number | null = null;
@@ -211,16 +212,29 @@ export class ProductCreateComponent implements OnInit {
   }
 
   onImagenSeleccionada(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.producto.imagen = file;
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      // Limitar a 5 imágenes máximo
+      const maxFiles = Math.min(files.length, 5);
       
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenPrevia = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      for (let i = 0; i < maxFiles; i++) {
+        const file = files[i];
+        this.producto.imagenes.push(file);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imagenPrevia.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
+  }
+
+  // ✅ NUEVO: Eliminar una imagen seleccionada
+  eliminarImagen(index: number): void {
+    this.producto.imagenes.splice(index, 1);
+    this.imagenPrevia.splice(index, 1);
   }
 
   crearProducto(): void {
@@ -244,7 +258,7 @@ export class ProductCreateComponent implements OnInit {
     }
 
     this.cargando = true;
-    this.commerceService.crearProducto(this.producto, this.producto.imagen)
+    this.commerceService.crearProducto(this.producto, this.producto.imagenes)
       .subscribe({
         next: (productoCreado) => {
           this.mostrarAlertaExito('Producto creado exitosamente')
@@ -275,10 +289,10 @@ export class ProductCreateComponent implements OnInit {
           categoriaId: 0,
           opcionesIds: [],
           usuarioId: 1,
-          imagen: null,
+          imagenes: [],
           descuentoPorcentaje: 0
         };
-        this.imagenPrevia = null;
+        this.imagenPrevia = [];
         this.nuevaCategoria.nombre = '';
         this.nuevaOpcion.tipo = '';
         this.mostrarAlertaExito('Formulario limpiado correctamente');
