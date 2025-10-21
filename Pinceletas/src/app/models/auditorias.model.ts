@@ -17,3 +17,12 @@ export interface AuditoriaCategoria {
   valoresNuevos: string | null;
   fechaAccion: string;
 }
+export interface AuditoriaPedido {
+  id: number;
+  pedidoId: number;
+  usuarioId: number;
+  accion: string;
+  valoresAnteriores: string | null;
+  valoresNuevos: string | null;
+  fechaAccion: string;
+}

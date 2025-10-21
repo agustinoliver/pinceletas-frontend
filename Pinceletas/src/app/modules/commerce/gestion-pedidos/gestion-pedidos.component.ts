@@ -209,4 +209,7 @@ export class GestionPedidosComponent implements OnInit {
       cancelButtonColor: '#6c757d'
     });
   }
+  irAAuditoria() {
+    this.router.navigate(['/admin/pedidos/auditoria']);
+  }
 }

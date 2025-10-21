@@ -11,6 +11,13 @@
           <p class="text-muted mb-0">Administra todos los pedidos del sistema</p>
         </div>
       </div>
+      <button 
+        class="btn btn-outline-info me-2"
+        (click)="irAAuditoria()"
+      >
+        <i class="fas fa-history me-2"></i>
+        Ver Auditoría
+      </button>
       <button class="btn btn-outline-primary me-2" (click)="cargarPedidos()" [disabled]="cargando">
         <i class="fas fa-sync-alt me-2" [class.fa-spin]="cargando"></i>
         Actualizar

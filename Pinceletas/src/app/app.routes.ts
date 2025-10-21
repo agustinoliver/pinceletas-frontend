@@ -42,6 +42,12 @@ export const routes: Routes = [
     // canActivate: [authGuard]
   },
   { 
+    path: 'admin/pedidos/auditoria', 
+    loadComponent: () => import('./modules/commerce/pedido-audit/pedido-audit.component')
+      .then(m => m.PedidoAuditComponent),
+    canActivate: [authGuard] // Solo administradores
+  },
+  { 
     path: 'admin/dashboard', 
     loadComponent: () => import('./modules/dashboard/dashboard-user-act-inac/dashboard-user-act-inac.component')
       .then(m => m.DashboardUserActInacComponent),

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { commerceEnviroment } from '../enviroment/commerce-enviroment';
 import { PedidoRequest, PedidoResponse, ActualizarEstadoPedido } from '../models/pedido.model';
+import { AuditoriaPedido } from '../models/auditorias.model';
 
 @Injectable({
   providedIn: 'root'
@@ -73,5 +74,13 @@ export class PedidoService {
       status
     };
     return this.http.post<void>(`${this.apiUrl}/webhook`, null, { params });
+  }
+  // En pedido.service.ts - Verificar que estos métodos existan
+  obtenerAuditoriasPedidos(): Observable<AuditoriaPedido[]> {
+    return this.http.get<AuditoriaPedido[]>(`${this.apiUrl}/auditoria`);
+  }
+
+  obtenerAuditoriasPorPedido(pedidoId: number): Observable<AuditoriaPedido[]> {
+    return this.http.get<AuditoriaPedido[]>(`${this.apiUrl}/${pedidoId}/auditoria`);
   }
 }
