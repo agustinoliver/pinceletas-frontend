@@ -238,8 +238,8 @@ export class ProductCreateComponent implements OnInit {
       this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
-    if (this.producto.descuentoPorcentaje < 0 || this.producto.descuentoPorcentaje > 100) {
-      this.mostrarAlertaError('El descuento debe estar entre 0 y 100');
+    if (!this.esDescuentoValido(this.producto.descuentoPorcentaje)) {
+      this.mostrarAlertaError('El descuento debe ser un número entero entre 0 y 100');
       return;
     }
 
@@ -374,4 +374,23 @@ export class ProductCreateComponent implements OnInit {
       return 'No se puede eliminar: La categoría tiene productos asociados';
     }
   }
+  // Verifica si el descuento es válido (entero entre 1 y 100)
+  esDescuentoValido(valor: any): boolean {
+    const num = Number(valor);
+
+    // Permitir exactamente 0
+    if (num === 0) return true;
+
+    // Permitir solo enteros entre 1 y 100
+    return Number.isInteger(num) && num >= 1 && num <= 100;
+  }
+
+  // Corrige automáticamente valores inválidos al tipear
+  validarDescuento(): void {
+    const num = Number(this.producto.descuentoPorcentaje);
+    if (!this.esDescuentoValido(num)) {
+      // Solo marcar en rojo visualmente, no modifica el valor
+    }
+  }
+
 }

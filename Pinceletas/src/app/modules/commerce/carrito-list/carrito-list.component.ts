@@ -67,40 +67,40 @@ carrito: CarritoItem[] = [];
   }
 
   calcularResumen(): void {
-  let subtotalSinDescuento = 0;
-  let totalDescuentos = 0;
-  let subtotalConDescuento = 0;
+    let subtotalSinDescuento = 0;
+    let totalDescuentos = 0;
+    let subtotalConDescuento = 0;
 
-  // Calcular subtotal sin descuento y total de descuentos
-  this.carrito.forEach(item => {
-    const precioOriginal = item.producto.precio;
-    const cantidad = item.cantidad;
-    const descuentoPorcentaje = item.producto.descuentoPorcentaje || 0;
+    // Calcular subtotal sin descuento y total de descuentos
+    this.carrito.forEach(item => {
+      const precioOriginal = item.producto.precio;
+      const cantidad = item.cantidad;
+      const descuentoPorcentaje = item.producto.descuentoPorcentaje || 0;
+      
+      // Subtotal sin descuento
+      subtotalSinDescuento += precioOriginal * cantidad;
+      
+      // Monto de descuento para este producto
+      const montoDescuentoProducto = precioOriginal * (descuentoPorcentaje / 100) * cantidad;
+      totalDescuentos += montoDescuentoProducto;
+      
+      // Subtotal con descuento
+      const precioConDescuento = calcularPrecioConDescuento(precioOriginal, descuentoPorcentaje);
+      subtotalConDescuento += precioConDescuento.precioFinal * cantidad;
+    });
+
+    // Asignar los valores al resumen
+    this.resumen.subtotal = subtotalSinDescuento;
+    this.resumen.descuento = totalDescuentos;
+
+    // ✅ NUEVO: Calcular envío basado en tipo de entrega
+    this.calcularEnvio(subtotalConDescuento);
     
-    // Subtotal sin descuento
-    subtotalSinDescuento += precioOriginal * cantidad;
-    
-    // Monto de descuento para este producto
-    const montoDescuentoProducto = precioOriginal * (descuentoPorcentaje / 100) * cantidad;
-    totalDescuentos += montoDescuentoProducto;
-    
-    // Subtotal con descuento
-    const precioConDescuento = calcularPrecioConDescuento(precioOriginal, descuentoPorcentaje);
-    subtotalConDescuento += precioConDescuento.precioFinal * cantidad;
-  });
+    // Envío gratis si el subtotal con descuento es mayor a 50.000
+    this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 0; // Cambia el segundo 0 por el costo de envío si quieres
 
-  // Asignar los valores al resumen
-  this.resumen.subtotal = subtotalSinDescuento;
-  this.resumen.descuento = totalDescuentos;
-
-  // ✅ NUEVO: Calcular envío basado en tipo de entrega
-  this.calcularEnvio(subtotalConDescuento);
-  
-  // Envío gratis si el subtotal con descuento es mayor a 50.000
-  this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 0; // Cambia el segundo 0 por el costo de envío si quieres
-
-  // Calcular total (subtotal con descuento + envío)
-  this.resumen.total = subtotalConDescuento + this.resumen.envio;
+    // Calcular total (subtotal con descuento + envío)
+    this.resumen.total = subtotalConDescuento + this.resumen.envio;
 }
 
  // ✅ NUEVO: Método para calcular el costo de envío
@@ -185,15 +185,70 @@ carrito: CarritoItem[] = [];
   comprarSoloEsteProducto(item: CarritoItem, event: Event): void {
     event.stopPropagation();
     
+    // Primero preguntar por el tipo de entrega
+    Swal.fire({
+      title: 'Selecciona método de entrega',
+      html: `
+        <div style="text-align: left;">
+          <p><strong>Producto:</strong> ${item.producto.nombre}</p>
+          <p><strong>Cantidad:</strong> ${item.cantidad}</p>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="tipoEntregaIndividual" id="envioIndividual" value="envio" checked>
+            <label class="form-check-label" for="envioIndividual">
+              <i class="fas fa-shipping-fast me-2"></i>
+              Envío a domicilio
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipoEntregaIndividual" id="retiroIndividual" value="retiro">
+            <label class="form-check-label" for="retiroIndividual">
+              <i class="fas fa-store me-2"></i>
+              Retiro en local
+            </label>
+          </div>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      preConfirm: () => {
+        const selectedOption = document.querySelector('input[name="tipoEntregaIndividual"]:checked') as HTMLInputElement;
+        return selectedOption ? selectedOption.value : null;
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const tipoEntregaSeleccionado = result.value as 'envio' | 'retiro';
+        this.confirmarCompraIndividual(item, tipoEntregaSeleccionado);
+      }
+    });
+  }
+  private confirmarCompraIndividual(item: CarritoItem, tipoEntrega: 'envio' | 'retiro'): void {
+    // Calcular el precio para este producto individual
     const precioConDescuento = calcularPrecioConDescuento(
       item.producto.precio,
       item.producto.descuentoPorcentaje || 0
     );
-    const totalProducto = precioConDescuento.precioFinal * item.cantidad;
+    
+    // Calcular envío para este producto individual
+    const subtotalProducto = precioConDescuento.precioFinal * item.cantidad;
+    const envioProducto = tipoEntrega === 'retiro' ? 0 : (subtotalProducto > 50000 ? 0 : 2500);
+    const totalProducto = subtotalProducto + envioProducto;
 
     Swal.fire({
-      title: '¿Comprar solo este producto?',
-      text: `${item.producto.nombre} - $${totalProducto.toFixed(2)}`,
+      title: '¿Confirmar compra individual?',
+      html: `
+        <div style="text-align: left;">
+          <p><strong>Producto:</strong> ${item.producto.nombre}</p>
+          <p><strong>Cantidad:</strong> ${item.cantidad}</p>
+          <p><strong>Método de entrega:</strong> ${tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
+          <p><strong>Subtotal:</strong> $${subtotalProducto.toFixed(2)}</p>
+          ${envioProducto > 0 ? `<p><strong>Envío:</strong> $${envioProducto.toFixed(2)}</p>` : '<p><strong>Envío:</strong> Gratis</p>'}
+          <p><strong>Total:</strong> $${totalProducto.toFixed(2)}</p>
+        </div>
+      `,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, comprar',
@@ -202,12 +257,70 @@ carrito: CarritoItem[] = [];
       cancelButtonColor: '#6c757d'
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log('Comprar solo este producto:', item);
-        this.mostrarAlertaExito('Procesando compra individual...');
+        this.procesarPagoProductoIndividual(item, tipoEntrega);
       }
     });
   }
 
+  private procesarPagoProductoIndividual(item: CarritoItem, tipoEntrega: 'envio' | 'retiro'): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !currentUser.email) {
+      this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
+      return;
+    }
+
+    const pedidoRequest: PedidoRequest = {
+      emailContacto: currentUser.email,
+      items: [{
+        productoId: item.producto.id,
+        opcionSeleccionadaId: item.opcionSeleccionada?.id || null,
+        cantidad: item.cantidad
+      }],
+      tipoEntrega: tipoEntrega // Usar el tipo de entrega seleccionado
+    };
+
+    Swal.fire({
+      title: 'Procesando...',
+      text: 'Creando tu pedido individual y preparando el pago',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.pedidoService.crearPedido(pedidoRequest).subscribe({
+      next: (pedidoResponse) => {
+        Swal.close();
+        const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
+        
+        if (mercadoPagoUrl) {
+          Swal.fire({
+            title: '¡Pedido individual creado!',
+            html: `
+              <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
+              <p><strong>Producto:</strong> ${item.producto.nombre}</p>
+              <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
+              <p><strong>Método:</strong> ${tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
+              <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
+            `,
+            icon: 'success',
+            confirmButtonText: 'Ir a pagar',
+            confirmButtonColor: '#28a745',
+            timer: 3000,
+            timerProgressBar: true
+          }).then(() => {
+            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoUrl);
+          });
+        } else {
+          this.mostrarAlertaError('No se pudo obtener el enlace de pago');
+        }
+      },
+      error: (error) => {
+        Swal.close();
+        this.manejarErrorPedido(error);
+      }
+    });
+  }
   completarCompra(): void {
     if (this.carrito.length === 0) {
       this.mostrarAlertaError('El carrito está vacío');
@@ -248,10 +361,10 @@ carrito: CarritoItem[] = [];
         productoId: item.producto.id,
         opcionSeleccionadaId: item.opcionSeleccionada?.id || null,
         cantidad: item.cantidad
-      }))
+      })),
+      tipoEntrega: this.resumen.tipoEntrega // ✅ NUEVO: Enviar tipo de entrega
     };
 
-    // ✅ Mostrar loading mientras se procesa
     Swal.fire({
       title: 'Procesando...',
       text: 'Creando tu pedido y preparando el pago',
@@ -263,13 +376,10 @@ carrito: CarritoItem[] = [];
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        Swal.close(); // Cerrar el loading
-        
-        // ✅ Usar sandboxInitPoint si está disponible, sino initPoint
+        Swal.close();
         const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
         
         if (mercadoPagoUrl) {
-          // ✅ Mostrar confirmación antes de redirigir
           Swal.fire({
             title: '¡Pedido creado!',
             html: `
@@ -290,23 +400,84 @@ carrito: CarritoItem[] = [];
         }
       },
       error: (error) => {
-        Swal.close(); // Cerrar el loading
-        console.error('Error creando pedido:', error);
-        
-        // ✅ Mensaje de error más específico
-        let mensajeError = 'Error al procesar el pedido. Intente nuevamente.';
-        
-        if (error.error?.message) {
-          mensajeError = error.error.message;
-        } else if (error.status === 403) {
-          mensajeError = 'No tienes permisos para realizar esta acción';
-        } else if (error.status === 401) {
-          mensajeError = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente';
-        }
-        
-        this.mostrarAlertaError(mensajeError);
+        Swal.close();
+        this.manejarErrorPedido(error);
       }
     });
+  }
+  private manejarErrorPedido(error: any): void {
+    console.error('Error completo:', error);
+    console.error('Error status:', error.status);
+    console.error('Error.error:', error.error);
+    console.error('Error.error type:', typeof error.error);
+    
+    let mensajeError = 'Error al procesar el pedido. Intente nuevamente.';
+    let esDireccionIncompleta = false;
+
+    // Verificar códigos de estado HTTP específicos PRIMERO
+    if (error.status === 400) {
+      // Bad Request - Aquí viene el error de dirección incompleta
+      if (error.error && error.error.message) {
+        mensajeError = error.error.message;
+      } else if (typeof error.error === 'string') {
+        mensajeError = error.error;
+      }
+      
+      esDireccionIncompleta = mensajeError.toLowerCase().includes('dirección') || 
+                               mensajeError.toLowerCase().includes('direccion') ||
+                               mensajeError.toLowerCase().includes('perfil');
+    } 
+    else if (error.status === 403) {
+      // Forbidden - Sin permisos
+      if (error.error && error.error.message) {
+        mensajeError = error.error.message;
+      } else {
+        mensajeError = 'No tienes permisos para realizar esta acción';
+      }
+    } 
+    else if (error.status === 401) {
+      mensajeError = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente';
+    }
+    else {
+      // Otros códigos de error
+      if (error.error) {
+        if (typeof error.error === 'string') {
+          mensajeError = error.error;
+        } else if (error.error.message) {
+          mensajeError = error.error.message;
+        }
+      }
+    }
+
+    // Si es un error de dirección incompleta, mostrar opción de ir al perfil
+    if (esDireccionIncompleta) {
+      Swal.fire({
+        title: 'Dirección Incompleta',
+        html: `
+          <div style="text-align: left;">
+            <p class="mb-3">${mensajeError}</p>
+            <p class="text-muted">
+              <i class="fas fa-info-circle me-2"></i>
+              Necesitas completar tu dirección de envío antes de realizar un pedido.
+            </p>
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-user-edit me-2"></i>Completar Perfil',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ED620C',
+        cancelButtonColor: '#6c757d'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirigir al perfil del usuario
+          this.router.navigate(['/profile']);
+        }
+      });
+    } else {
+      // Error genérico
+      this.mostrarAlertaError(mensajeError);
+    }
   }
 
   verDetalleProducto(productoId: number): void {

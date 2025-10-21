@@ -303,8 +303,8 @@ export class ProductEditComponent implements OnInit {
       this.mostrarAlertaError('Debe seleccionar una categoría');
       return;
     }
-    if (this.producto.descuentoPorcentaje < 0 || this.producto.descuentoPorcentaje > 100) {
-      this.mostrarAlertaError('El descuento debe estar entre 0 y 100');
+    if (!this.esDescuentoValido(this.producto.descuentoPorcentaje)) {
+      this.mostrarAlertaError('El descuento debe ser un número entero entre 0 y 100');
       return;
     }
 
@@ -596,4 +596,27 @@ export class ProductEditComponent implements OnInit {
       }
     });
   }
+  // Verifica si el descuento es válido (entero entre 1 y 100)
+    esDescuentoValido(valor: any): boolean {
+    const num = Number(valor);
+    // Permite 0 como válido
+    return Number.isInteger(num) && num >= 0 && num <= 100;
+}
+
+    // Corrige automáticamente valores inválidos al tipear
+    validarDescuento(): void {
+      const num = Number(this.producto.descuentoPorcentaje);
+
+      // Si el usuario borra el campo, asumimos 0
+      if (this.producto.descuentoPorcentaje === null || this.producto.descuentoPorcentaje === null) {
+        this.producto.descuentoPorcentaje = 0;
+        return;
+      }
+
+      // Si no es entero o está fuera de rango, marcarlo pero no corregir automáticamente
+      if (!Number.isInteger(num) || num < 0 || num > 100) {
+        // Solo mantiene el valor en memoria, se marcará visualmente en rojo por [ngClass]
+      }
+    }
+
 }

@@ -90,14 +90,20 @@
                       name="descuentoPorcentaje"
                       min="0"
                       max="100"
-                      step="0.01"
+                      step="1"
                       placeholder="0"
                       [disabled]="cargando"
+                      [ngClass]="{'is-invalid': !esDescuentoValido(producto.descuentoPorcentaje)}"
+                      (input)="validarDescuento()"
                     >
                     <span class="input-group-text">%</span>
                   </div>
-                  <small class="form-text text-muted">Rango: 0 a 100%</small>
+                  <small class="form-text text-muted">Rango: 1 a 100%</small>
+                  <div *ngIf="!esDescuentoValido(producto.descuentoPorcentaje)" class="invalid-feedback d-block">
+                    Ingrese un número entero entre 1 y 100.
+                  </div>
                 </div>
+
 
                 <!-- Precio Final Calculado (solo lectura) -->
                 <div class="col-md-6 mb-3" *ngIf="producto.precio > 0">

@@ -118,6 +118,21 @@
             <span class="fw-bold">{{ formatearFecha(pedido.fechaCreacion) }}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Tipo de entrega:</span>
+            <span *ngIf="pedido.tipoEntrega === 'envio'" class="badge bg-primary">
+              <i class="fas fa-truck me-1"></i>
+              Envío a domicilio
+            </span>
+            <span *ngIf="pedido.tipoEntrega === 'retiro'" class="badge bg-info">
+              <i class="fas fa-store me-1"></i>
+              Retiro en local
+            </span>
+            <span *ngIf="!pedido.tipoEntrega" class="badge bg-secondary">
+              <i class="fas fa-truck me-1"></i>
+              Envío
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-muted">Total:</span>
             <span class="h5 text-success mb-0">{{ formatearMoneda(pedido.total) }}</span>
           </div>
@@ -129,8 +144,7 @@
         </div>
       </div>
 
-      <!-- Información de envío -->
-      <div class="card shadow-sm mb-4">
+      <div class="card shadow-sm mb-4" *ngIf="pedido.tipoEntrega === 'envio' || !pedido.tipoEntrega">
         <div class="card-header bg-light">
           <h5 class="mb-0">
             <i class="fas fa-truck me-2"></i>
@@ -150,6 +164,43 @@
           </p>
           <p class="mb-0">
             <strong>Código Postal:</strong> {{ pedido.codigoPostalEnvio }}
+          </p>
+        </div>
+      </div>
+
+      <!-- ✅ NUEVO: Card para retiro en local -->
+      <div class="card shadow-sm mb-4" *ngIf="pedido.tipoEntrega === 'retiro'">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="fas fa-store me-2"></i>
+            Información de Retiro
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Retiro en local</strong>
+          </div>
+          <p class="mb-2">
+            <strong>Dirección:</strong><br>
+            Barrio Nuevo Jardín, M77 L68
+          </p>
+          <p class="mb-2">
+            <strong>Ciudad:</strong> Córdoba
+          </p>
+          <p class="mb-2">
+            <strong>Provincia:</strong> Córdoba
+          </p>
+          <p class="mb-3">
+            <strong>Código Postal:</strong> 5000
+          </p>
+          <hr>
+          <p class="mb-0">
+            <strong>Horario de atención:</strong><br>
+            <small class="text-muted">
+              Lunes a Viernes: 9:00 - 18:00<br>
+              Sábados: 9:00 - 13:00
+            </small>
           </p>
         </div>
       </div>

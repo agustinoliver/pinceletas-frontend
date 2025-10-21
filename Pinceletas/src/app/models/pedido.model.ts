@@ -3,6 +3,7 @@ import { ItemPedidoRequest, ItemPedidoResponse } from "./item-pedido.model";
 export interface PedidoRequest {
   emailContacto: string;
   items: ItemPedidoRequest[];
+  tipoEntrega: string; 
 }
 
 export interface PedidoResponse {
@@ -20,6 +21,7 @@ export interface PedidoResponse {
   paisEnvio: string;
   emailContacto: string;
   telefonoContacto: string;
+  tipoEntrega: string;
   preferenciaIdMp: string;
   estadoPagoMp: string;
   items: ItemPedidoResponse[];

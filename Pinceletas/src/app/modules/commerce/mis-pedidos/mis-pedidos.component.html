@@ -104,6 +104,7 @@
                 <th class="ps-4">Número</th>
                 <th>Fecha</th>
                 <th>Total</th>
+                <th>Entrega</th>
                 <th>Estado</th>
                 <th class="text-center pe-4">Acciones</th>
               </tr>
@@ -118,6 +119,20 @@
                 </td>
                 <td>
                   <span class="fw-bold text-success">{{ formatearMoneda(pedido.total) }}</span>
+                </td>
+                <td>
+                  <span *ngIf="pedido.tipoEntrega === 'envio'" class="badge bg-primary">
+                    <i class="fas fa-truck me-1"></i>
+                    Envío
+                  </span>
+                  <span *ngIf="pedido.tipoEntrega === 'retiro'" class="badge bg-info">
+                    <i class="fas fa-store me-1"></i>
+                    Retiro
+                  </span>
+                  <span *ngIf="!pedido.tipoEntrega" class="badge bg-secondary">
+                    <i class="fas fa-truck me-1"></i>
+                    Envío
+                  </span>
                 </td>
                 <td>
                   <span [class]="getBadgeClass(pedido.estado)" class="badge">
