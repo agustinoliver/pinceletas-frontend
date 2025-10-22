@@ -1,0 +1,46 @@
+<div class="psychedelic-container" [class.rainbow]="isRainbow">
+  <div class="trippy-background">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+  </div>
+  
+  <div class="psychedelic-content">
+    <div class="trippy-title" [class.spin]="isSpinning">
+      <span class="letter" *ngFor="let letter of '404'.split(''); let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        {{letter}}
+      </span>
+    </div>
+    
+    <div class="trippy-message">
+      <p>Página No Encontrada</p>
+      <p class="sub-message">Lo sentimos, la página que estás buscando no existe.</p>
+    </div>
+    
+    <div class="trippy-controls">
+      <button class="trippy-button" routerLink="/productlist" 
+              (mouseenter)="activateRainbow()" (mouseleave)="deactivateRainbow()">
+        🌈 VOLVER A LA PAGINA 🌈
+      </button>
+      
+      <button class="trippy-button secondary" (click)="toggleSpin()">
+        {{ isSpinning ? '🌀 PARAR LOCURA' : '🌀 ENLOQUECER' }}
+      </button>
+    </div>
+    
+    <div class="floating-elements">
+      <div class="floating-emoji">🦄</div>
+      <div class="floating-emoji">🌈</div>
+      <div class="floating-emoji">🎪</div>
+      <div class="floating-emoji">👾</div>
+      <div class="floating-emoji">🎭</div>
+    </div>
+  </div>
+  
+  <div class="pulse-circles">
+    <div class="pulse-circle"></div>
+    <div class="pulse-circle"></div>
+    <div class="pulse-circle"></div>
+  </div>
+</div>

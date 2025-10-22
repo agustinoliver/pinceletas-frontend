@@ -1,9 +1,4 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './modules/user-auth/login/login.component';
-import { RegisterComponent } from './modules/user-auth/register/register.component';
-import { ProfileComponent } from './modules/user-auth/profile/profile.component';
-import { ForgotPasswordComponent } from './modules/user-auth/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './modules/user-auth/reset-password/reset-password.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -53,8 +48,6 @@ export const routes: Routes = [
       .then(m => m.DashboardUserActInacComponent),
     // canActivate: [authGuard]
   },
-  
-  // ✅ NUEVAS RUTAS DE TU AMIGO
   { 
     path: 'favorites', 
     loadComponent: () => import('./modules/commerce/favorites-list/favorites-list.component')
@@ -109,14 +102,43 @@ export const routes: Routes = [
       .then(m => m.PaymentPendingComponent) 
   },
 
-  // Rutas de User Auth (nuestro microservicio)
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  // Rutas de User Auth (nuestro microservicio) - AHORA CON LAZY LOADING
+  { 
+    path: 'login', 
+    loadComponent: () => import('./modules/user-auth/login/login.component')
+      .then(m => m.LoginComponent) 
+  },
+  { 
+    path: 'register', 
+    loadComponent: () => import('./modules/user-auth/register/register.component')
+      .then(m => m.RegisterComponent) 
+  },
+  { 
+    path: 'forgot-password', 
+    loadComponent: () => import('./modules/user-auth/forgot-password/forgot-password.component')
+      .then(m => m.ForgotPasswordComponent) 
+  },
+  { 
+    path: 'reset-password', 
+    loadComponent: () => import('./modules/user-auth/reset-password/reset-password.component')
+      .then(m => m.ResetPasswordComponent) 
+  },
+  { 
+    path: 'profile', 
+    loadComponent: () => import('./modules/user-auth/profile/profile.component')
+      .then(m => m.ProfileComponent),
+    canActivate: [authGuard] 
+  },
 
   // Rutas por defecto y redirecciones
-  { path: '', redirectTo: 'productlist', pathMatch: 'full' },
-  { path: '**', redirectTo: 'productlist' }
+  { path: '', 
+    redirectTo: 'productlist', 
+    pathMatch: 'full' },
+  
+  // ✅ NUEVA RUTA PARA PÁGINA NO ENCONTRADA
+  { 
+    path: '**', 
+    loadComponent: () => import('./modules/shared/not-found/not-found.component')
+      .then(m => m.NotFoundComponent) 
+  }
 ];

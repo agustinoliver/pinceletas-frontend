@@ -16,6 +16,7 @@
 .filtros-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-left: 4px solid var(--primary-color) !important;
+  border-radius: 12px !important; /* Agregué bordes redondeados aquí también */
 }
 
 /* Contenedor de imagen mejorado */
@@ -28,6 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 16px 16px 0 0 !important; /* Bordes redondeados solo arriba */
 }
 
 .product-image {
@@ -35,6 +37,7 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  border-radius: 14px 14px 0 0 !important; /* Coincide con el container */
 }
 
 /* Placeholder para imágenes que no cargan */
@@ -58,16 +61,18 @@
   transition: all 0.3s ease;
   border: 1px solid var(--border-color) !important;
   background: white;
+  border-radius: 16px !important; /* Aumenté el border-radius */
+  overflow: hidden; /* Para que los bordes redondeados se apliquen correctamente */
 }
 
 .producto-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(237, 98, 12, 0.15) !important;
+  box-shadow: 0 12px 30px rgba(237, 98, 12, 0.25) !important; /* Sombra naranja más intensa */
   border-color: var(--primary-color) !important;
 }
 
 .producto-card:hover .product-image {
-  transform: scale(1.05);
+  transform: scale(1.08); /* Un poco más de zoom para mayor efecto */
 }
 
 .producto-card:hover .card-title {
@@ -136,7 +141,7 @@
 }
 
 .producto-card .card-body {
-  transition: all 0.3s ease;
+  border-radius: 0 0 16px 16px !important;
 }
 
 /* Responsive adjustments */
@@ -160,7 +165,7 @@
 }
 
 .shadow-sm {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important; /* Sombra base más visible */
 }
 
 /* Mejora en la legibilidad */
