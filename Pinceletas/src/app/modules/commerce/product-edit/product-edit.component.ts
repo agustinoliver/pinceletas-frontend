@@ -308,6 +308,7 @@ export class ProductEditComponent implements OnInit {
         next: () => {
           this.producto.imagenesActuales.splice(index, 1);
           this.imagenPrevia.splice(index, 1);
+          this.imagenesCambiadas = true;
           this.mostrarAlertaExito('Imagen eliminada correctamente');
         },
         error: (error) => {
@@ -319,6 +320,7 @@ export class ProductEditComponent implements OnInit {
       // Eliminar imagen nueva (no subida aún)
       this.producto.imagenes.splice(index - this.producto.imagenesActuales.length, 1);
       this.imagenPrevia.splice(index, 1);
+      this.imagenesCambiadas = true;
     }
   }
 
