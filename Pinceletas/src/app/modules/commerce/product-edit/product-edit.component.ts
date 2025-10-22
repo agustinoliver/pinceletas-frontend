@@ -347,11 +347,13 @@ export class ProductEditComponent implements OnInit {
       if (result.isConfirmed) {
         this.cargando = true;
 
-        if (this.imagenesCambiadas && this.producto.imagenes.length > 0) {
-          // ✅ CORREGIDO: Usar nuevo método para múltiples imágenes
+        const tieneNuevasImagenes = this.producto.imagenes && this.producto.imagenes.length > 0;
+
+        if (tieneNuevasImagenes) {
+          // Si hay nuevas imágenes, usar el método para múltiples imágenes
           this.actualizarConMultiplesImagenes();
         } else {
-          // Actualizar sin cambiar imágenes
+          // Si NO hay nuevas imágenes, actualizar solo los datos
           this.actualizarSinImagen();
         }
       }
@@ -376,21 +378,35 @@ export class ProductEditComponent implements OnInit {
     });
   }
   private actualizarSinImagen(): void {
+    // ✅ CORREGIDO: Enviar correctamente las imágenes existentes
+    const datosActualizacion = {
+      nombre: this.producto.nombre,
+      descripcion: this.producto.descripcion || '',
+      precio: this.producto.precio,
+      activo: this.producto.activo,
+      categoriaId: this.producto.categoriaId,
+      opcionesIds: this.producto.opcionesIds || [],
+      descuentoPorcentaje: this.producto.descuentoPorcentaje || 0,
+      // ✅ CRÍTICO: Enviar el array completo de imágenes existentes
+      imagenes: this.producto.imagenesActuales || [],
+      // Para compatibilidad con backend (si lo requiere)
+      imagen: this.producto.imagenesActuales && this.producto.imagenesActuales.length > 0 
+        ? this.producto.imagenesActuales[0] 
+        : ''
+    };
+
+    console.log('📤 Enviando actualización SIN nuevas imágenes:', datosActualizacion);
+
     this.commerceService.actualizarProducto(
       this.productoId,
-      {
-        ...this.producto,
-        // ✅ CORREGIDO: Enviar datos correctos para actualización sin imágenes
-        imagen: this.producto.imagenesActuales.length > 0 ? this.producto.imagenesActuales[0] : '', // Para compatibilidad
-        imagenes: this.producto.imagenesActuales // ✅ NUEVO: Enviar array de imágenes
-      },
+      datosActualizacion,
       this.producto.usuarioId
     ).subscribe({
       next: (productoActualizado) => {
         this.procesarActualizacionExitosa(productoActualizado);
       },
       error: (error) => {
-        console.error('Error actualizando producto:', error);
+        console.error('❌ Error actualizando producto:', error);
         
         if (error.status === 403) {
           this.mostrarAlertaError('Error de permisos. Verifica que estés autenticado correctamente.');
