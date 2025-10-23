@@ -1,9 +1,13 @@
 /* Estilos específicos para el componente de creación de productos */
 .product-create-container {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #ebed6d; /* Color de fondo amarillo */
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); /* Textura de fondo */
+  background-repeat: repeat;
+  background-size: auto;
 }
 
+/* Resto de los estilos */
 .card {
   border: none;
   border-radius: 12px;

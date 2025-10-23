@@ -25,11 +25,16 @@
 
 body {
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background-color: #ebed6d;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-size: auto;
   color: var(--text-dark);
   line-height: 1.6;
   min-height: 100vh;
 }
+
 
 /* Tipografía mejorada */
 h1, h2, h3, h4, h5, h6 {

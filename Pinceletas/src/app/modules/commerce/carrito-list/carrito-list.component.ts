@@ -455,7 +455,6 @@ carrito: CarritoItem[] = [];
         title: 'Dirección Incompleta',
         html: `
           <div style="text-align: left;">
-            <p class="mb-3">${mensajeError}</p>
             <p class="text-muted">
               <i class="fas fa-info-circle me-2"></i>
               Necesitas completar tu dirección de envío antes de realizar un pedido.

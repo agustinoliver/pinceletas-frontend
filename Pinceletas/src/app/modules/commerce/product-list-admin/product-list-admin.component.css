@@ -1,5 +1,9 @@
 .admin-container {
-  background-color: #f8f9fa;
+  background-color: #ebed6d;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-size: auto;
   min-height: 100vh;
 }
 

@@ -59,7 +59,7 @@
 /* Estilos para las tarjetas de productos */
 .producto-card {
   transition: all 0.3s ease;
-  border: 1px solid var(--border-color) !important;
+  border: 2px solid #000000 !important; /* Borde negro más grueso */
   background: white;
   border-radius: 16px !important; /* Aumenté el border-radius */
   overflow: hidden; /* Para que los bordes redondeados se apliquen correctamente */
