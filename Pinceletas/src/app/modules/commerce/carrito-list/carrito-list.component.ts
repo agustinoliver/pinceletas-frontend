@@ -9,8 +9,8 @@ import { UserAuthService } from '../../../services/user-auth.service';
 import { calcularPrecioConDescuento } from '../../../models/producto.model';
 import Swal from 'sweetalert2';
 import { PedidoService } from '../../../services/pedido.service';
-import { MercadoPagoService } from '../../../services/mercado-pago.service';
 import { PedidoRequest } from '../../../models/pedido.model';
+import { MercadoPagoService } from '../../../services/mercado-pago.service';
 
 @Component({
   selector: 'app-carrito-list',
@@ -291,9 +291,9 @@ carrito: CarritoItem[] = [];
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
         Swal.close();
-        const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
+        const mercadoPagoCheckoutUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
         
-        if (mercadoPagoUrl) {
+        if (mercadoPagoCheckoutUrl) {
           Swal.fire({
             title: '¡Pedido individual creado!',
             html: `
@@ -309,7 +309,7 @@ carrito: CarritoItem[] = [];
             timer: 3000,
             timerProgressBar: true
           }).then(() => {
-            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoUrl);
+            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoCheckoutUrl);
           });
         } else {
           this.mostrarAlertaError('No se pudo obtener el enlace de pago');
@@ -377,9 +377,9 @@ carrito: CarritoItem[] = [];
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
         Swal.close();
-        const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
+        const mercadoPagoCheckoutUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
         
-        if (mercadoPagoUrl) {
+        if (mercadoPagoCheckoutUrl) {
           Swal.fire({
             title: '¡Pedido creado!',
             html: `
@@ -393,7 +393,7 @@ carrito: CarritoItem[] = [];
             timer: 3000,
             timerProgressBar: true
           }).then(() => {
-            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoUrl);
+            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoCheckoutUrl);
           });
         } else {
           this.mostrarAlertaError('No se pudo obtener el enlace de pago');
