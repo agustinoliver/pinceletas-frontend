@@ -101,11 +101,6 @@ export const routes: Routes = [
     loadComponent: () => import('./modules/commerce/payment-pending/payment-pending.component')
       .then(m => m.PaymentPendingComponent) 
   },
-  { 
-    path: 'payment/cancelled', 
-    loadComponent: () => import('./modules/commerce/payment-cancelled/payment-cancelled.component')
-      .then(m => m.PaymentCancelledComponent) 
-  },
 
   // Rutas de User Auth (nuestro microservicio) - AHORA CON LAZY LOADING
   { 
