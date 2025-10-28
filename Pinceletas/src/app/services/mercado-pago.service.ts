@@ -17,14 +17,23 @@ export class MercadoPagoService {
   redirectToMercadoPago(checkoutUrl: string): void {
     if (!checkoutUrl) {
       console.error('❌ No se recibió URL de checkout de Mercado Pago');
-      return;
+      throw new Error('URL de checkout no disponible');
     }
 
     console.log('🎯 Redirigiendo a Mercado Pago:', checkoutUrl);
     console.log('🧪 Modo de prueba:', this.TEST_MODE ? 'ACTIVADO' : 'DESACTIVADO');
 
-    // Redirigir a la URL de Mercado Pago
-    window.location.href = checkoutUrl;
+    // ✅ CRÍTICO: Abrir en una nueva pestaña/ventana en lugar de redirigir
+    // Esto evita problemas con cookies y storage
+    const nuevaVentana = window.open(checkoutUrl, '_blank');
+    
+    if (!nuevaVentana) {
+      // Si el navegador bloqueó el popup, intentar redirección normal
+      console.warn('⚠️ Popup bloqueado, usando redirección normal');
+      window.location.href = checkoutUrl;
+    } else {
+      console.log('✅ Mercado Pago abierto en nueva pestaña');
+    }
   }
 
   /**
@@ -88,23 +97,42 @@ export class MercadoPagoService {
    */
   procesarCheckout(pedidoResponse: any): void {
     console.log('📦 Procesando checkout con respuesta:', pedidoResponse);
+    console.log('📊 Datos completos:', JSON.stringify(pedidoResponse, null, 2));
 
     const { initPoint, sandboxInitPoint } = pedidoResponse;
 
-    // Validar que tengamos al menos una URL
+    // ✅ CRÍTICO: Validar que tengamos al menos una URL
     if (!this.isValidConfiguration(initPoint, sandboxInitPoint)) {
-      throw new Error('No se pudo obtener la URL de pago de Mercado Pago');
+      console.error('❌ Error: No hay URLs de pago disponibles');
+      console.error('InitPoint:', initPoint);
+      console.error('SandboxInitPoint:', sandboxInitPoint);
+      throw new Error('No se pudo obtener la URL de pago de Mercado Pago. Por favor, contacta a soporte.');
     }
 
     // Obtener la URL correcta según el modo
     const checkoutUrl = this.getCheckoutUrl(initPoint, sandboxInitPoint);
 
+    if (!checkoutUrl || checkoutUrl.trim() === '') {
+      console.error('❌ URL de checkout vacía después de la selección');
+      throw new Error('URL de pago inválida');
+    }
+
     // Log de información
     const modeInfo = this.getMode();
     console.log(`🎯 Modo actual: ${modeInfo.mode} - ${modeInfo.description}`);
     console.log('🔗 URL seleccionada:', checkoutUrl);
+    console.log('📋 Preference ID:', pedidoResponse.preferenciaIdMp);
 
-    // Redirigir al checkout
-    this.redirectToMercadoPago(checkoutUrl);
+    // ✅ MEJORADO: Delay más corto y con mejor manejo
+    console.log('⏳ Esperando 300ms antes de redirigir...');
+    
+    setTimeout(() => {
+      try {
+        this.redirectToMercadoPago(checkoutUrl);
+      } catch (error) {
+        console.error('❌ Error en la redirección:', error);
+        throw error;
+      }
+    }, 300); // Reducido de 500ms a 300ms
   }
 }

@@ -308,10 +308,18 @@ carrito: CarritoItem[] = [];
           timer: 3000,
           timerProgressBar: true
         }).then(() => {
-          // ✅ CAMBIO IMPORTANTE: Usar el nuevo método del servicio
           try {
+            console.log('🎯 Iniciando proceso de checkout...');
+            console.log('📦 Respuesta del pedido:', pedidoResponse);
+            
+            // Verificar que tenemos las URLs
+            if (!pedidoResponse.initPoint && !pedidoResponse.sandboxInitPoint) {
+              throw new Error('El servidor no devolvió las URLs de pago');
+            }
+            
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
           } catch (error: any) {
+            console.error('❌ Error al procesar checkout:', error);
             this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
           }
         });
@@ -378,14 +386,34 @@ carrito: CarritoItem[] = [];
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
         console.log('✅ Pedido creado:', pedidoResponse);
+        // ✅ TEMPORAL: Verificar la estructura de la respuesta
+        console.log('🔍 Verificación de respuesta:');
+        console.log('  - initPoint:', pedidoResponse.initPoint);
+        console.log('  - sandboxInitPoint:', pedidoResponse.sandboxInitPoint);
+        console.log('  - preferenciaIdMp:', pedidoResponse.preferenciaIdMp);
+        
+        if (!pedidoResponse.sandboxInitPoint) {
+          console.error('❌ PROBLEMA: No se recibió sandboxInitPoint del backend');
+          this.mostrarAlertaError('Error: El servidor no generó la URL de pago');
+          return;
+        }
+        
         Swal.close();
         
-        // ✅ CAMBIO IMPORTANTE: Usar el nuevo método del servicio
         try {
-          this.mercadoPagoService.procesarCheckout(pedidoResponse);
-        } catch (error: any) {
-          this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
-        }
+            console.log('🎯 Iniciando proceso de checkout...');
+            console.log('📦 Respuesta del pedido:', pedidoResponse);
+            
+            // Verificar que tenemos las URLs
+            if (!pedidoResponse.initPoint && !pedidoResponse.sandboxInitPoint) {
+              throw new Error('El servidor no devolvió las URLs de pago');
+            }
+            
+            this.mercadoPagoService.procesarCheckout(pedidoResponse);
+          } catch (error: any) {
+            console.error('❌ Error al procesar checkout:', error);
+            this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
+          }
       },
       error: (error) => {
         Swal.close();
