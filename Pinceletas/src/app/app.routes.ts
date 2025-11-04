@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { sessionCheckGuard } from './guards/session-check.guard';
 
 export const routes: Routes = [
   { 
     path: 'productlist', 
     loadComponent: () => import('./modules/commerce/product-list/product-list.component')
-      .then(m => m.ProductListComponent) 
+      .then(m => m.ProductListComponent),
+      canActivate: [sessionCheckGuard]
   },
   { 
     path: 'productdetail/:id', 
@@ -89,17 +91,20 @@ export const routes: Routes = [
   { 
     path: 'payment/success', 
     loadComponent: () => import('./modules/commerce/payment-success/payment-success.component')
-      .then(m => m.PaymentSuccessComponent) 
+      .then(m => m.PaymentSuccessComponent),
+      canActivate: [sessionCheckGuard]
   },
   { 
     path: 'payment/failure', 
     loadComponent: () => import('./modules/commerce/payment-failure/payment-failure.component')
-      .then(m => m.PaymentFailureComponent) 
+      .then(m => m.PaymentFailureComponent),
+      canActivate: [sessionCheckGuard]
   },
   { 
     path: 'payment/pending', 
     loadComponent: () => import('./modules/commerce/payment-pending/payment-pending.component')
-      .then(m => m.PaymentPendingComponent) 
+      .then(m => m.PaymentPendingComponent),
+      canActivate: [sessionCheckGuard]
   },
 
   // Rutas de User Auth (nuestro microservicio) - AHORA CON LAZY LOADING
@@ -127,7 +132,7 @@ export const routes: Routes = [
     path: 'profile', 
     loadComponent: () => import('./modules/user-auth/profile/profile.component')
       .then(m => m.ProfileComponent),
-    canActivate: [authGuard] 
+    canActivate: [authGuard, sessionCheckGuard] 
   },
 
   // Rutas por defecto y redirecciones

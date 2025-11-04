@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class MercadoPagoService {
 
   // 🧪 Configuración de modo de prueba
-  private readonly TEST_MODE = true; // Cambiar a false en producción
+  private readonly TEST_MODE = false; // Cambiar a false en producción
 
   constructor() { }
 
@@ -23,16 +23,32 @@ export class MercadoPagoService {
     console.log('🎯 Redirigiendo a Mercado Pago:', checkoutUrl);
     console.log('🧪 Modo de prueba:', this.TEST_MODE ? 'ACTIVADO' : 'DESACTIVADO');
 
-    // ✅ CRÍTICO: Abrir en una nueva pestaña/ventana en lugar de redirigir
-    // Esto evita problemas con cookies y storage
-    const nuevaVentana = window.open(checkoutUrl, '_blank');
+    sessionStorage.setItem('mercadoPagoRedirect', 'true');
+    sessionStorage.setItem('mercadoPagoTimestamp', Date.now().toString());
+
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+
+    if (!token || !userData) {
+      console.error('❌ Sesión no encontrada antes de ir a Mercado Pago');
+      throw new Error('Debes estar logueado para continuar con el pago');
+    }
     
-    if (!nuevaVentana) {
-      // Si el navegador bloqueó el popup, intentar redirección normal
-      console.warn('⚠️ Popup bloqueado, usando redirección normal');
+    console.log('✅ Sesión verificada antes de redirigir a MP');
+    console.log('✅ Token presente:', !!token);
+    console.log('✅ User data presente:', !!userData);
+
+    sessionStorage.setItem('mp_temp_token', token);
+    sessionStorage.setItem('mp_temp_user', userData);
+
+    try {
+      // Intentamos abrir en la misma pestaña (mejor compatibilidad)
       window.location.href = checkoutUrl;
-    } else {
-      console.log('✅ Mercado Pago abierto en nueva pestaña');
+      console.log('✅ Redirección a Mercado Pago ejecutada');
+    } catch (err) {
+      console.warn('⚠️ Error al redirigir, intento alternativo:', err);
+      // fallback por si falla el intento anterior
+      window.open(checkoutUrl, '_self');
     }
   }
 

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PedidoService } from '../../../services/pedido.service';
 import { CommerceService } from '../../../services/commerce.service';
 import { UserAuthService } from '../../../services/user-auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-payment-success',
@@ -28,7 +29,30 @@ export class PaymentSuccessComponent implements OnInit {
     private authService: UserAuthService
   ) {}
 
+
   ngOnInit(): void {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+    
+    console.log('🔍 Verificando sesión al volver de MP...');
+    console.log('Token presente:', !!token);
+    console.log('User data presente:', !!userData);
+    
+    if (!token || !userData) {
+      console.error('❌ Sesión perdida al volver de Mercado Pago');
+      Swal.fire({
+        title: 'Sesión expirada',
+        text: 'Tu pago fue procesado pero necesitas iniciar sesión nuevamente',
+        icon: 'warning',
+        confirmButtonText: 'Ir a Login',
+        confirmButtonColor: '#ED620C'
+      }).then(() => {
+        this.router.navigate(['/login'], {
+          queryParams: { returnUrl: '/payment/success' }
+        });
+      });
+      return;
+    }
     this.route.queryParams.subscribe(params => {
       console.log('📋 Todos los parámetros recibidos:', params);
       console.log('📋 Claves de parámetros:', Object.keys(params));
@@ -146,29 +170,27 @@ export class PaymentSuccessComponent implements OnInit {
         console.log(`🛒 Items en carrito: ${carrito.length}`);
         
         if (carrito.length === 0) {
+          console.log('✅ Carrito ya está vacío');
           this.finalizarProceso();
           return;
         }
 
-        let eliminados = 0;
-        carrito.forEach((item, index) => {
-          this.commerceService.eliminarDelCarrito(item.id).subscribe({
-            next: () => {
-              eliminados++;
-              console.log(`✅ Item ${index + 1}/${carrito.length} eliminado`);
-              if (eliminados === carrito.length) {
-                this.finalizarProceso();
-              }
-            },
-            error: (err) => {
-              console.error(`❌ Error eliminando item ${index + 1}:`, err);
-              eliminados++;
-              if (eliminados === carrito.length) {
-                this.finalizarProceso();
-              }
-            }
+        // Eliminar todos los items del carrito
+        const eliminaciones = carrito.map(item => 
+          this.commerceService.eliminarDelCarrito(item.id)
+        );
+
+        // Esperar a que todas las eliminaciones terminen
+        Promise.all(eliminaciones.map(obs => obs.toPromise()))
+          .then(() => {
+            console.log('✅ Carrito limpiado completamente');
+            this.finalizarProceso();
+          })
+          .catch(err => {
+            console.error('❌ Error eliminando algunos items:', err);
+            // Continuar de todos modos
+            this.finalizarProceso();
           });
-        });
       },
       error: (err) => {
         console.error('❌ Error obteniendo carrito:', err);
@@ -179,11 +201,11 @@ export class PaymentSuccessComponent implements OnInit {
 
   private finalizarProceso(): void {
     this.procesando = false;
-    console.log('✅ Proceso completado. Redirigiendo en 2 segundos...');
+    console.log('✅ Proceso completado. Redirigiendo en 3 segundos...');
     
     setTimeout(() => {
       this.router.navigate(['/mis-pedidos']);
-    }, 2000);
+    }, 3000);
   }
 
   volverAProductos(): void {
