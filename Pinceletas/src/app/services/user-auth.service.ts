@@ -32,33 +32,41 @@ export class UserAuthService {
     private http: HttpClient,
     private firebaseService: FirebaseService
   ) {
+    this.checkAndRestoreSession();
     this.loadUserFromStorage();
+
+    if (typeof window !== 'undefined') {
+    window.addEventListener('focus', () => {
+      console.log('🔄 Ventana obtuvo foco, verificando sesión...');
+      this.checkAndRestoreSession();
+    });
+  }
   }
 
   private loadUserFromStorage(): void {
-    const token = sessionStorage.getItem('token');
-    const userData = sessionStorage.getItem('currentUser');
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
     
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
         this.currentUserSubject.next(user);
       } catch (error) {
-        console.error('Error parsing user data from sessionStorage', error);
+        console.error('Error parsing user data from localStorage', error);
         this.clearUserData();
       }
     }
   }
 
   private saveUserData(token: string, user: User): void {
-    sessionStorage.setItem('token', token);
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('token', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 
   private clearUserData(): void {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
@@ -131,7 +139,7 @@ export class UserAuthService {
     return this.http.post<AuthResponse>(`${this.apiAuth}/login`, loginData)
       .pipe(
         tap(response => {
-          sessionStorage.setItem('token', response.token);
+          localStorage.setItem('token', response.token);
           
           this.getUserProfile(loginData.email).subscribe({
             next: (user) => {
@@ -153,7 +161,7 @@ export class UserAuthService {
     return this.http.post<AuthResponse>(`${this.apiAuth}/register`, registerData)
       .pipe(
         tap(response => {
-          sessionStorage.setItem('token', response.token);
+          localStorage.setItem('token', response.token);
           
           this.getUserProfile(registerData.email).subscribe({
             next: (user) => {
@@ -263,7 +271,7 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
   }
 
   private handleAuthSuccess(response: AuthResponse, email: string, observer: any): void {
-    sessionStorage.setItem('token', response.token);
+    localStorage.setItem('token', response.token);
     
     this.getUserProfile(email).subscribe({
       next: (user) => {
@@ -352,7 +360,7 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
   }
 
   getToken(): string | null {
-    return sessionStorage.getItem('token');
+    return localStorage.getItem('token');
   }
 
   getCurrentUser(): User | null {
@@ -398,5 +406,24 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
           return throwError(() => error);
         })
       );
+  }
+    public checkAndRestoreSession(): void {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+    
+    console.log('🔍 Verificando sesión almacenada...');
+    console.log('Token presente:', !!token);
+    console.log('User data presente:', !!userData);
+    
+    if (token && userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log('✅ Sesión restaurada para:', user.email);
+        this.currentUserSubject.next(user);
+      } catch (error) {
+        console.error('❌ Error parseando datos de usuario:', error);
+        this.clearUserData();
+      }
+    }
   }
 }

@@ -9,8 +9,8 @@ import { UserAuthService } from '../../../services/user-auth.service';
 import { calcularPrecioConDescuento } from '../../../models/producto.model';
 import Swal from 'sweetalert2';
 import { PedidoService } from '../../../services/pedido.service';
-import { MercadoPagoService } from '../../../services/mercado-pago.service';
 import { PedidoRequest } from '../../../models/pedido.model';
+import { MercadoPagoService } from '../../../services/mercado-pago.service';
 
 @Component({
   selector: 'app-carrito-list',
@@ -276,7 +276,7 @@ carrito: CarritoItem[] = [];
         opcionSeleccionadaId: item.opcionSeleccionada?.id || null,
         cantidad: item.cantidad
       }],
-      tipoEntrega: tipoEntrega // Usar el tipo de entrega seleccionado
+      tipoEntrega: tipoEntrega
     };
 
     Swal.fire({
@@ -290,30 +290,39 @@ carrito: CarritoItem[] = [];
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
+        console.log('✅ Pedido individual creado:', pedidoResponse);
         Swal.close();
-        const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
         
-        if (mercadoPagoUrl) {
-          Swal.fire({
-            title: '¡Pedido individual creado!',
-            html: `
-              <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
-              <p><strong>Producto:</strong> ${item.producto.nombre}</p>
-              <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
-              <p><strong>Método:</strong> ${tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
-              <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
-            `,
-            icon: 'success',
-            confirmButtonText: 'Ir a pagar',
-            confirmButtonColor: '#28a745',
-            timer: 3000,
-            timerProgressBar: true
-          }).then(() => {
-            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoUrl);
-          });
-        } else {
-          this.mostrarAlertaError('No se pudo obtener el enlace de pago');
-        }
+        Swal.fire({
+          title: '¡Pedido individual creado!',
+          html: `
+            <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
+            <p><strong>Producto:</strong> ${item.producto.nombre}</p>
+            <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
+            <p><strong>Método:</strong> ${tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
+            <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
+          `,
+          icon: 'success',
+          confirmButtonText: 'Ir a pagar',
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true
+        }).then(() => {
+          try {
+            console.log('🎯 Iniciando proceso de checkout...');
+            console.log('📦 Respuesta del pedido:', pedidoResponse);
+            
+            // Verificar que tenemos las URLs
+            if (!pedidoResponse.initPoint && !pedidoResponse.sandboxInitPoint) {
+              throw new Error('El servidor no devolvió las URLs de pago');
+            }
+            
+            this.mercadoPagoService.procesarCheckout(pedidoResponse);
+          } catch (error: any) {
+            console.error('❌ Error al procesar checkout:', error);
+            this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
+          }
+        });
       },
       error: (error) => {
         Swal.close();
@@ -362,7 +371,7 @@ carrito: CarritoItem[] = [];
         opcionSeleccionadaId: item.opcionSeleccionada?.id || null,
         cantidad: item.cantidad
       })),
-      tipoEntrega: this.resumen.tipoEntrega // ✅ NUEVO: Enviar tipo de entrega
+      tipoEntrega: this.resumen.tipoEntrega
     };
 
     Swal.fire({
@@ -376,28 +385,46 @@ carrito: CarritoItem[] = [];
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        Swal.close();
-        const mercadoPagoUrl = pedidoResponse.sandboxInitPoint || pedidoResponse.initPoint;
+        console.log('✅ Pedido creado:', pedidoResponse);
+        console.log('🔍 Verificación de respuesta:');
+        console.log('  - initPoint:', pedidoResponse.initPoint);
+        console.log('  - sandboxInitPoint:', pedidoResponse.sandboxInitPoint);
+        console.log('  - preferenciaIdMp:', pedidoResponse.preferenciaIdMp);
         
-        if (mercadoPagoUrl) {
-          Swal.fire({
-            title: '¡Pedido creado!',
-            html: `
-              <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
-              <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
-              <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
-            `,
-            icon: 'success',
-            confirmButtonText: 'Ir a pagar',
-            confirmButtonColor: '#28a745',
-            timer: 3000,
-            timerProgressBar: true
-          }).then(() => {
-            this.mercadoPagoService.redirectToMercadoPago(mercadoPagoUrl);
-          });
-        } else {
-          this.mostrarAlertaError('No se pudo obtener el enlace de pago');
+        // Validar que tengamos al menos una URL
+        if (!pedidoResponse.sandboxInitPoint && !pedidoResponse.initPoint) {
+          console.error('❌ PROBLEMA: No se recibieron URLs de pago del backend');
+          Swal.close();
+          this.mostrarAlertaError('Error: El servidor no generó las URLs de pago. Contacta a soporte.');
+          return;
         }
+        
+        Swal.close();
+        
+        // Mostrar mensaje de éxito con información del pedido
+        Swal.fire({
+          title: '¡Pedido creado!',
+          html: `
+            <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
+            <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
+            <p><strong>Método:</strong> ${this.resumen.tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
+            <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
+          `,
+          icon: 'success',
+          confirmButtonText: 'Ir a pagar',
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true,
+          allowOutsideClick: false
+        }).then(() => {
+          try {
+            console.log('🎯 Iniciando proceso de checkout...');
+            this.mercadoPagoService.procesarCheckout(pedidoResponse);
+          } catch (error: any) {
+            console.error('❌ Error al procesar checkout:', error);
+            this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago. Por favor intenta nuevamente.');
+          }
+        });
       },
       error: (error) => {
         Swal.close();

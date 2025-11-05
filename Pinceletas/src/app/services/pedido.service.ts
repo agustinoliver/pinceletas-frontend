@@ -83,4 +83,4 @@ export class PedidoService {
   obtenerAuditoriasPorPedido(pedidoId: number): Observable<AuditoriaPedido[]> {
     return this.http.get<AuditoriaPedido[]>(`${this.apiUrl}/${pedidoId}/auditoria`);
   }
-}
+} 

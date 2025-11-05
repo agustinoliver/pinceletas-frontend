@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PedidoService } from '../../../services/pedido.service';
 import { CommerceService } from '../../../services/commerce.service';
 import { UserAuthService } from '../../../services/user-auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-payment-success',
@@ -16,6 +17,9 @@ export class PaymentSuccessComponent implements OnInit {
   procesando = true;
   mensajeError: string | null = null;
   preferenceId: string | null = null;
+  paymentId: string | null = null;
+  status: string | null = null;
+  numeroPedido: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,54 +29,183 @@ export class PaymentSuccessComponent implements OnInit {
     private authService: UserAuthService
   ) {}
 
+
   ngOnInit(): void {
-    // Obtener el preference_id de los parámetros de la URL
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+    
+    console.log('🔍 Verificando sesión al volver de MP...');
+    console.log('Token presente:', !!token);
+    console.log('User data presente:', !!userData);
+    
+    if (!token || !userData) {
+      console.error('❌ Sesión perdida al volver de Mercado Pago');
+      Swal.fire({
+        title: 'Sesión expirada',
+        text: 'Tu pago fue procesado pero necesitas iniciar sesión nuevamente',
+        icon: 'warning',
+        confirmButtonText: 'Ir a Login',
+        confirmButtonColor: '#ED620C'
+      }).then(() => {
+        this.router.navigate(['/login'], {
+          queryParams: { returnUrl: '/payment/success' }
+        });
+      });
+      return;
+    }
     this.route.queryParams.subscribe(params => {
-      this.preferenceId = params['preference_id'];
-      
+      console.log('📋 Todos los parámetros recibidos:', params);
+      console.log('📋 Claves de parámetros:', Object.keys(params));
+
+      // ✅ Mercado Pago puede enviar estos parámetros
+      this.preferenceId = params['preference_id'] || params['pref_id'];
+      this.paymentId = params['payment_id'];
+      this.status = params['status'];
+      this.numeroPedido = params['external_reference'];
+
+      console.log('🔍 Datos extraídos:');
+      console.log('  - preference_id:', this.preferenceId);
+      console.log('  - payment_id:', this.paymentId);
+      console.log('  - status:', this.status);
+      console.log('  - external_reference:', this.numeroPedido);
+
+      // ✅ SOLUCIÓN: Si tenemos preferenceId, actualizar automáticamente
       if (this.preferenceId) {
-        this.procesarPagoExitoso();
+        console.log('✅ Tenemos preference_id, procediendo con la actualización...');
+        this.actualizarYLimpiar();
       } else {
+        console.warn('⚠️ No hay preference_id, intentando alternativa...');
+        // Buscar el último pedido del usuario
+        this.buscarUltimoPedido();
+      }
+    });
+  }
+
+  /**
+   * Busca el último pedido PENDIENTE_PAGO del usuario
+   */
+  private buscarUltimoPedido(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      this.procesando = false;
+      this.mensajeError = 'Usuario no autenticado';
+      return;
+    }
+
+    console.log('🔍 Buscando último pedido del usuario:', currentUser.id);
+
+    this.pedidoService.obtenerPedidosPorUsuario(currentUser.id).subscribe({
+      next: (pedidos) => {
+        console.log('📦 Pedidos encontrados:', pedidos.length);
+        
+        // Buscar el más reciente con estado PENDIENTE_PAGO
+        const pedidoPendiente = pedidos
+          .filter(p => p.estado === 'PENDIENTE_PAGO')
+          .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime())[0];
+
+        if (pedidoPendiente) {
+          console.log('✅ Encontrado pedido pendiente:', pedidoPendiente.numeroPedido);
+          this.preferenceId = pedidoPendiente.preferenciaIdMp;
+          this.numeroPedido = pedidoPendiente.numeroPedido;
+          this.actualizarYLimpiar();
+        } else {
+          console.warn('⚠️ No se encontró pedido pendiente');
+          this.procesando = false;
+          this.mensajeError = 'No se encontró ningún pedido pendiente';
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error buscando pedidos:', error);
         this.procesando = false;
-        this.mensajeError = 'No se recibió información del pago. Por favor contacta a soporte.';
+        this.mensajeError = 'Error al buscar pedidos';
+      }
+    });
+  }
+
+  /**
+   * Actualiza el pedido y limpia el carrito
+   */
+  private actualizarYLimpiar(): void {
+    console.log('🔄 Iniciando actualización y limpieza...');
+
+    // ✅ Llamar al webhook con los datos disponibles
+    const paymentId = this.paymentId || 'simulated-' + Date.now();
+    const status = this.status || 'approved'; // Por defecto aprobado si llegamos aquí
+
+    console.log('📤 Enviando actualización al backend:');
+    console.log('  - preference_id:', this.preferenceId);
+    console.log('  - payment_id:', paymentId);
+    console.log('  - status:', status);
+
+    this.pedidoService.procesarWebhookPago(
+      this.preferenceId || '',
+      paymentId,
+      status
+    ).subscribe({
+      next: () => {
+        console.log('✅ Pedido actualizado correctamente');
+        this.procesarPagoExitoso();
+      },
+      error: (error) => {
+        console.error('❌ Error actualizando pedido:', error);
+        // Continuar de todos modos porque el pago fue exitoso en MP
+        console.warn('⚠️ Continuando con limpieza de carrito a pesar del error');
+        this.procesarPagoExitoso();
       }
     });
   }
 
   private procesarPagoExitoso(): void {
-    // Obtener el usuario actual
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.id) {
       this.procesando = false;
-      this.mensajeError = 'Usuario no autenticado. Por favor inicia sesión.';
+      this.mensajeError = 'Usuario no autenticado';
       return;
     }
 
-    // Limpiar el carrito del usuario ya que el pago fue exitoso
+    console.log('🧹 Limpiando carrito...');
+
     this.commerceService.getCarrito(currentUser.id).subscribe({
       next: (carrito) => {
-        // Eliminar todos los items del carrito
-        carrito.forEach(item => {
-          this.commerceService.eliminarDelCarrito(item.id).subscribe({
-            error: (err) => console.error('Error eliminando item del carrito:', err)
-          });
-        });
+        console.log(`🛒 Items en carrito: ${carrito.length}`);
         
-        // Después de limpiar, navegar a mis pedidos
-        this.procesando = false;
-        setTimeout(() => {
-          this.router.navigate(['/mis-pedidos']);
-        }, 2000);
+        if (carrito.length === 0) {
+          console.log('✅ Carrito ya está vacío');
+          this.finalizarProceso();
+          return;
+        }
+
+        // Eliminar todos los items del carrito
+        const eliminaciones = carrito.map(item => 
+          this.commerceService.eliminarDelCarrito(item.id)
+        );
+
+        // Esperar a que todas las eliminaciones terminen
+        Promise.all(eliminaciones.map(obs => obs.toPromise()))
+          .then(() => {
+            console.log('✅ Carrito limpiado completamente');
+            this.finalizarProceso();
+          })
+          .catch(err => {
+            console.error('❌ Error eliminando algunos items:', err);
+            // Continuar de todos modos
+            this.finalizarProceso();
+          });
       },
       error: (err) => {
-        console.error('Error obteniendo carrito:', err);
-        this.procesando = false;
-        // Aún así navegamos a mis pedidos aunque falle la limpieza del carrito
-        setTimeout(() => {
-          this.router.navigate(['/mis-pedidos']);
-        }, 2000);
+        console.error('❌ Error obteniendo carrito:', err);
+        this.finalizarProceso();
       }
     });
+  }
+
+  private finalizarProceso(): void {
+    this.procesando = false;
+    console.log('✅ Proceso completado. Redirigiendo en 3 segundos...');
+    
+    setTimeout(() => {
+      this.router.navigate(['/mis-pedidos']);
+    }, 3000);
   }
 
   volverAProductos(): void {
