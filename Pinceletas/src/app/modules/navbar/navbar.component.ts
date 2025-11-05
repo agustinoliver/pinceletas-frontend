@@ -5,23 +5,31 @@ import { UserAuthService } from '../../services/user-auth.service';
 import { User } from '../../models/user.model';
 import { Subscription } from 'rxjs';
 import { DropdownNotificationComponent } from '../notificaciones/dropdown-notification/dropdown-notification.component';
+import { FloatingAnimationComponent } from '../extras/floating-animation/floating-animation.component';
+import { AnimationService } from '../../services/animation.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, DropdownNotificationComponent],
+  imports: [CommonModule, RouterLink, DropdownNotificationComponent, FloatingAnimationComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent implements OnInit, OnDestroy {
+
   currentUser: User | null = null;
   isDropdownOpen = false;
   isMenuCollapsed = true;
+  carritoCount: number = 0; // ✅ AÑADIR contador del carrito
+  isFavoritoHighlighted: boolean = false; // ✅ NUEVO: Estado para resaltar favoritos
   private userSubscription?: Subscription;
+  private carritoSubscription?: Subscription; // ✅ AÑADIR
+  private favoritoHighlightSubscription?: Subscription; // ✅ NUEVO
 
   constructor(
     private authService: UserAuthService,
-    private router: Router
+    private router: Router,
+    private animationService: AnimationService // ✅ AÑADIR
   ) {}
 
   ngOnInit(): void {
@@ -31,14 +39,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
       console.log('Navbar - Usuario actualizado:', user);
     });
 
+     // ✅ AÑADIR: Suscribirse al contador del carrito
+    this.carritoSubscription = this.animationService.carritoCount$.subscribe(count => {
+      this.carritoCount = count;
+    });
+    // ✅ NUEVO: Suscribirse al resaltado de favoritos
+    this.favoritoHighlightSubscription = this.animationService.favoritoHighlight$.subscribe(highlight => {
+      this.isFavoritoHighlighted = highlight;
+    });
+
     // Cargar usuario inicial
     this.currentUser = this.authService.getCurrentUser();
   }
 
   ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
+    this.userSubscription?.unsubscribe();
+    this.carritoSubscription?.unsubscribe();
+    this.favoritoHighlightSubscription?.unsubscribe(); // ✅ NUEVO
   }
 
   // Escuchar clics fuera del dropdown para cerrarlo
@@ -100,4 +117,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!this.currentUser) return '';
     return `${this.currentUser.nombre} ${this.currentUser.apellido}`;
   }
+
+  // ✅ AÑADIR: Método para obtener la clase del badge del carrito
+  getCarritoBadgeClass(): string {
+    return this.carritoCount > 0 ? 'badge bg-danger carrito-badge' : 'badge bg-secondary carrito-badge';
+  }
+
+   // ✅ NUEVO: Método para obtener la clase del enlace de favoritos
+  getFavoritoClass(): string {
+    let baseClass = 'nav-link nav-link-custom';
+    
+    if (this.isFavoritoHighlighted) {
+      baseClass += ' favorito-highlight active'; // Agregar clases de resaltado
+    }
+    
+    return baseClass;
+  }
+
 }

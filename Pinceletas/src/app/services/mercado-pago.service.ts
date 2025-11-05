@@ -15,42 +15,33 @@ export class MercadoPagoService {
    * @param checkoutUrl - URL del checkout (initPoint o sandboxInitPoint)
    */
   redirectToMercadoPago(checkoutUrl: string): void {
-    if (!checkoutUrl) {
-      console.error('❌ No se recibió URL de checkout de Mercado Pago');
-      throw new Error('URL de checkout no disponible');
-    }
+  console.log('💾 GUARDANDO EN localStorage (persistente)');
+  
+  // ✅ USAR localStorage QUE PERSISTE entre ventanas/contextos
+  localStorage.setItem('mercadoPagoRedirect', 'true');
+  localStorage.setItem('mercadoPagoTimestamp', Date.now().toString());
 
-    console.log('🎯 Redirigiendo a Mercado Pago:', checkoutUrl);
-    console.log('🧪 Modo de prueba:', this.TEST_MODE ? 'ACTIVADO' : 'DESACTIVADO');
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('currentUser');
 
-    sessionStorage.setItem('mercadoPagoRedirect', 'true');
-    sessionStorage.setItem('mercadoPagoTimestamp', Date.now().toString());
+  console.log('📦 Datos a guardar:');
+  console.log('   - Token:', !!token);
+  console.log('   - UserData:', !!userData);
 
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('currentUser');
-
-    if (!token || !userData) {
-      console.error('❌ Sesión no encontrada antes de ir a Mercado Pago');
-      throw new Error('Debes estar logueado para continuar con el pago');
-    }
-    
-    console.log('✅ Sesión verificada antes de redirigir a MP');
-    console.log('✅ Token presente:', !!token);
-    console.log('✅ User data presente:', !!userData);
-
-    sessionStorage.setItem('mp_temp_token', token);
-    sessionStorage.setItem('mp_temp_user', userData);
-
-    try {
-      // Intentamos abrir en la misma pestaña (mejor compatibilidad)
-      window.location.href = checkoutUrl;
-      console.log('✅ Redirección a Mercado Pago ejecutada');
-    } catch (err) {
-      console.warn('⚠️ Error al redirigir, intento alternativo:', err);
-      // fallback por si falla el intento anterior
-      window.open(checkoutUrl, '_self');
-    }
+  if (!token || !userData) {
+    console.error('❌ ERROR: No hay sesión para guardar');
+    throw new Error('Sesión no encontrada');
   }
+
+  // ✅ GUARDAR BACKUP en localStorage
+  localStorage.setItem('mp_backup_token', token);
+  localStorage.setItem('mp_backup_user', userData);
+  
+  console.log('✅ Backup guardado en localStorage');
+  console.log('🚀 Redirigiendo a Mercado Pago...');
+
+  window.location.href = checkoutUrl;
+}
 
   /**
    * Selecciona automáticamente la URL correcta según el modo
@@ -112,43 +103,72 @@ export class MercadoPagoService {
    * @param pedidoResponse - Respuesta del pedido con las URLs de MP
    */
   procesarCheckout(pedidoResponse: any): void {
-    console.log('📦 Procesando checkout con respuesta:', pedidoResponse);
-    console.log('📊 Datos completos:', JSON.stringify(pedidoResponse, null, 2));
+  console.log('🎯🎯🎯 PROCESAR CHECKOUT INICIADO 🎯🎯🎯');
+  
+  // ✅ VERIFICACIÓN CRÍTICA - FORZAR BACKUP
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('currentUser');
+  
+  console.log('🔐 ESTADO DE SESIÓN EN PROCESAR CHECKOUT:');
+  console.log('   - Token:', !!token);
+  console.log('   - UserData:', !!userData);
 
-    const { initPoint, sandboxInitPoint } = pedidoResponse;
-
-    // ✅ CRÍTICO: Validar que tengamos al menos una URL
-    if (!this.isValidConfiguration(initPoint, sandboxInitPoint)) {
-      console.error('❌ Error: No hay URLs de pago disponibles');
-      console.error('InitPoint:', initPoint);
-      console.error('SandboxInitPoint:', sandboxInitPoint);
-      throw new Error('No se pudo obtener la URL de pago de Mercado Pago. Por favor, contacta a soporte.');
-    }
-
-    // Obtener la URL correcta según el modo
-    const checkoutUrl = this.getCheckoutUrl(initPoint, sandboxInitPoint);
-
-    if (!checkoutUrl || checkoutUrl.trim() === '') {
-      console.error('❌ URL de checkout vacía después de la selección');
-      throw new Error('URL de pago inválida');
-    }
-
-    // Log de información
-    const modeInfo = this.getMode();
-    console.log(`🎯 Modo actual: ${modeInfo.mode} - ${modeInfo.description}`);
-    console.log('🔗 URL seleccionada:', checkoutUrl);
-    console.log('📋 Preference ID:', pedidoResponse.preferenciaIdMp);
-
-    // ✅ MEJORADO: Delay más corto y con mejor manejo
-    console.log('⏳ Esperando 300ms antes de redirigir...');
-    
-    setTimeout(() => {
-      try {
-        this.redirectToMercadoPago(checkoutUrl);
-      } catch (error) {
-        console.error('❌ Error en la redirección:', error);
-        throw error;
-      }
-    }, 300); // Reducido de 500ms a 300ms
+  if (!token || !userData) {
+    console.error('❌❌❌ ERROR CRÍTICO: NO HAY SESIÓN EN PROCESAR CHECKOUT');
+    throw new Error('Sesión perdida durante el proceso de pago');
   }
+
+  // ✅ GUARDAR FLAG Y BACKUP (FORZADO)
+  console.log('💾 GUARDANDO FLAG Y BACKUP...');
+  localStorage.setItem('mercadoPagoRedirect', 'true');
+  localStorage.setItem('mercadoPagoTimestamp', Date.now().toString());
+  localStorage.setItem('mp_backup_token', token);
+  localStorage.setItem('mp_backup_user', userData);
+  
+  // ✅ VERIFICAR QUE SE GUARDÓ
+  const flagGuardado = localStorage.getItem('mercadoPagoRedirect');
+  const backupToken = localStorage.getItem('mp_backup_token');
+  const backupUser = localStorage.getItem('mp_backup_user');
+  
+  console.log('✅ Verificación de guardado:');
+  console.log('   - Flag:', flagGuardado);
+  console.log('   - Backup Token:', !!backupToken);
+  console.log('   - Backup User:', !!backupUser);
+
+  // 🔁 Continuar flujo original
+  console.log('📦 Procesando checkout con respuesta:', pedidoResponse);
+  console.log('📊 Datos completos:', JSON.stringify(pedidoResponse, null, 2));
+
+  const { initPoint, sandboxInitPoint } = pedidoResponse;
+
+  if (!this.isValidConfiguration(initPoint, sandboxInitPoint)) {
+    console.error('❌ Error: No hay URLs de pago disponibles');
+    console.error('InitPoint:', initPoint);
+    console.error('SandboxInitPoint:', sandboxInitPoint);
+    throw new Error('No se pudo obtener la URL de pago de Mercado Pago.');
+  }
+
+  const checkoutUrl = this.getCheckoutUrl(initPoint, sandboxInitPoint);
+  if (!checkoutUrl || checkoutUrl.trim() === '') {
+    console.error('❌ URL de checkout vacía después de la selección');
+    throw new Error('URL de pago inválida');
+  }
+
+  const modeInfo = this.getMode();
+  console.log(`🎯 Modo actual: ${modeInfo.mode} - ${modeInfo.description}`);
+  console.log('🔗 URL seleccionada:', checkoutUrl);
+  console.log('📋 Preference ID:', pedidoResponse.preferenciaIdMp);
+
+  console.log('⏳ Esperando 300ms antes de redirigir...');
+  setTimeout(() => {
+    try {
+      this.redirectToMercadoPago(checkoutUrl);
+    } catch (error) {
+      console.error('❌ Error en la redirección:', error);
+      throw error;
+    }
+  }, 300);
+}
+
+
 }

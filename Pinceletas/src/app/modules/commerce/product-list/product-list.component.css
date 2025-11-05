@@ -14,22 +14,19 @@
 
 /* Filtros */
 .filtros-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-left: 4px solid var(--primary-color) !important;
-  border-radius: 12px !important; /* Agregué bordes redondeados aquí también */
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  border-left: 4px solid var(--primary-hover) !important;
+  border-radius: 12px !important;
+  color: var(--text-dark);
 }
+
 
 /* Contenedor de imagen mejorado */
 .image-container {
-  position: relative;
-  width: 100%;
-  height: 250px;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px 16px 0 0 !important; /* Bordes redondeados solo arriba */
+  height: 240px;
+  border-radius: 18px 18px 0 0 !important;
+  background: #fafafa;
+  transition: all 0.3s ease;
 }
 
 .product-image {
@@ -58,29 +55,43 @@
 
 /* Estilos para las tarjetas de productos */
 .producto-card {
+  background: linear-gradient(145deg, #ffffff, #f6f7f9);
+  border: none !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  border: 2px solid #000000 !important; /* Borde negro más grueso */
-  background: white;
-  border-radius: 16px !important; /* Aumenté el border-radius */
-  overflow: hidden; /* Para que los bordes redondeados se apliquen correctamente */
+  position: relative;
 }
 
 .producto-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(237, 98, 12, 0.25) !important; /* Sombra naranja más intensa */
-  border-color: var(--primary-color) !important;
+  transform: translateY(-8px);
+  box-shadow: 0 14px 30px rgba(237, 98, 12, 0.25);
 }
 
 .producto-card:hover .product-image {
-  transform: scale(1.08); /* Un poco más de zoom para mayor efecto */
+  transform: scale(1.05);
+  filter: brightness(1.05);
+}
+
+.producto-card .card-body {
+  border-radius: 0 0 18px 18px !important;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  padding: 1.2rem 1rem;
+}
+
+.producto-card .card-title {
+  font-weight: 700;
+  color: var(--text-dark);
+  font-size: 1.05rem;
 }
 
 .producto-card:hover .card-title {
   color: var(--primary-color);
 }
 
-.card-img-top {
-  border-bottom: 1px solid var(--border-color);
+.producto-card small.text-muted {
+  font-size: 0.85rem;
 }
 
 /* Estilos para elementos de Bootstrap personalizados */
@@ -178,3 +189,57 @@
 .text-muted {
   color: var(--text-light) !important;
 }
+
+/* Botón limpiar personalizado */
+.btn-limpiar {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(237, 98, 12, 0.25);
+}
+
+.btn-limpiar:hover {
+  background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+  color: var(--text-dark);
+  box-shadow: 0 6px 14px rgba(237, 98, 12, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Mejor distribución y responsividad del bloque de filtros */
+.filtros-container {
+  padding: 1.5rem;
+  border-left: 4px solid var(--primary-color) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 6px 16px rgba(136, 12, 237, 0.363);
+}
+
+@media (max-width: 768px) {
+  .filtros-grid {
+    text-align: center;
+  }
+
+  .filtros-grid label {
+    text-align: left;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .filtros-container {
+    padding: 1rem;
+  }
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #555, #333);
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+

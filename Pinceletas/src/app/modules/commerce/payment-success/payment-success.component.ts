@@ -29,56 +29,34 @@ export class PaymentSuccessComponent implements OnInit {
     private authService: UserAuthService
   ) {}
 
-
+  // ✅ Simplificado según el paso 3
   ngOnInit(): void {
+    console.log('💰 PAYMENT SUCCESS - INICIANDO');
+    
+    // ✅ El guard ya debe haber restaurado la sesión si existía
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
     
-    console.log('🔍 Verificando sesión al volver de MP...');
-    console.log('Token presente:', !!token);
-    console.log('User data presente:', !!userData);
-    
-    if (!token || !userData) {
-      console.error('❌ Sesión perdida al volver de Mercado Pago');
-      Swal.fire({
-        title: 'Sesión expirada',
-        text: 'Tu pago fue procesado pero necesitas iniciar sesión nuevamente',
-        icon: 'warning',
-        confirmButtonText: 'Ir a Login',
-        confirmButtonColor: '#ED620C'
-      }).then(() => {
-        this.router.navigate(['/login'], {
-          queryParams: { returnUrl: '/payment/success' }
-        });
-      });
-      return;
+    console.log('🔍 Estado final de sesión:');
+    console.log('   - Token:', !!token);
+    console.log('   - UserData:', !!userData);
+    console.log('   - CurrentUser:', this.authService.getCurrentUser());
+
+    if (token && userData) {
+      console.log('✅ SESIÓN ACTIVA - PROCESANDO PAGO...');
+      this.procesarPagoExitoso();
+    } else {
+      console.error('❌ ERROR: SESIÓN NO DISPONIBLE');
+      
+      // ✅ Mostrar mensaje de pago exitoso, sin redirigir al login
+      this.procesando = false;
+      this.mensajeError = 'Tu pago fue exitoso. Puedes ver tu pedido en "Mis Pedidos".';
+      
+      // Limpiar cualquier backup residual
+      localStorage.removeItem('mp_backup_token');
+      localStorage.removeItem('mp_backup_user');
+      localStorage.removeItem('mercadoPagoRedirect');
     }
-    this.route.queryParams.subscribe(params => {
-      console.log('📋 Todos los parámetros recibidos:', params);
-      console.log('📋 Claves de parámetros:', Object.keys(params));
-
-      // ✅ Mercado Pago puede enviar estos parámetros
-      this.preferenceId = params['preference_id'] || params['pref_id'];
-      this.paymentId = params['payment_id'];
-      this.status = params['status'];
-      this.numeroPedido = params['external_reference'];
-
-      console.log('🔍 Datos extraídos:');
-      console.log('  - preference_id:', this.preferenceId);
-      console.log('  - payment_id:', this.paymentId);
-      console.log('  - status:', this.status);
-      console.log('  - external_reference:', this.numeroPedido);
-
-      // ✅ SOLUCIÓN: Si tenemos preferenceId, actualizar automáticamente
-      if (this.preferenceId) {
-        console.log('✅ Tenemos preference_id, procediendo con la actualización...');
-        this.actualizarYLimpiar();
-      } else {
-        console.warn('⚠️ No hay preference_id, intentando alternativa...');
-        // Buscar el último pedido del usuario
-        this.buscarUltimoPedido();
-      }
-    });
   }
 
   /**
@@ -98,7 +76,6 @@ export class PaymentSuccessComponent implements OnInit {
       next: (pedidos) => {
         console.log('📦 Pedidos encontrados:', pedidos.length);
         
-        // Buscar el más reciente con estado PENDIENTE_PAGO
         const pedidoPendiente = pedidos
           .filter(p => p.estado === 'PENDIENTE_PAGO')
           .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime())[0];
@@ -123,14 +100,13 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   /**
-   * Actualiza el pedido y limpia el carrito
+   * Actualiza el pedido en backend y limpia el carrito
    */
   private actualizarYLimpiar(): void {
     console.log('🔄 Iniciando actualización y limpieza...');
 
-    // ✅ Llamar al webhook con los datos disponibles
     const paymentId = this.paymentId || 'simulated-' + Date.now();
-    const status = this.status || 'approved'; // Por defecto aprobado si llegamos aquí
+    const status = this.status || 'approved';
 
     console.log('📤 Enviando actualización al backend:');
     console.log('  - preference_id:', this.preferenceId);
@@ -148,18 +124,22 @@ export class PaymentSuccessComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Error actualizando pedido:', error);
-        // Continuar de todos modos porque el pago fue exitoso en MP
         console.warn('⚠️ Continuando con limpieza de carrito a pesar del error');
         this.procesarPagoExitoso();
       }
     });
   }
 
+  /**
+   * Procesa el flujo de pago exitoso y limpia el carrito
+   */
   private procesarPagoExitoso(): void {
+    console.log('🔄 Procesando pago exitoso...');
+    
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.id) {
+      console.error('❌ Usuario no disponible');
       this.procesando = false;
-      this.mensajeError = 'Usuario no autenticado';
       return;
     }
 
@@ -175,12 +155,10 @@ export class PaymentSuccessComponent implements OnInit {
           return;
         }
 
-        // Eliminar todos los items del carrito
         const eliminaciones = carrito.map(item => 
           this.commerceService.eliminarDelCarrito(item.id)
         );
 
-        // Esperar a que todas las eliminaciones terminen
         Promise.all(eliminaciones.map(obs => obs.toPromise()))
           .then(() => {
             console.log('✅ Carrito limpiado completamente');
@@ -188,7 +166,6 @@ export class PaymentSuccessComponent implements OnInit {
           })
           .catch(err => {
             console.error('❌ Error eliminando algunos items:', err);
-            // Continuar de todos modos
             this.finalizarProceso();
           });
       },

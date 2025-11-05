@@ -1,17 +1,13 @@
 /* product-audit.component.css */
-.audit-data {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: #f8f9fa;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
+
+/* Estilos generales */
+.container {
+  max-width: 1200px;
 }
 
 .card {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid #e3e6f0;
 }
 
 .card:hover {
@@ -19,37 +15,365 @@
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
+.card-header {
+  border-bottom: 1px solid #e3e6f0;
+  background-color: #f8f9fc !important;
+}
+
+/* Botones del selector de tipo */
+.btn-group {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .btn-group .btn {
   border-radius: 0;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
 }
 
 .btn-group .btn:first-child {
-  border-top-left-radius: 0.375rem;
-  border-bottom-left-radius: 0.375rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
 }
 
 .btn-group .btn:last-child {
-  border-top-right-radius: 0.375rem;
-  border-bottom-right-radius: 0.375rem;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
+.btn-group .btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Badges */
 .badge {
   font-size: 0.75em;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
 }
 
-pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  margin: 0;
+.badge.bg-success {
+  background-color: #1cc88a !important;
+}
+
+.badge.bg-warning {
+  background-color: #f6c23e !important;
+  color: #2e59d9 !important;
+}
+
+.badge.bg-danger {
+  background-color: #e74a3b !important;
+}
+
+.badge.bg-primary {
+  background-color: #4e73df !important;
+}
+
+.badge.bg-info {
+  background-color: #36b9cc !important;
+}
+
+/* Estilos para las tablas de auditoría */
+.table {
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-bottom: 2px solid #e3e6f0;
+  background-color: #f8f9fc;
+}
+
+.table td {
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid #e3e6f0;
+}
+
+.table-responsive {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* Colores para las diferentes acciones */
+.table-success th {
+  background-color: #d1eddd !important;
+  color: #0f5132;
+  border-color: #badbcc;
+}
+
+.table-warning th {
+  background-color: #fff3cd !important;
+  color: #856404;
+  border-color: #ffeaa7;
+}
+
+.table-danger th {
+  background-color: #f8d7da !important;
+  color: #721c24;
+  border-color: #f1b0b7;
+}
+
+/* Estilos para filas modificadas */
+.table-warning td {
+  background-color: #fffdf6;
+}
+
+.text-danger {
+  color: #e74a3b !important;
+  font-weight: 500;
+}
+
+.text-success {
+  color: #1cc88a !important;
+  font-weight: 500;
 }
 
 /* Estilos para los filtros */
 .form-label {
   font-weight: 600;
+  color: #5a5c69;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid #d1d3e2;
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #4e73df;
+  box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Alertas */
+.alert {
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .alert-info {
   background-color: #d1ecf1;
-  border-color: #bee5eb;
   color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3em;
+}
+
+/* Iconos */
+.fas {
+  opacity: 0.8;
+}
+
+/* Mejoras de espaciado */
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* Títulos */
+h1, h2, h3, h4, h5, h6 {
+  color: #5a5c69;
+  font-weight: 600;
+}
+
+.text-primary {
+  color: #4e73df !important;
+}
+
+.text-success {
+  color: #1cc88a !important;
+}
+
+/* Estados hover para botones */
+.btn-outline-primary:hover {
+  background-color: #4e73df;
+  border-color: #4e73df;
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger:hover {
+  background-color: #e74a3b;
+  border-color: #e74a3b;
+  transform: translateY(-1px);
+}
+
+/* ✅ MEJORADO: Miniaturas de imágenes */
+.audit-thumbnail {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid #dee2e6;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.audit-thumbnail:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #4e73df;
+  z-index: 10;
+  position: relative;
+}
+
+/* Contenedor de miniaturas */
+.position-relative {
+  transition: transform 0.2s ease;
+}
+
+.position-relative:hover {
+  transform: translateY(-2px);
+}
+
+/* Badges para estados activo/inactivo */
+.badge.bg-success, .badge.bg-danger {
+  font-size: 0.7em;
+  padding: 0.3em 0.6em;
+}
+
+/* Mejoras para textos */
+.text-muted {
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  .btn-group .btn {
+    border-radius: 0.5rem !important;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+  
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+  
+  .card-header .row {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .card-header .col-md-6 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-header .text-md-end {
+    text-align: center !important;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  /* Miniaturas más pequeñas en móviles */
+  .audit-thumbnail {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .table {
+    font-size: 0.75rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .audit-thumbnail {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Efectos de transición suaves */
+.card, .btn, .badge, .table {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Mejora visual para textos muted */
+.text-muted {
+  color: #858796 !important;
+}
+
+/* Sombra suave para cards */
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Estilo para cuando no hay datos */
+.text-center.text-muted {
+  font-style: italic;
+}
+
+/* Mejora para los badges dentro de los botones */
+.btn .badge {
+  transform: scale(0.9);
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejoras para tablas en modo comparación */
+.table-warning td.text-danger {
+  background-color: rgba(231, 74, 59, 0.1);
+}
+
+.table-warning td.text-success {
+  background-color: rgba(28, 200, 138, 0.1);
 }

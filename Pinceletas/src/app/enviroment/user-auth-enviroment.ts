@@ -5,8 +5,8 @@
 //   apiLocations: 'http://localhost:8081/api/locations'
 // };
 export const userAuthEnviroment = {
-  apiBaseUrl: 'https://cooper-nebraska-trigger-effects.trycloudflare.com/api',
-  apiAuth: 'https://cooper-nebraska-trigger-effects.trycloudflare.com/api/auth',
-  apiUsers: 'https://cooper-nebraska-trigger-effects.trycloudflare.com/api/users',
-  apiLocations: 'https://cooper-nebraska-trigger-effects.trycloudflare.com/api/locations'
+  apiBaseUrl: 'https://country-nav-qui-definitely.trycloudflare.com/api',
+  apiAuth: 'https://country-nav-qui-definitely.trycloudflare.com/api/auth',
+  apiUsers: 'https://country-nav-qui-definitely.trycloudflare.com/api/users',
+  apiLocations: 'https://country-nav-qui-definitely.trycloudflare.com/api/locations'
 };

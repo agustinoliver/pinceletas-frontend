@@ -25,6 +25,9 @@ export class UserAuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  // ✅ NUEVO: Cache para usuarios
+  private usuariosCache: Map<number, string> = new Map();
+
   constructor(
     private http: HttpClient,
     private firebaseService: FirebaseService
@@ -66,6 +69,71 @@ export class UserAuthService {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
+
+  // ✅ NUEVO: Método para obtener nombre de usuario desde el cache
+  getNombreUsuario(usuarioId: number): string {
+    if (usuarioId === 0) {
+      return 'Sistema';
+    }
+    return this.usuariosCache.get(usuarioId) || `Usuario #${usuarioId}`;
+  }
+
+  // ✅ NUEVO: Método para agregar usuario al cache
+  agregarUsuarioAlCache(usuarioId: number, nombreCompleto: string): void {
+    this.usuariosCache.set(usuarioId, nombreCompleto);
+  }
+
+  // ✅ NUEVO: Método para obtener usuario por ID (usando el endpoint existente)
+  obtenerUsuarioPorId(usuarioId: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUsers}/by-id/${usuarioId}`)
+      .pipe(
+        tap(user => {
+          // Agregar al cache cuando se obtiene un usuario
+          const nombreCompleto = `${user.nombre} ${user.apellido}`;
+          this.agregarUsuarioAlCache(user.id, nombreCompleto);
+        }),
+        catchError(error => {
+          console.error('Error obteniendo usuario por ID', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // ✅ NUEVO: Método para cargar múltiples usuarios al cache
+  cargarUsuariosAlCache(usuarioIds: number[]): Observable<void> {
+    return new Observable(observer => {
+      const usuariosUnicos = [...new Set(usuarioIds)].filter(id => id !== 0 && !this.usuariosCache.has(id));
+      
+      if (usuariosUnicos.length === 0) {
+        observer.next();
+        observer.complete();
+        return;
+      }
+
+      let usuariosCargados = 0;
+      
+      usuariosUnicos.forEach(usuarioId => {
+        this.obtenerUsuarioPorId(usuarioId).subscribe({
+          next: () => {
+            usuariosCargados++;
+            if (usuariosCargados === usuariosUnicos.length) {
+              observer.next();
+              observer.complete();
+            }
+          },
+          error: (err) => {
+            console.error(`Error cargando usuario ${usuarioId}:`, err);
+            usuariosCargados++;
+            if (usuariosCargados === usuariosUnicos.length) {
+              observer.next();
+              observer.complete();
+            }
+          }
+        });
+      });
+    });
+  }
+
 
   login(loginData: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiAuth}/login`, loginData)

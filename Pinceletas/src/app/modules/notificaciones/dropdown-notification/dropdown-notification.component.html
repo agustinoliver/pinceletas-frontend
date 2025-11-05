@@ -1,6 +1,6 @@
 <div class="notification-dropdown">
   <!-- Botón de la campanita -->
-  <button class="notification-toggle" (click)="toggleDropdown()">
+  <button class="notification-toggle" (click)="toggleDropdown($event)">
     <i class="fas fa-bell"></i>
     <span class="notification-badge" *ngIf="contadorNoLeidas > 0">
       {{ contadorNoLeidas > 99 ? '99+' : contadorNoLeidas }}
@@ -8,7 +8,7 @@
   </button>
 
   <!-- Dropdown de notificaciones -->
-  <div class="notification-dropdown-menu" [class.show]="isOpen">
+  <div class="notification-dropdown-menu" [class.show]="isOpen" (click)="$event.stopPropagation()">
     <div class="notification-header">
       <h6 class="notification-title">
         <i class="fas fa-bell me-2"></i>

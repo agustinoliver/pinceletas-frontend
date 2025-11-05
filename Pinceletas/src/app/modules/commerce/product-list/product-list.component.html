@@ -5,9 +5,9 @@
     <div class="col-12">
       <div class="card border-0 shadow-sm">
         <div class="card-body filtros-container">
-          <div class="row align-items-end">
+          <div class="row g-3 align-items-end filtros-grid">
             <!-- Filtro por categoría -->
-            <div class="col-md-5 mb-2">
+            <div class="col-lg-4 col-md-6 col-sm-12">
               <label for="categoria" class="form-label fw-bold text-secondary">Filtrar por categoría:</label>
               <select 
                 id="categoria" 
@@ -22,7 +22,7 @@
             </div>
           
             <!-- Filtro por nombre -->
-            <div class="col-md-5 mb-2">
+            <div class="col-lg-5 col-md-6 col-sm-12">
               <label for="busqueda" class="form-label fw-bold text-secondary">Buscar por nombre:</label>
               <div class="input-group">
                 <span class="input-group-text bg-primary text-white">
@@ -39,10 +39,10 @@
               </div>
             </div>
           
-            <!-- Botón limpiar filtros -->
-            <div class="col-md-2 mb-2 text-end">
+            <!-- Botón limpiar -->
+            <div class="col-lg-3 col-md-12 col-sm-12 text-md-end text-center">
               <button 
-                class="btn btn-outline-secondary mt-4 w-100" 
+                class="btn btn-limpiar w-100 mt-2 mt-md-4"
                 (click)="limpiarFiltros()"
                 title="Limpiar filtros">
                 <i class="fas fa-trash me-1"></i> Limpiar
@@ -86,11 +86,19 @@
               <h5 class="card-title text-dark">{{ producto.nombre }}</h5>
               
               <!-- Indicador de opciones disponibles -->
-              <div *ngIf="producto.opciones && producto.opciones.length > 0" class="mb-2">
-                <small class="badge bg-accent text-dark">
-                  <i class="fas fa-cog me-1"></i>
-                  Opciones disponibles
-                </small>
+              <div class="mb-2">
+                <ng-container *ngIf="producto.opciones && producto.opciones.length > 0; else sinOpciones">
+                  <small class="badge bg-accent text-dark">
+                    <i class="fas fa-cog me-1"></i>
+                    Opciones disponibles
+                  </small>
+                </ng-container>
+                <ng-template #sinOpciones>
+                  <small class="badge bg-secondary text-light">
+                    <i class="fas fa-ban me-1"></i>
+                    Sin opciones 
+                  </small>
+                </ng-template>
               </div>
 
               <div class="mt-auto">

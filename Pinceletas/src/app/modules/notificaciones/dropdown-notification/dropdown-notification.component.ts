@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../services/notification.service';
@@ -46,6 +46,23 @@ export class DropdownNotificationComponent implements OnInit, OnDestroy {
     }
   }
 
+  // 🔥 NUEVO: Cerrar dropdown al hacer click fuera
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.notification-dropdown');
+    
+    if (!clickedInside && this.isOpen) {
+      this.isOpen = false;
+    }
+  }
+
+  // 🔥 NUEVO: Prevenir que se cierre al hacer click dentro del dropdown
+  @HostListener('click', ['$event'])
+  onDropdownClick(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
   cargarNotificaciones(usuarioId: number): void {
     this.notificationService.getNotificacionesPorUsuario(usuarioId).subscribe({
       next: (notificaciones) => {
@@ -68,7 +85,8 @@ export class DropdownNotificationComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleDropdown(): void {
+  toggleDropdown(event: Event): void {
+    event.stopPropagation(); // 🔥 IMPORTANTE: Prevenir propagación
     this.isOpen = !this.isOpen;
     if (this.isOpen && this.currentUser?.id) {
       this.cargarNotificaciones(this.currentUser.id);

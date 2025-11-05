@@ -134,6 +134,12 @@ export const routes: Routes = [
       .then(m => m.ProfileComponent),
     canActivate: [authGuard, sessionCheckGuard] 
   },
+  { 
+  path: 'admin/config', 
+  loadComponent: () => import('./modules/dashboard/config-admin/config-admin.component')
+    .then(m => m.ConfigAdminComponent),
+  // canActivate: [authGuard] // Solo administradores
+  },
 
   // Rutas por defecto y redirecciones
   { path: '', 
@@ -143,7 +149,7 @@ export const routes: Routes = [
   // ✅ NUEVA RUTA PARA PÁGINA NO ENCONTRADA
   { 
     path: '**', 
-    loadComponent: () => import('./modules/shared/not-found/not-found.component')
+    loadComponent: () => import('./modules/extras/not-found/not-found.component')
       .then(m => m.NotFoundComponent) 
   }
 ];

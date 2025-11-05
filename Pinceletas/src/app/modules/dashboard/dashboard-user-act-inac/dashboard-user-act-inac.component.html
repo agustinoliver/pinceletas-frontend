@@ -5,9 +5,9 @@
       <div class="col">
         <h1 class="dashboard-title">
           <i class="fas fa-chart-line me-3 text-primary"></i>
-          Dashboard Administrativo
+          Dashboard Administrativo Completo
         </h1>
-        <p class="dashboard-subtitle">Métricas y estadísticas del sistema</p>
+        <p class="dashboard-subtitle">Métricas integradas de usuarios, productos, pedidos y compras</p>
       </div>
       <div class="col-auto">
         <button class="btn btn-primary" (click)="refreshDashboard()" [disabled]="loading">
@@ -21,7 +21,7 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <div class="loading-spinner"></div>
-    <p class="loading-text">Cargando dashboard...</p>
+    <p class="loading-text">Cargando dashboard completo...</p>
   </div>
 
   <!-- Error State -->
@@ -38,8 +38,46 @@
   <!-- Dashboard Content -->
   <div *ngIf="dashboardData && !loading" class="dashboard-content fade-in">
     
-    <!-- Tarjetas de Resumen -->
+    <!-- Navegación por Tabs -->
     <div class="row mb-4">
+      <div class="col-12">
+        <ul class="nav nav-tabs dashboard-tabs">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'usuarios'" 
+               (click)="setActiveTab('usuarios')">
+              <i class="fas fa-users me-2"></i>
+              Estadísticas de Usuarios
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'productos'" 
+               (click)="setActiveTab('productos')">
+              <i class="fas fa-boxes me-2"></i>
+              Estadísticas de Productos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'pedidos'" 
+               (click)="setActiveTab('pedidos')">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Estadísticas de Pedidos
+            </a>
+          </li>
+          <!-- 🆕 NUEVO TAB PARA COMPRAS POR USUARIO -->
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'compras-usuarios'" 
+               (click)="setActiveTab('compras-usuarios')">
+              <i class="fas fa-user-tag me-2"></i>
+              Compras por Usuario
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TARJETAS DE RESUMEN GENERAL (siempre visibles) -->
+    <div class="row mb-4">
+      <!-- Tarjetas de Usuarios -->
       <div class="col-md-3">
         <div class="card summary-card">
           <div class="card-body">
@@ -71,33 +109,37 @@
           </div>
         </div>
       </div>
-      
+
+      <!-- Tarjetas de Productos -->
       <div class="col-md-3">
         <div class="card summary-card">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="summary-icon bg-warning">
-                <i class="fas fa-user-clock"></i>
+                <i class="fas fa-cubes"></i>
               </div>
               <div class="ms-3">
-                <h3 class="summary-value">{{ dashboardData.userStats.inactiveUsers }}</h3>
-                <p class="summary-label">Usuarios Inactivos</p>
+                <h3 class="summary-value">{{ dashboardData.productStats.totalProducts }}</h3>
+                <p class="summary-label">Total Productos</p>
               </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- 🆕 Tarjeta de Compras por Usuario -->
       <div class="col-md-3">
         <div class="card summary-card">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="summary-icon bg-info">
-                <i class="fas fa-percentage"></i>
+                <i class="fas fa-user-tag"></i>
               </div>
               <div class="ms-3">
-                <h3 class="summary-value">{{ dashboardData.userStats.activePercentage | number:'1.1-1' }}%</h3>
-                <p class="summary-label">Tasa de Activos</p>
+                <h3 class="summary-value" *ngIf="getPurchasesStats()">
+                  {{ getPurchasesStats()!.totalUsers }}
+                </h3>
+                <p class="summary-label">Usuarios con Compras</p>
               </div>
             </div>
           </div>
@@ -105,61 +147,662 @@
       </div>
     </div>
 
-    <!-- Gráficos -->
-    <div class="row mb-4">
-      <!-- Gráfico de Torta -->
-      <div class="col-md-6">
-        <div class="card chart-card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-chart-pie me-2 text-primary"></i>
-              Distribución de Usuarios
-            </h5>
+    <!-- CONTENIDO DE USUARIOS -->
+    <div *ngIf="activeTab === 'usuarios'" class="tab-content fade-in">
+      
+      <!-- Métricas Específicas de Usuarios -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-success">{{ dashboardData.userStats.activePercentage | number:'1.1-1' }}%</h4>
+              <p class="metric-label">Tasa de Usuarios Activos</p>
+            </div>
           </div>
-          <div class="card-body">
-            <google-chart 
-              *ngIf="pieChartData.length > 0"
-              [type]="pieChartType"
-              [data]="pieChartData"
-              [columns]="pieChartColumns"
-              [options]="pieChartOptions">
-            </google-chart>
-            <div *ngIf="pieChartData.length === 0" class="text-center text-muted py-5">
-              <i class="fas fa-chart-pie fa-3x mb-3"></i>
-              <p>No hay datos para mostrar</p>
+        </div>
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-warning">{{ dashboardData.userStats.inactiveUsers }}</h4>
+              <p class="metric-label">Usuarios Inactivos</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-primary">{{ dashboardData.userStats.totalUsers }}</h4>
+              <p class="metric-label">Usuarios Totales</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Gráfico de Barras -->
-      <div class="col-md-6">
-        <div class="card chart-card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-chart-bar me-2 text-primary"></i>
-              Comparación de Usuarios
-            </h5>
+      <!-- Gráficos de Usuarios -->
+      <div class="row mb-4">
+        <!-- Gráfico de Torta -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Distribución de Usuarios
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="pieChartData.length > 0"
+                [type]="pieChartType"
+                [data]="pieChartData"
+                [columns]="pieChartColumns"
+                [options]="pieChartOptions">
+              </google-chart>
+            </div>
           </div>
-          <div class="card-body">
-            <google-chart 
-              *ngIf="barChartData.length > 0"
-              [type]="barChartType"
-              [data]="barChartData"
-              [columns]="barChartColumns"
-              [options]="barChartOptions">
-            </google-chart>
-            <div *ngIf="barChartData.length === 0" class="text-center text-muted py-5">
-              <i class="fas fa-chart-bar fa-3x mb-3"></i>
-              <p>No hay datos para mostrar</p>
+        </div>
+
+        <!-- Gráfico de Barras -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>
+                Comparación de Usuarios
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="barChartData.length > 0"
+                [type]="barChartType"
+                [data]="barChartData"
+                [columns]="barChartColumns"
+                [options]="barChartOptions">
+              </google-chart>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Métricas del Sistema -->
-    <div class="row">
+    <!-- CONTENIDO DE PRODUCTOS -->
+    <div *ngIf="activeTab === 'productos'" class="tab-content fade-in">
+      
+      <!-- Métricas Específicas de Productos -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-success">{{ dashboardData.productStats.activeProducts }}</h4>
+              <p class="metric-label">Productos Activos</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-warning">{{ dashboardData.productStats.inactiveProducts }}</h4>
+              <p class="metric-label">Productos Inactivos</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-info">{{ dashboardData.productsByCategory.length }}</h4>
+              <p class="metric-label">Categorías Activas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primera Fila de Gráficos de Productos -->
+      <div class="row mb-4">
+        <!-- Gráfico de Distribución -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Distribución de Productos
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="productDistributionChartData.length > 0"
+                [type]="productDistributionChartType"
+                [data]="productDistributionChartData"
+                [columns]="distributionChartColumns"
+                [options]="productDistributionChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Productos por Categoría -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>
+                Productos por Categoría
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="categoryChartData.length > 0"
+                [type]="categoryChartType"
+                [data]="categoryChartData"
+                [columns]="categoryChartColumns"
+                [options]="categoryChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segunda Fila - Productos Más Vendidos -->
+      <div class="row mb-4">
+        <!-- Gráfico de Productos Más Vendidos -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-trophy me-2 text-warning"></i>
+                Top 5 Productos Más Vendidos
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="topProductsChartData.length > 0"
+                [type]="topProductsChartType"
+                [data]="topProductsChartData"
+                [columns]="topProductsChartColumns"
+                [options]="topProductsChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Productos Más Vendidos -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-list-ol me-2 text-primary"></i>
+                Detalle de Productos Más Vendidos
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Categoría</th>
+                      <th>Unidades</th>
+                      <th>Ingresos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let product of dashboardData.topSellingProducts.slice(0, 5)">
+                      <td><strong>{{ product.productName }}</strong></td>
+                      <td><span class="badge bg-secondary">{{ product.categoryName }}</span></td>
+                      <td><span class="badge bg-primary">{{ product.unitsSold }}</span></td>
+                      <td>
+                        <span [class]="getRevenueColor(product.totalRevenue) + ' fw-bold'">
+                          {{ formatCurrency(product.totalRevenue) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Productos por Categoría -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-layer-group me-2 text-primary"></i>
+                Detalle de Productos por Categoría
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Categoría</th>
+                      <th>Total</th>
+                      <th>Activos</th>
+                      <th>Inactivos</th>
+                      <th>% Activos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let category of dashboardData.productsByCategory">
+                      <td><strong>{{ category.categoryName }}</strong></td>
+                      <td>{{ category.totalProducts }}</td>
+                      <td><span class="badge bg-success">{{ category.activeProducts }}</span></td>
+                      <td><span class="badge bg-warning">{{ category.inactiveProducts }}</span></td>
+                      <td>
+                        <span class="fw-bold" 
+                              [class.text-success]="(category.activeProducts / category.totalProducts) > 0.7"
+                              [class.text-warning]="(category.activeProducts / category.totalProducts) <= 0.7 && (category.activeProducts / category.totalProducts) > 0.3"
+                              [class.text-danger]="(category.activeProducts / category.totalProducts) <= 0.3">
+                          {{ (category.activeProducts / category.totalProducts * 100) | number:'1.1-1' }}%
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🆕 CONTENIDO DE PEDIDOS -->
+    <div *ngIf="activeTab === 'pedidos'" class="tab-content fade-in">
+      
+      <!-- Métricas Específicas de Pedidos -->
+      <div class="row mb-4" *ngIf="getOrdersStats()">
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-success">
+                {{ formatCurrency(getOrdersStats()!.totalRevenue) }}
+              </h4>
+              <p class="metric-label">Ingresos Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-primary">{{ getOrdersStats()!.totalOrders }}</h4>
+              <p class="metric-label">Total Pedidos</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-info">{{ getOrdersStats()!.avgOrdersPerDay }}</h4>
+              <p class="metric-label">Promedio por Día</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-warning">{{ getOrdersStats()!.completionRate }}%</h4>
+              <p class="metric-label">Tasa de Completación</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primera Fila de Gráficos de Pedidos -->
+      <div class="row mb-4">
+        <!-- Gráfico de Pedidos por Fecha -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Evolución de Pedidos por Fecha
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="ordersByDateChartData.length > 0"
+                [type]="ordersByDateChartType"
+                [data]="ordersByDateChartData"
+                [columns]="ordersByDateChartColumns"
+                [options]="ordersByDateChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Pedidos por Estado -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Distribución por Estado
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="ordersByStatusChartData.length > 0"
+                [type]="ordersByStatusChartType"
+                [data]="ordersByStatusChartData"
+                [columns]="ordersByStatusChartColumns"
+                [options]="ordersByStatusChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segunda Fila de Gráficos de Pedidos -->
+      <div class="row mb-4">
+        <!-- Gráfico de Ingresos por Fecha -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-money-bill-wave me-2 text-success"></i>
+                Ingresos por Fecha
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="revenueByDateChartData.length > 0"
+                [type]="revenueByDateChartType"
+                [data]="revenueByDateChartData"
+                [columns]="revenueByDateChartColumns"
+                [options]="revenueByDateChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Resumen de Estados -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-list-alt me-2 text-primary"></i>
+                Resumen por Estado de Pedidos
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Estado</th>
+                      <th>Cantidad</th>
+                      <th>Porcentaje</th>
+                      <th>Ingresos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let status of dashboardData.ordersByStatus">
+                      <td>
+                        <span [class]="'badge ' + getOrderStatusColor(status.status)">
+                          {{ translateStatus(status.status) }}
+                        </span>
+                      </td>
+                      <td><strong>{{ status.totalOrders }}</strong></td>
+                      <td>
+                        <span class="fw-bold text-primary">
+                          {{ status.percentage | number:'1.1-1' }}%
+                        </span>
+                      </td>
+                      <td>
+                        <span class="fw-bold text-success">
+                          {{ formatCurrency(status.totalRevenue) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Detallada de Pedidos por Fecha -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                Detalle de Pedidos por Fecha (Últimos 15 días)
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Total Pedidos</th>
+                      <th>Completados</th>
+                      <th>Cancelados</th>
+                      <th>Pendientes</th>
+                      <th>Ingresos</th>
+                      <th>Tasa Éxito</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let order of dashboardData.ordersByDate.slice(0, 15)">
+                      <td><strong>{{ formatDate(order.date) }}</strong></td>
+                      <td>{{ order.totalOrders }}</td>
+                      <td>
+                        <span class="badge bg-success">{{ order.completedOrders }}</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-danger">{{ order.cancelledOrders }}</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-warning">{{ order.pendingOrders }}</span>
+                      </td>
+                      <td>
+                        <span class="fw-bold text-success">
+                          {{ formatCurrency(order.totalRevenue) }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="fw-bold" 
+                              [class.text-success]="(order.completedOrders / order.totalOrders) > 0.7"
+                              [class.text-warning]="(order.completedOrders / order.totalOrders) <= 0.7 && (order.completedOrders / order.totalOrders) > 0.3"
+                              [class.text-danger]="(order.completedOrders / order.totalOrders) <= 0.3">
+                          {{ order.totalOrders > 0 ? (order.completedOrders / order.totalOrders * 100 | number:'1.1-1') : 0 }}%
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🆕 CONTENIDO PARA COMPRAS POR USUARIO -->
+    <div *ngIf="activeTab === 'compras-usuarios'" class="tab-content fade-in">
+      
+      <!-- Métricas Específicas de Compras por Usuario -->
+      <div class="row mb-4" *ngIf="getPurchasesStats()">
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-success">
+                {{ formatCurrency(getPurchasesStats()!.totalRevenue) }}
+              </h4>
+              <p class="metric-label">Ingresos Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-primary">{{ getPurchasesStats()!.totalPurchases }}</h4>
+              <p class="metric-label">Total Compras</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-info">
+                {{ formatCurrency(getPurchasesStats()!.avgSpendingPerUser) }}
+              </h4>
+              <p class="metric-label">Promedio por Usuario</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card metric-card">
+            <div class="card-body text-center">
+              <h4 class="metric-value text-warning">
+                {{ getPurchasesStats()!.avgPurchasesPerUser | number:'1.1-1' }}
+              </h4>
+              <p class="metric-label">Compras/Usuario</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Top Spender -->
+      <div class="row mb-4" *ngIf="getPurchasesStats() && getPurchasesStats()!.topSpender">
+        <div class="col-12">
+          <div class="card bg-light">
+            <div class="card-body text-center">
+              <h5 class="card-title">
+                <i class="fas fa-crown me-2 text-warning"></i>
+                Usuario que Más Gastó
+              </h5>
+              <p class="mb-1">
+                <strong>{{ getPurchasesStats()!.topSpender!.name }}</strong> - 
+                <span class="text-success fw-bold">
+                  {{ formatCurrency(getPurchasesStats()!.topSpender!.amount) }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primera Fila de Gráficos de Compras por Usuario -->
+      <div class="row mb-4">
+        <!-- Gráfico de Top Spenders -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>
+                Top 10 Usuarios por Monto Gastado
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="topSpendersChartData.length > 0"
+                [type]="topSpendersChartType"
+                [data]="topSpendersChartData"
+                [columns]="topSpendersChartColumns"
+                [options]="topSpendersChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Distribución de Compras -->
+        <div class="col-md-6">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Distribución de Compras
+              </h5>
+            </div>
+            <div class="card-body">
+              <google-chart 
+                *ngIf="purchasesDistributionChartData.length > 0"
+                [type]="purchasesDistributionChartType"
+                [data]="purchasesDistributionChartData"
+                [columns]="purchasesDistributionChartColumns"
+                [options]="purchasesDistributionChartOptions">
+              </google-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Detallada de Compras por Usuario -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-list-alt me-2 text-primary"></i>
+                Detalle de Compras por Usuario
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Email</th>
+                      <th>Total Compras</th>
+                      <th>Monto Total</th>
+                      <th>Promedio por Compra</th>
+                      <th>Última Compra</th>
+                      <th>Estado Última</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of dashboardData.purchasesByUser">
+                      <td>
+                        <strong>{{ user.userName }}</strong>
+                        <br>
+                        <small class="text-muted">ID: {{ user.userId }}</small>
+                      </td>
+                      <td>
+                        <small>{{ user.userEmail }}</small>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">{{ user.totalPurchases }}</span>
+                      </td>
+                      <td>
+                        <span [class]="'fw-bold ' + getSpendingColor(user.totalAmountSpent)">
+                          {{ formatCurrency(user.totalAmountSpent) }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="text-info fw-bold">
+                          {{ formatCurrency(user.averageOrderAmount) }}
+                        </span>
+                      </td>
+                      <td>
+                        <small>{{ formatLastPurchaseDate(user.lastPurchaseDate) }}</small>
+                      </td>
+                      <td>
+                        <span [class]="'badge ' + getOrderStatusColor(user.lastOrderStatus)">
+                          {{ translateStatus(user.lastOrderStatus) }}
+                        </span>
+                        <br>
+                        <small class="text-muted">{{ user.lastOrderNumber }}</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÉTRICAS DEL SISTEMA (siempre visibles) -->
+    <div class="row mt-4">
       <div class="col-12">
         <div class="card">
           <div class="card-header">
