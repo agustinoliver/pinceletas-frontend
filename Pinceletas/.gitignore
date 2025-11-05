@@ -50,3 +50,7 @@ Thumbs.db
 .env.local
 .env.*.local
 environment.prod.ts
+
+# ⚠️ INFORMACIÓN SENSIBLE - MERCADO PAGO
+/src/app/environment/mercado-pago-environment.ts
+/src/app/enviroment/mercado-pago-environment.ts
