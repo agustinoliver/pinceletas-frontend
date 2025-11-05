@@ -1,0 +1,126 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4">
+        <i class="fas fa-cogs me-2"></i>Configuración del Sistema
+      </h2>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="mensaje" class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ mensaje }}
+    <button type="button" class="btn-close" (click)="limpiarMensaje()"></button>
+  </div>
+
+  <div class="row">
+    <!-- Información de Tienda -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-store me-2"></i>Información de Contacto
+          </h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="guardarTienda()">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre de la Tienda</label>
+              <input type="text" class="form-control" id="nombre" 
+                     [(ngModel)]="tiendaSeleccionada.nombre" 
+                     name="nombre" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" 
+                     [(ngModel)]="tiendaSeleccionada.email" 
+                     name="email" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="tel" class="form-control" id="telefono" 
+                     [(ngModel)]="tiendaSeleccionada.telefono" 
+                     name="telefono" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección</label>
+              <textarea class="form-control" id="direccion" 
+                        [(ngModel)]="tiendaSeleccionada.direccion" 
+                        name="direccion" rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>
+              {{ modoEdicionTienda ? 'Actualizar' : 'Crear' }} Información
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Políticas -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-file-contract me-2"></i>Políticas y Términos
+          </h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="guardarPoliticas()">
+            <div class="mb-3">
+              <label for="politicaDevolucion" class="form-label">Política de Devolución</label>
+              <textarea class="form-control" id="politicaDevolucion" 
+                        [(ngModel)]="politicasSeleccionadas.politicaDevolucion" 
+                        name="politicaDevolucion" rows="5" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label for="politicaPrivacidad" class="form-label">Política de Privacidad</label>
+              <textarea class="form-control" id="politicaPrivacidad" 
+                        [(ngModel)]="politicasSeleccionadas.politicaPrivacidad" 
+                        name="politicaPrivacidad" rows="5" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save me-2"></i>
+              {{ modoEdicionPoliticas ? 'Actualizar' : 'Crear' }} Políticas
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista Previa -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-eye me-2"></i>Vista Previa (Como se verá en el Footer)
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Información de Contacto:</h6>
+              <p><strong>Nombre:</strong> {{tiendaSeleccionada.nombre || 'No configurado'}}</p>
+              <p><strong>Email:</strong> {{tiendaSeleccionada.email || 'No configurado'}}</p>
+              <p><strong>Teléfono:</strong> {{tiendaSeleccionada.telefono || 'No configurado'}}</p>
+              <p><strong>Dirección:</strong> {{tiendaSeleccionada.direccion || 'No configurado'}}</p>
+            </div>
+            <div class="col-md-6">
+              <h6>Políticas:</h6>
+              <p><strong>Devoluciones:</strong> {{(politicasSeleccionadas.politicaDevolucion | slice:0:100) || 'No configurado'}}...</p>
+              <p><strong>Privacidad:</strong> {{(politicasSeleccionadas.politicaPrivacidad | slice:0:100) || 'No configurado'}}...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

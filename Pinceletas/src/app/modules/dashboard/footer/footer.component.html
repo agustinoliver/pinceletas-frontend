@@ -1,0 +1,178 @@
+<footer class="footer bg-dark text-light py-4 mt-auto">
+  <div class="container">
+    <div class="row">
+      <!-- Pinceletas - Información de Contacto -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <h5 class="fw-bold">{{tiendaConfig?.nombre || 'Pinceletas'}}</h5>
+        <p class="mb-1">
+          <i class="fas fa-map-marker-alt me-2"></i>
+          {{tiendaConfig?.direccion || 'Dirección no configurada'}}
+        </p>
+        <p class="mb-1">
+          <i class="fas fa-phone me-2"></i>
+          {{tiendaConfig?.telefono || 'Teléfono no configurado'}}
+        </p>
+        <p class="mb-0">
+          <i class="fas fa-envelope me-2"></i>
+          {{tiendaConfig?.email || 'Email no configurado'}}
+        </p>
+      </div>
+
+      <!-- Enlaces -->
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h5 class="fw-bold">Enlaces</h5>
+        <ul class="list-unstyled">
+          <li><a routerLink="/productlist" class="text-light text-decoration-none">Productos</a></li>
+          <li><a routerLink="/login" class="text-light text-decoration-none">Iniciar Sesión</a></li>
+          <li><a routerLink="/register" class="text-light text-decoration-none">Registrarse</a></li>
+        </ul>
+      </div>
+
+      <!-- Políticas -->
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h5 class="fw-bold">Políticas</h5>
+        <ul class="list-unstyled">
+          <li>
+            <a class="text-light text-decoration-none footer-link" 
+               (click)="mostrarPolitica('devolucion')">
+              Política de Devolución
+            </a>
+          </li>
+          <li>
+            <a class="text-light text-decoration-none footer-link" 
+               (click)="mostrarPolitica('privacidad')">
+              Política de Privacidad
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Síguenos -->
+      <div class="col-lg-2 col-md-6 mb-4">
+        <h5 class="fw-bold">Síguenos</h5>
+        <div class="d-flex gap-3">
+          <a href="https://www.instagram.com/pinceletas.cba/" target="_blank" class="text-light fs-5 social-icon">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Comunicate con nosotros -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <h5 class="fw-bold">Comunicate con nosotros</h5>
+        
+        <div class="whatsapp-status mb-2">
+          <span class="status-dot" [class.online]="whatsappStatus.isOnline" 
+                [class.offline]="!whatsappStatus.isOnline"></span>
+          <small [class.text-success]="whatsappStatus.isOnline" 
+                 [class.text-warning]="!whatsappStatus.isOnline">
+            {{whatsappStatus.message}}
+          </small>
+        </div>
+
+        <select class="form-select form-select-sm mb-2" #messageSelect
+                (change)="selectMessage(whatsappMessages[messageSelect.selectedIndex])">
+          <option *ngFor="let msg of whatsappMessages" [value]="msg.id">
+            {{msg.title}}
+          </option>
+        </select>
+
+        <a [href]="getWhatsAppHref()" 
+           target="_blank" 
+           class="btn w-100 whatsapp-btn">
+          <i class="fab fa-whatsapp me-2"></i>
+          {{whatsappStatus.isOnline ? 'Chatear Ahora' : 'Dejar Mensaje'}}
+        </a>
+        
+        <small class="horario-atencion">
+          <i class="fas fa-clock me-1"></i>
+          {{whatsappStatus.horario}}
+        </small>
+      </div>
+    </div>
+    
+    <hr class="my-4 bg-light">
+    
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <p class="mb-0">&copy; {{tiendaConfig?.nombre || 'Pinceletas'}}. Todos los derechos reservados.</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <!-- Espacio reservado para futuros elementos -->
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Botón flotante de WhatsApp unificado - VERSIÓN CORREGIDA -->
+<div class="whatsapp-float" *ngIf="showWhatsAppFloat" [class.scrolled]="isScrolled">
+  <div class="whatsapp-tooltip">
+    <div class="tooltip-status">
+      <span class="status-dot" [class.online]="whatsappStatus.isOnline" 
+            [class.offline]="!whatsappStatus.isOnline"></span>
+      {{whatsappStatus.isOnline ? '¡Disponible ahora!' : 'Fuera de horario'}}
+    </div>
+    <div class="tooltip-message">{{selectedMessage.title}}</div>
+    <small>Click para cambiar consulta</small>
+  </div>
+
+  <!-- Botón único con opciones desplegables -->
+  <div class="whatsapp-main-btn-container">
+    <button class="whatsapp-main-btn" 
+            [class.pulse]="whatsappStatus.isOnline"
+            (click)="toggleMessageOptions()"
+            title="Comunicate con nosotros">
+      <i class="fab fa-whatsapp"></i>
+    </button>
+
+    <!-- Opciones desplegables - NO se cierra al seleccionar -->
+    <div class="message-options" *ngIf="showMessageOptions">
+      <div class="options-header">
+        <h6>Selecciona tu consulta</h6>
+        <button class="btn-close-options" (click)="closeMessageOptions()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="options-list">
+        <button *ngFor="let message of whatsappMessages" 
+                class="message-option" 
+                [class.active]="selectedMessage.id === message.id"
+                (click)="selectMessage(message)"> <!-- Esto ya no cierra el menú -->
+          <i [class]="message.icon"></i>
+          <span>{{message.title}}</span>
+        </button>
+      </div>
+      <div class="options-footer">
+        <a [href]="getWhatsAppHref()" 
+           target="_blank" 
+           class="btn w-100 whatsapp-send-btn"
+           (click)="closeMessageOptions()"> <!-- Cierra al hacer click en Chatear -->
+          <i class="fab fa-whatsapp me-2"></i>
+          {{whatsappStatus.isOnline ? 'Chatear Ahora' : 'Dejar Mensaje'}}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <button class="whatsapp-close" (click)="toggleWhatsAppFloat()" title="Ocultar WhatsApp">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+<!-- Modal para mostrar políticas -->
+<div class="modal fade" id="politicasModal" tabindex="-1" aria-labelledby="politicasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="politicasModalLabel">{{politicaModalTitle}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div [innerHTML]="politicaModalContent" class="politicas-content"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

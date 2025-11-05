@@ -1,0 +1,67 @@
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+  font-weight: 600;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(237, 98, 12, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  border: none;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Vista previa */
+.card-body p {
+  margin-bottom: 0.5rem;
+}
+
+.card-body h6 {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}

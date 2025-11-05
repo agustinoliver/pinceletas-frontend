@@ -7,6 +7,7 @@ import { CommerceService } from '../../../services/commerce.service';
 import { UserAuthService } from '../../../services/user-auth.service';
 import Swal from 'sweetalert2';
 import { CarritoRequest } from '../../../models/carrito.model';
+import { AnimationService } from '../../../services/animation.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -29,7 +30,8 @@ export class ProductDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private commerceService: CommerceService,
-    private authService: UserAuthService
+    private authService: UserAuthService,
+    private animationService: AnimationService // ✅ AÑADIR
   ) {}
 
   ngOnInit(): void {
@@ -127,6 +129,12 @@ export class ProductDetailComponent implements OnInit {
       this.commerceService.agregarFavorito(favoritoData).subscribe({
         next: () => {
           this.esFavorito = true;
+          // ✅ AÑADIR: Disparar animación de favoritos
+          this.animationService.agregarAFavoritos(
+            this.producto!.id,
+            this.producto!.nombre,
+            this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
+          );
           this.mostrarAlertaExito('Producto agregado a favoritos');
         },
         error: (error) => {
@@ -179,6 +187,12 @@ export class ProductDetailComponent implements OnInit {
       
       this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
         next: () => {
+          // ✅ AÑADIR: Disparar animación del carrito
+          this.animationService.agregarAlCarrito(
+            this.producto!.id,
+            this.producto!.nombre,
+            this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
+          );
           this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
         },
         error: (error) => {

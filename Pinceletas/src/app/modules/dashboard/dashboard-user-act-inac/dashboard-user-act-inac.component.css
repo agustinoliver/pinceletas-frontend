@@ -8,26 +8,53 @@
   min-height: 100vh;
 }
 
-
 .dashboard-header {
   margin-bottom: 2rem;
 }
 
 .dashboard-title {
-  color: var(--text-dark);
+  color: #2c3e50;
   font-weight: 700;
   margin-bottom: 0.5rem;
   font-size: 2.5rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: linear-gradient(135deg, #ED620C 0%, #ff8c42 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .dashboard-subtitle {
-  color: var(--text-light);
+  color: #6c757d;
   font-size: 1.1rem;
   margin-bottom: 0;
+}
+
+/* Tabs de Navegación */
+.dashboard-tabs {
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 2rem;
+}
+
+.dashboard-tabs .nav-link {
+  color: #6c757d;
+  font-weight: 500;
+  border: none;
+  padding: 1rem 2rem;
+  transition: all 0.3s ease;
+}
+
+.dashboard-tabs .nav-link:hover {
+  color: #ED620C;
+  background-color: #f8f9fa;
+  border: none;
+}
+
+.dashboard-tabs .nav-link.active {
+  color: #ED620C;
+  background-color: white;
+  border: none;
+  border-bottom: 3px solid #ED620C;
+  font-weight: 600;
 }
 
 /* Tarjetas de Resumen */
@@ -64,11 +91,42 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
-  color: var(--text-dark);
+  color: #2c3e50;
 }
 
 .summary-label {
-  color: var(--text-light);
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* Tarjetas de Métricas */
+.metric-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card .card-body {
+  padding: 1.5rem;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  color: #6c757d;
   font-size: 0.9rem;
   margin-bottom: 0;
   font-weight: 500;
@@ -84,13 +142,13 @@
 }
 
 .chart-card .card-header {
-  background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
-  border-bottom: 2px solid var(--border-color);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-bottom: 2px solid #e9ecef;
   padding: 1.25rem 1.5rem;
 }
 
 .chart-card .card-title {
-  color: var(--text-dark);
+  color: #2c3e50;
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -105,8 +163,23 @@
   padding: 4rem 2rem;
 }
 
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ED620C;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .loading-text {
-  color: var(--text-light);
+  color: #6c757d;
   margin-top: 1rem;
   font-size: 1.1rem;
 }
@@ -115,6 +188,36 @@
   margin-bottom: 2rem;
 }
 
+/* Estilos para las tablas */
+.table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Badges personalizados */
+.badge {
+  font-size: 0.75em;
+  padding: 0.35em 0.65em;
+}
+
+/* Colores para los iconos de resumen */
+.bg-primary { background: linear-gradient(135deg, #ED620C 0%, #ff8c42 100%) !important; }
+.bg-success { background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important; }
+.bg-warning { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important; }
+.bg-info { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important; }
+
+/* Estados de texto */
+.text-success { color: #28a745 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-info { color: #17a2b8 !important; }
+.text-danger { color: #dc3545 !important; }
+
 /* Métricas del Sistema */
 .metric-item {
   text-align: center;
@@ -122,7 +225,7 @@
 }
 
 .metric-label {
-  color: var(--text-light);
+  color: #6c757d;
   font-size: 0.9rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -131,7 +234,17 @@
 .metric-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #2c3e50;
+}
+
+/* Contenido de Tabs */
+.tab-content {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Responsive */
@@ -142,6 +255,11 @@
 
   .dashboard-title {
     font-size: 2rem;
+  }
+
+  .dashboard-tabs .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 
   .summary-card .card-body {
@@ -161,6 +279,14 @@
   .chart-card .card-body {
     padding: 1rem;
   }
+
+  .metric-value {
+    font-size: 2rem;
+  }
+
+  .table-responsive {
+    font-size: 0.875rem;
+  }
 }
 
 /* Animaciones */
@@ -178,9 +304,3 @@
     transform: translateY(0);
   }
 }
-
-/* Colores para los iconos de resumen */
-.bg-primary { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important; }
-.bg-success { background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important; }
-.bg-warning { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important; }
-.bg-info { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important; }

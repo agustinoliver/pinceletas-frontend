@@ -13,6 +13,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  z-index: 1051; /* 🔥 Asegurar que el botón esté por encima */
 }
 
 .notification-toggle:hover {
@@ -36,6 +37,7 @@
   align-items: center;
   justify-content: center;
   animation: pulse 2s infinite;
+  z-index: 1052; /* 🔥 Asegurar que la badge esté por encima */
 }
 
 @keyframes pulse {
@@ -47,7 +49,6 @@
 .notification-dropdown-menu {
   position: absolute;
   top: 100%;
-  /* right: 0;  PARA EL OTRO LADO*/ 
   left: 0;
   width: 380px;
   max-width: 90vw;
@@ -55,10 +56,9 @@
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-color);
-  z-index: 1050;
+  z-index: 1060; /* 🔥 AUMENTADO: Mayor z-index para estar siempre adelante */
   opacity: 0;
   visibility: hidden;
-  /* transform: translateY(-10px); PARA EL OTRO LADO */
   transform: translateX(-10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -66,7 +66,6 @@
 .notification-dropdown-menu.show {
   opacity: 1;
   visibility: visible;
-  /* transform: translateY(10px); PARA EL OTRO LADO */
   transform: translateX(0);
 }
 
@@ -157,8 +156,15 @@
 @media (max-width: 768px) {
   .notification-dropdown-menu {
     width: 320px;
-    /* right: -50px; PARA EL OTRO LADO */
     left: 0;
+    /* 🔥 Asegurar posición en móvil */
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%) translateX(-10px);
+  }
+  
+  .notification-dropdown-menu.show {
+    transform: translateX(-50%) translateX(0);
   }
   
   .notification-list {
@@ -169,7 +175,34 @@
 @media (max-width: 480px) {
   .notification-dropdown-menu {
     width: 280px;
-    /* right: -80px; PARA EL OTRO LADO */
     left: 0;
+    /* 🔥 Asegurar posición en móvil */
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%) translateX(-10px);
+  }
+  
+  .notification-dropdown-menu.show {
+    transform: translateX(-50%) translateX(0);
+  }
+}
+
+/* 🔥 NUEVO: Overlay para móvil */
+@media (max-width: 768px) {
+  .notification-dropdown-menu::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .notification-dropdown-menu.show::before {
+    opacity: 1;
   }
 }

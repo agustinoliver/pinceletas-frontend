@@ -16,15 +16,22 @@
 
         <!-- ✅ Menú Favoritos - Solo visible para usuarios normales autenticados -->
         <li class="nav-item" *ngIf="isLoggedIn && !isAdmin">
-          <a class="nav-link nav-link-custom" routerLink="/favorites" routerLinkActive="active">
+          <a [class]="getFavoritoClass()" routerLink="/favorites" routerLinkActive="active">
             <i class="fas fa-heart me-1"></i>Favoritos
+            <!-- ✅ Indicador visual cuando se agrega producto -->
+            <span *ngIf="isFavoritoHighlighted" class="favorito-pulse-indicator"></span>
           </a>
         </li>
 
         <!-- ✅ Carrito - Solo visible para usuarios normales autenticados -->
         <li class="nav-item" *ngIf="isLoggedIn && !isAdmin">
-          <a class="nav-link nav-link-custom" routerLink="/carrito" routerLinkActive="active">
+          <a class="nav-link nav-link-custom position-relative" routerLink="/carrito" routerLinkActive="active">
             <i class="fas fa-shopping-cart me-1"></i>Carrito
+            <span *ngIf="carritoCount > 0" 
+                  [class]="getCarritoBadgeClass()"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill carrito-badge-pulse">
+              {{ carritoCount }}
+            </span>
           </a>
         </li>
 
@@ -64,6 +71,11 @@
             <li>
               <a class="dropdown-item" routerLink="/admin/pedidos" routerLinkActive="active" (click)="closeDropdownAndMenu()">
                 <i class="fas fa-tasks me-2"></i>Gestión de Pedidos
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/admin/config" routerLinkActive="active" (click)="closeDropdownAndMenu()">
+                <i class="fas fa-cogs me-2"></i>Configuración General
               </a>
             </li>
           </ul>
@@ -115,5 +127,8 @@
         </ng-container>
       </ul>
     </div>
+    <!-- ✅ AÑADIR: Componente de animaciones flotantes -->
+    <app-floating-animation></app-floating-animation>
   </div>
 </nav>
+

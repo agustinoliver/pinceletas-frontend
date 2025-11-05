@@ -17,10 +17,23 @@
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* Footer opcional */
-.app-footer {
+/* Footer opcional - ESTOS ESTILOS YA NO SON NECESARIOS PORQUE EL FOOTER TIENE SUS PROPIOS ESTILOS */
+/* .app-footer {
   background: var(--text-dark);
   color: white;
   padding: 2rem 0;
+  margin-top: auto;
+} */
+
+/* 🆕 NUEVO: Clases de utilidad que podemos agregar */
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.mt-auto {
   margin-top: auto;
 }
