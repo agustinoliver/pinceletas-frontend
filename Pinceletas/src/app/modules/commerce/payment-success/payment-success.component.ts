@@ -29,34 +29,89 @@ export class PaymentSuccessComponent implements OnInit {
     private authService: UserAuthService
   ) {}
 
-  // ✅ Simplificado según el paso 3
   ngOnInit(): void {
     console.log('💰 PAYMENT SUCCESS - INICIANDO');
     
-    // ✅ El guard ya debe haber restaurado la sesión si existía
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
     
-    console.log('🔍 Estado final de sesión:');
-    console.log('   - Token:', !!token);
-    console.log('   - UserData:', !!userData);
-    console.log('   - CurrentUser:', this.authService.getCurrentUser());
+    console.log('🔍 Estado de sesión tras guard:', {
+      token: !!token,
+      userData: !!userData,
+      currentUser: this.authService.getCurrentUser()
+    });
 
-    if (token && userData) {
-      console.log('✅ SESIÓN ACTIVA - PROCESANDO PAGO...');
-      this.procesarPagoExitoso();
-    } else {
-      console.error('❌ ERROR: SESIÓN NO DISPONIBLE');
-      
-      // ✅ Mostrar mensaje de pago exitoso, sin redirigir al login
+    if (!token || !userData) {
+      console.error('❌ SESIÓN NO DISPONIBLE después del guard');
       this.procesando = false;
-      this.mensajeError = 'Tu pago fue exitoso. Puedes ver tu pedido en "Mis Pedidos".';
+      this.mensajeError = 'Tu pago fue exitoso pero hubo un problema con la sesión. Por favor, inicia sesión para ver tu pedido.';
       
-      // Limpiar cualquier backup residual
-      localStorage.removeItem('mp_backup_token');
-      localStorage.removeItem('mp_backup_user');
-      localStorage.removeItem('mercadoPagoRedirect');
+      Swal.fire({
+        title: 'Pago Exitoso',
+        html: `
+          <p>Tu pago se procesó correctamente.</p>
+          <p>Por favor, inicia sesión para ver tu pedido.</p>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Ir al Login',
+        confirmButtonColor: '#28a745',
+        allowOutsideClick: false
+      }).then(() => {
+        this.router.navigate(['/login'], {
+          queryParams: { returnUrl: '/mis-pedidos' }
+        });
+      });
+      return;
     }
+    console.log('✅ SESIÓN ACTIVA - Procesando pago...');
+    this.capturarParametrosMercadoPago();
+  }
+  private capturarParametrosMercadoPago(): void {
+    this.route.queryParams.subscribe(params => {
+      console.log('📋 Parámetros de Mercado Pago:', params);
+
+      this.preferenceId = params['preference_id'] || params['pref_id'];
+      this.paymentId = params['payment_id'] || params['collection_id'];
+      this.status = params['status'];
+      this.numeroPedido = params['external_reference'];
+
+      console.log('🔍 Datos extraídos:', {
+        preferenceId: this.preferenceId,
+        paymentId: this.paymentId,
+        status: this.status,
+        numeroPedido: this.numeroPedido
+      });
+
+      // Si tenemos info del pago, actualizar backend
+      if (this.paymentId && this.preferenceId) {
+        this.actualizarPagoEnBackend();
+      } else {
+        // Si no hay paymentId, buscar último pedido pendiente
+        console.log('⚠️ No hay payment_id, buscando último pedido...');
+        this.buscarUltimoPedido();
+      }
+    });
+  }
+  private actualizarPagoEnBackend(): void {
+    console.log('🔄 Actualizando pago en backend...');
+
+    const status = this.status || 'approved';
+
+    this.pedidoService.procesarWebhookPago(
+      this.preferenceId || '',
+      this.paymentId || '',
+      status
+    ).subscribe({
+      next: () => {
+        console.log('✅ Pago actualizado en backend');
+        this.limpiarCarritoYFinalizar();
+      },
+      error: (error) => {
+        console.error('❌ Error actualizando pago:', error);
+        // Continuar de todas formas con la limpieza
+        this.limpiarCarritoYFinalizar();
+      }
+    });
   }
 
   /**
@@ -64,7 +119,8 @@ export class PaymentSuccessComponent implements OnInit {
    */
   private buscarUltimoPedido(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser?.id) {
+      console.error('❌ Usuario no disponible');
       this.procesando = false;
       this.mensajeError = 'Usuario no autenticado';
       return;
@@ -81,14 +137,13 @@ export class PaymentSuccessComponent implements OnInit {
           .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime())[0];
 
         if (pedidoPendiente) {
-          console.log('✅ Encontrado pedido pendiente:', pedidoPendiente.numeroPedido);
+          console.log('✅ Pedido pendiente encontrado:', pedidoPendiente.numeroPedido);
           this.preferenceId = pedidoPendiente.preferenciaIdMp;
           this.numeroPedido = pedidoPendiente.numeroPedido;
-          this.actualizarYLimpiar();
+          this.actualizarPagoEnBackend();
         } else {
           console.warn('⚠️ No se encontró pedido pendiente');
-          this.procesando = false;
-          this.mensajeError = 'No se encontró ningún pedido pendiente';
+          this.limpiarCarritoYFinalizar();
         }
       },
       error: (error) => {
@@ -102,55 +157,22 @@ export class PaymentSuccessComponent implements OnInit {
   /**
    * Actualiza el pedido en backend y limpia el carrito
    */
-  private actualizarYLimpiar(): void {
-    console.log('🔄 Iniciando actualización y limpieza...');
-
-    const paymentId = this.paymentId || 'simulated-' + Date.now();
-    const status = this.status || 'approved';
-
-    console.log('📤 Enviando actualización al backend:');
-    console.log('  - preference_id:', this.preferenceId);
-    console.log('  - payment_id:', paymentId);
-    console.log('  - status:', status);
-
-    this.pedidoService.procesarWebhookPago(
-      this.preferenceId || '',
-      paymentId,
-      status
-    ).subscribe({
-      next: () => {
-        console.log('✅ Pedido actualizado correctamente');
-        this.procesarPagoExitoso();
-      },
-      error: (error) => {
-        console.error('❌ Error actualizando pedido:', error);
-        console.warn('⚠️ Continuando con limpieza de carrito a pesar del error');
-        this.procesarPagoExitoso();
-      }
-    });
-  }
-
-  /**
-   * Procesa el flujo de pago exitoso y limpia el carrito
-   */
-  private procesarPagoExitoso(): void {
-    console.log('🔄 Procesando pago exitoso...');
+  private limpiarCarritoYFinalizar(): void {
+    console.log('🧹 Limpiando carrito...');
     
     const currentUser = this.authService.getCurrentUser();
-    if (!currentUser || !currentUser.id) {
-      console.error('❌ Usuario no disponible');
-      this.procesando = false;
+    if (!currentUser?.id) {
+      console.error('❌ Usuario no disponible para limpiar carrito');
+      this.finalizarProceso();
       return;
     }
-
-    console.log('🧹 Limpiando carrito...');
 
     this.commerceService.getCarrito(currentUser.id).subscribe({
       next: (carrito) => {
         console.log(`🛒 Items en carrito: ${carrito.length}`);
         
         if (carrito.length === 0) {
-          console.log('✅ Carrito ya está vacío');
+          console.log('✅ Carrito ya vacío');
           this.finalizarProceso();
           return;
         }
@@ -161,11 +183,11 @@ export class PaymentSuccessComponent implements OnInit {
 
         Promise.all(eliminaciones.map(obs => obs.toPromise()))
           .then(() => {
-            console.log('✅ Carrito limpiado completamente');
+            console.log('✅ Carrito limpiado');
             this.finalizarProceso();
           })
           .catch(err => {
-            console.error('❌ Error eliminando algunos items:', err);
+            console.error('❌ Error limpiando carrito:', err);
             this.finalizarProceso();
           });
       },
@@ -178,10 +200,11 @@ export class PaymentSuccessComponent implements OnInit {
 
   private finalizarProceso(): void {
     this.procesando = false;
-    console.log('✅ Proceso completado. Redirigiendo en 3 segundos...');
+    console.log('✅ Proceso completado');
     
+    // Mostrar mensaje y redirigir
     setTimeout(() => {
-      this.router.navigate(['/mis-pedidos']);
+      this.verMisPedidos();
     }, 3000);
   }
 
@@ -190,6 +213,15 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   verMisPedidos(): void {
+    if (!this.authService.isLoggedIn()) {
+      console.error('❌ Usuario no logueado, redirigiendo a login');
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/mis-pedidos' }
+      });
+      return;
+    }
+    
+    console.log('➡️ Navegando a mis pedidos');
     this.router.navigate(['/mis-pedidos']);
   }
 }

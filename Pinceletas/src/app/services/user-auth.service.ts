@@ -408,22 +408,77 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
       );
   }
     public checkAndRestoreSession(): void {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('currentUser');
-    
-    console.log('🔍 Verificando sesión almacenada...');
-    console.log('Token presente:', !!token);
-    console.log('User data presente:', !!userData);
-    
-    if (token && userData) {
+      console.log('🔄 VERIFICANDO Y RESTAURANDO SESIÓN...');
+      
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
+      
+      console.log('📊 Estado localStorage:', {
+        token: !!token,
+        tokenLength: token?.length,
+        userData: !!userData,
+        userDataLength: userData?.length
+      });
+      
+      if (token && userData) {
+        try {
+          const user = JSON.parse(userData);
+          console.log('✅ Usuario parseado:', {
+            id: user.id,
+            email: user.email,
+            nombre: user.nombre
+          });
+          
+          // ✅ Actualizar el BehaviorSubject
+          this.currentUserSubject.next(user);
+          console.log('✅ Sesión restaurada exitosamente');
+          
+        } catch (error) {
+          console.error('❌ Error parseando userData:', error);
+          console.error('userData value:', userData);
+          this.clearUserData();
+        }
+      } else {
+        console.warn('⚠️ No hay datos de sesión para restaurar');
+        console.log('Token presente:', !!token);
+        console.log('UserData presente:', !!userData);
+      }
+    }
+    public verificarIntegridadSesion(): boolean {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
+      const currentUser = this.currentUserSubject.value;
+      
+      const sesionValida = !!(token && userData && currentUser);
+      
+      console.log('🔍 Verificación de integridad:', {
+        token: !!token,
+        userData: !!userData,
+        currentUser: !!currentUser,
+        sesionValida
+      });
+      
+      return sesionValida;
+    }
+    public forzarSincronizacionSesion(): void {
+      console.log('🔄 Forzando sincronización de sesión...');
+      
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
+      
+      if (!token || !userData) {
+        console.log('❌ No hay datos para sincronizar');
+        this.clearUserData();
+        return;
+      }
+      
       try {
         const user = JSON.parse(userData);
-        console.log('✅ Sesión restaurada para:', user.email);
         this.currentUserSubject.next(user);
+        console.log('✅ Sesión sincronizada');
       } catch (error) {
-        console.error('❌ Error parseando datos de usuario:', error);
+        console.error('❌ Error en sincronización:', error);
         this.clearUserData();
       }
     }
-  }
 }

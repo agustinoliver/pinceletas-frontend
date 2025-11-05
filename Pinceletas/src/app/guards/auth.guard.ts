@@ -10,17 +10,19 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(UserAuthService);
   const router = inject(Router);
 
-  // Verificar si el usuario está logeado
   if (authService.isLoggedIn()) {
     return true;
   }
 
-  // Guardar la URL a la que intentaba acceder para redirigir después del login
+  // Guardar la URL a la que intentaba acceder
   const returnUrl = state.url;
   
-  // Redirigir al login con la URL de retorno
+  // Redirigir al login con mensaje personalizado
   router.navigate(['/login'], { 
-    queryParams: { returnUrl: returnUrl } 
+    queryParams: { 
+      returnUrl: returnUrl,
+      message: 'Debes iniciar sesión para acceder a esta función'
+    } 
   });
   
   return false;

@@ -4,70 +4,75 @@ import { UserAuthService } from '../services/user-auth.service';
 
 
 export const sessionCheckGuard: CanActivateFn = (route, state) => {
-  console.log('🛡️🛡️🛡️ GUARD ACTIVADO para:', state.url);
+  console.log('🛡️ SESSION CHECK GUARD ACTIVADO');
+  console.log('📍 Ruta:', state.url);
   
-  // ✅ DETECTAR SI VENIMOS DE MP POR LA URL (MÁS AGRESIVO)
+  const authService = inject(UserAuthService);
+  
   const urlParams = new URLSearchParams(window.location.search);
   const hasMPParams = urlParams.has('collection_id') || 
                      urlParams.has('payment_id') || 
                      urlParams.has('preference_id') ||
                      urlParams.has('external_reference');
   
-  const fromMPStorage = localStorage.getItem('mercadoPagoRedirect') === 'true';
-  const fromMP = fromMPStorage || hasMPParams;
+  const mpRedirect = localStorage.getItem('mp_redirect') === 'true';
+  const fromMP = mpRedirect || hasMPParams;
   
-  console.log('🔍 Detección MP:');
-  console.log('   - Storage flag:', fromMPStorage);
-  console.log('   - URL params:', hasMPParams);
-  console.log('   - collection_id:', urlParams.get('collection_id'));
-  console.log('   - Viniendo de MP:', fromMP);
+  console.log('🔍 Detección MP:', {
+    mpRedirect,
+    hasMPParams,
+    fromMP,
+    collection_id: urlParams.get('collection_id')
+  });
 
   if (fromMP) {
-    console.log('🎯🎯🎯 RETORNO DE MP DETECTADO - RESTAURANDO SESIÓN...');
+    console.log('🎯 RETORNO DE MERCADO PAGO DETECTADO');
     
-    // Limpiar flag
-    localStorage.removeItem('mercadoPagoRedirect');
-    
-    // Verificar y restaurar sesión
     const currentToken = localStorage.getItem('token');
     const currentUser = localStorage.getItem('currentUser');
     
-    console.log('📊 Estado actual de sesión:');
-    console.log('   - Token:', !!currentToken);
-    console.log('   - User:', !!currentUser);
+    console.log('📊 Estado de sesión actual:', {
+      token: !!currentToken,
+      user: !!currentUser
+    });
     
     if (!currentToken || !currentUser) {
-      console.log('🔄 SESIÓN PERDIDA - RESTAURANDO DESDE BACKUP...');
+      console.log('🔄 SESIÓN PERDIDA - Restaurando desde backup...');
       
       const backupToken = localStorage.getItem('mp_backup_token');
       const backupUser = localStorage.getItem('mp_backup_user');
       
-      console.log('📦 Backup disponible:');
-      console.log('   - Backup Token:', !!backupToken);
-      console.log('   - Backup User:', !!backupUser);
+      console.log('📦 Backup disponible:', {
+        token: !!backupToken,
+        user: !!backupUser
+      });
       
       if (backupToken && backupUser) {
         console.log('✅ RESTAURANDO SESIÓN...');
+        
         localStorage.setItem('token', backupToken);
         localStorage.setItem('currentUser', backupUser);
         
-        // Limpiar backup
-        localStorage.removeItem('mp_backup_token');
-        localStorage.removeItem('mp_backup_user');
+        authService.checkAndRestoreSession();
         
         console.log('🎉 SESIÓN RESTAURADA EXITOSAMENTE');
-        
-        // Forzar recarga del usuario en el servicio
-        const authService = inject(UserAuthService);
-        authService.checkAndRestoreSession();
       } else {
-        console.error('❌ NO HAY BACKUP PARA RESTAURAR');
+        console.error('❌ NO HAY BACKUP DISPONIBLE');
       }
     } else {
-      console.log('✅ SESIÓN INTACTA - LIMPIANDO BACKUP');
-      // Limpiar backup si no se necesita
-      localStorage.removeItem('mp_backup_token');
-      localStorage.removeItem('mp_backup_user');
+      console.log('✅ Sesión intacta, no se necesita restaurar');
+    }
+    
+    console.log('🧹 Limpiando flags de MP...');
+    localStorage.removeItem('mp_redirect');
+    localStorage.removeItem('mp_backup_token');
+    localStorage.removeItem('mp_backup_user');
+    
+    const timestamp = localStorage.getItem('mp_timestamp');
+    if (timestamp) {
+      const elapsed = Date.now() - parseInt(timestamp);
+      console.log(`⏱️ Tiempo transcurrido: ${Math.round(elapsed / 1000)}s`);
+      localStorage.removeItem('mp_timestamp');
     }
   }
 

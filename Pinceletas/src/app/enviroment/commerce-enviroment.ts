@@ -1,10 +1,10 @@
 export const commerceEnviroment = {
-    apiProductos: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/productos',
-    apiCategorias: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/categorias',
-    apiOpciones: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/opciones-productos',
-    apiFavoritos: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/favoritos',
-    apiCarrito: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/carrito',
-    apiPedidos: 'https://syracuse-cities-threatening-demonstration.trycloudflare.com/pedidos'
+    apiProductos: 'https://label-contacting-months-subject.trycloudflare.com/productos',
+    apiCategorias: 'https://label-contacting-months-subject.trycloudflare.com/categorias',
+    apiOpciones: 'https://label-contacting-months-subject.trycloudflare.com/opciones-productos',
+    apiFavoritos: 'https://label-contacting-months-subject.trycloudflare.com/favoritos',
+    apiCarrito: 'https://label-contacting-months-subject.trycloudflare.com/carrito',
+    apiPedidos: 'https://label-contacting-months-subject.trycloudflare.com/pedidos'
 };
 
 // export const commerceEnviroment = {

@@ -378,25 +378,30 @@ carrito: CarritoItem[] = [];
     });
   }
   private procesarPago(): void {
-    console.log('🛒🛒🛒 INICIANDO PROCESO DE PAGO 🛒🛒🛒');
+    console.log('🛒 INICIANDO PROCESO DE PAGO...');
     
-    // ✅ VERIFICAR SESIÓN ANTES DE NADA
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
-    console.log('🔐 SESIÓN AL INICIAR PAGO:');
-    console.log('   - Token:', !!token);
-    console.log('   - UserData:', !!userData);
-    console.log('   - Token value:', token ? 'PRESENTE' : 'AUSENTE');
-    console.log('   - UserData value:', userData ? 'PRESENTE' : 'AUSENTE');
+    
+    console.log('🔐 Verificación de sesión:', {
+      token: !!token,
+      userData: !!userData,
+      tokenLength: token?.length,
+      userDataLength: userData?.length
+    });
     
     if (!token || !userData) {
-      console.error('❌❌❌ ERROR: NO HAY SESIÓN AL INICIAR PAGO');
+      console.error('❌ ERROR CRÍTICO: No hay sesión');
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/carrito' }
+      });
       return;
     }
 
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.email) {
+      console.error('❌ Usuario no disponible en servicio');
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
       return;
     }
@@ -413,43 +418,34 @@ carrito: CarritoItem[] = [];
 
     Swal.fire({
       title: 'Procesando...',
-      text: 'Creando tu pedido y preparando el pago',
+      text: 'Creando tu pedido',
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       }
     });
 
-    console.log('📞 LLAMANDO A crearPedido()...');
-    console.log('📦 Pedido request:', pedidoRequest);
+    console.log('📞 Llamando a crearPedido()...');
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        console.log('✅ RESPUESTA DE crearPedido RECIBIDA');
-        console.log('📦 Datos de respuesta:', pedidoResponse);
-        console.log('🔍 Verificación de respuesta:');
-        console.log('  - initPoint:', pedidoResponse.initPoint);
-        console.log('  - sandboxInitPoint:', pedidoResponse.sandboxInitPoint);
-        console.log('  - preferenciaIdMp:', pedidoResponse.preferenciaIdMp);
+        console.log('✅ Pedido creado:', pedidoResponse);
         
-        // Validar que tengamos al menos una URL
         if (!pedidoResponse.sandboxInitPoint && !pedidoResponse.initPoint) {
-          console.error('❌ PROBLEMA: No se recibieron URLs de pago del backend');
+          console.error('❌ No hay URLs de pago');
           Swal.close();
-          this.mostrarAlertaError('Error: El servidor no generó las URLs de pago. Contacta a soporte.');
+          this.mostrarAlertaError('Error: No se generaron las URLs de pago');
           return;
         }
         
         Swal.close();
         
-        // Mostrar mensaje de éxito con información del pedido
         Swal.fire({
           title: '¡Pedido creado!',
           html: `
-            <p><strong>Número de pedido:</strong> ${pedidoResponse.numeroPedido}</p>
+            <p><strong>Número:</strong> ${pedidoResponse.numeroPedido}</p>
             <p><strong>Total:</strong> $${pedidoResponse.total.toFixed(2)}</p>
-            <p><strong>Método:</strong> ${this.resumen.tipoEntrega === 'envio' ? 'Envío a domicilio' : 'Retiro en local'}</p>
-            <p class="text-muted mt-3">Serás redirigido a Mercado Pago para completar el pago.</p>
+            <p class="text-muted mt-3">Serás redirigido a Mercado Pago</p>
           `,
           icon: 'success',
           confirmButtonText: 'Ir a pagar',
@@ -459,16 +455,24 @@ carrito: CarritoItem[] = [];
           allowOutsideClick: false
         }).then(() => {
           try {
-            console.log('🎯 LLAMANDO A procesarCheckout()...');
+            const tokenFinal = localStorage.getItem('token');
+            const userFinal = localStorage.getItem('currentUser');
+            
+            if (!tokenFinal || !userFinal) {
+              throw new Error('Sesión perdida antes de redirigir');
+            }
+            
+            console.log('✅ Sesión confirmada, procesando checkout...');
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
+            
           } catch (error: any) {
-            console.error('❌ Error al procesar checkout:', error);
-            this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago. Por favor intenta nuevamente.');
+            console.error('❌ Error en checkout:', error);
+            this.mostrarAlertaError(error.message || 'Error al procesar el pago');
           }
         });
       },
       error: (error) => {
-        console.error('❌ ERROR en crearPedido:', error);
+        console.error('❌ Error en crearPedido:', error);
         Swal.close();
         this.manejarErrorPedido(error);
       }
