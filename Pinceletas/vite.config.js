@@ -11,14 +11,14 @@ export default defineConfig({
     hmr: {
       clientPort: 4200
     },
-    // ✅ CRÍTICO: Permitir todos los hosts
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.trycloudflare.com',
-      'jose-further-convergence-quarterly.trycloudflare.com'
-    ],
-    // ✅ ALTERNATIVA: Si lo anterior no funciona, usa esto:
-    // allowedHosts: 'all'
+    // // ✅ CRÍTICO: Permitir todos los hosts
+    // allowedHosts: [
+    //   'localhost',
+    //   '127.0.0.1',
+    //   '.trycloudflare.com',
+    //   'jose-further-convergence-quarterly.trycloudflare.com'
+    // ],
+    // ✅ ESTA ES LA MEJOR OPCIÓN:
+    allowedHosts: 'all'
   }
 });

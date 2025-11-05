@@ -425,7 +425,6 @@ app-dropdown-notification {
   .carrito-badge {
     position: relative !important;
     top: 0 !important;
-    start: 0 !important;
     transform: none !important;
     margin-left: 5px;
     display: inline-flex !important;

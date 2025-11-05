@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -13,11 +13,12 @@ import Swal from 'sweetalert2';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading: boolean = false;
   googleLoading: boolean = false;
   errorMessage: string = '';
+  mensaje: string = ''; // ✅ Nuevo mensaje para mostrar notificación si viene del pago
   returnUrl: string = '/';
 
   get passwordControl(): FormControl {
@@ -37,6 +38,31 @@ export class LoginComponent {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
+  // 🔄 Nuevo ciclo de vida
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['paymentSuccess'] === 'true') {
+        this.mensaje = '¡Tu pago fue exitoso! Inicia sesión para ver tu pedido.';
+        console.log('💳 Login iniciado tras pago exitoso');
+      }
+    });
+  }
+
+  // ✅ Nuevo método que maneja redirección post-login dependiendo del origen
+  onLoginSuccess(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['paymentSuccess'] === 'true' || sessionStorage.getItem('comingFromSuccessfulPayment')) {
+        sessionStorage.removeItem('comingFromSuccessfulPayment');
+        console.log('✅ Redirigiendo a /mis-pedidos tras pago exitoso');
+        this.router.navigate(['/mis-pedidos']);
+      } else {
+        console.log('➡️ Redirigiendo a productlist (login normal)');
+        this.router.navigate(['/productlist']);
+      }
+    });
+  }
+
+  // 🧾 Login normal
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.mostrarAlertaError('Por favor completa todos los campos correctamente');
@@ -57,7 +83,8 @@ export class LoginComponent {
         this.loading = false;
         this.mostrarAlertaExito('¡Inicio de sesión exitoso!')
           .then(() => {
-            this.router.navigateByUrl(this.returnUrl);
+            // 🔄 Usar nueva función centralizada
+            this.onLoginSuccess();
           });
       },
       error: (error) => {
@@ -85,6 +112,7 @@ export class LoginComponent {
     });
   }
 
+  // 🔐 Login con Google
   loginWithGoogle(): void {
     this.googleLoading = true;
     this.errorMessage = '';
@@ -95,7 +123,8 @@ export class LoginComponent {
         console.log('Google login successful:', response);
         this.mostrarAlertaExito('¡Inicio de sesión con Google exitoso!')
           .then(() => {
-            this.router.navigateByUrl(this.returnUrl);
+            // 🔄 Usar el mismo flujo post-login
+            this.onLoginSuccess();
           });
       },
       error: (error) => {
@@ -126,6 +155,8 @@ export class LoginComponent {
   goToForgotPassword(): void {
     this.router.navigate(['/forgot-password']);
   }
+
+  // ⚙️ Utilidades y alertas
   private mostrarAlertaExito(mensaje: string): Promise<any> {
     return Swal.fire({
       title: '¡Éxito!',
@@ -143,6 +174,7 @@ export class LoginComponent {
       }
     });
   }
+
   private mostrarAlertaError(mensaje: string): void {
     Swal.fire({
       title: 'Error',
@@ -158,6 +190,7 @@ export class LoginComponent {
       }
     });
   }
+
   private mostrarConfirmacionGoogle(): Promise<any> {
     return Swal.fire({
       title: 'Iniciar sesión con Google',
@@ -173,11 +206,13 @@ export class LoginComponent {
       }
     });
   }
+
   private marcarCamposComoSucios(): void {
     Object.keys(this.loginForm.controls).forEach(key => {
       this.loginForm.get(key)?.markAsTouched();
     });
   }
+
   mostrarBienvenida(): void {
     if (this.returnUrl === '/') {
       Swal.fire({

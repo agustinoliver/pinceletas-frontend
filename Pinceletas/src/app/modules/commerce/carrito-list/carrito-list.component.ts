@@ -263,6 +263,21 @@ carrito: CarritoItem[] = [];
   }
 
   private procesarPagoProductoIndividual(item: CarritoItem, tipoEntrega: 'envio' | 'retiro'): void {
+    console.log('🛒🛒🛒 INICIANDO PROCESO DE PAGO INDIVIDUAL 🛒🛒🛒');
+    
+    // ✅ VERIFICAR SESIÓN ANTES DE NADA
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+    console.log('🔐 SESIÓN AL INICIAR PAGO INDIVIDUAL:');
+    console.log('   - Token:', !!token);
+    console.log('   - UserData:', !!userData);
+    
+    if (!token || !userData) {
+      console.error('❌❌❌ ERROR: NO HAY SESIÓN AL INICIAR PAGO INDIVIDUAL');
+      this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
+      return;
+    }
+
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.email) {
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
@@ -288,9 +303,13 @@ carrito: CarritoItem[] = [];
       }
     });
 
+    console.log('📞 LLAMANDO A crearPedido() (INDIVIDUAL)...');
+    console.log('📦 Pedido request individual:', pedidoRequest);
+
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        console.log('✅ Pedido individual creado:', pedidoResponse);
+        console.log('✅ RESPUESTA DE crearPedido RECIBIDA (INDIVIDUAL)');
+        console.log('📦 Datos de respuesta individual:', pedidoResponse);
         Swal.close();
         
         Swal.fire({
@@ -309,8 +328,8 @@ carrito: CarritoItem[] = [];
           timerProgressBar: true
         }).then(() => {
           try {
-            console.log('🎯 Iniciando proceso de checkout...');
-            console.log('📦 Respuesta del pedido:', pedidoResponse);
+            console.log('🎯 LLAMANDO A procesarCheckout() (INDIVIDUAL)...');
+            console.log('📦 Respuesta del pedido individual:', pedidoResponse);
             
             // Verificar que tenemos las URLs
             if (!pedidoResponse.initPoint && !pedidoResponse.sandboxInitPoint) {
@@ -319,12 +338,13 @@ carrito: CarritoItem[] = [];
             
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
           } catch (error: any) {
-            console.error('❌ Error al procesar checkout:', error);
+            console.error('❌ Error al procesar checkout individual:', error);
             this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
           }
         });
       },
       error: (error) => {
+        console.error('❌ ERROR en crearPedido (INDIVIDUAL):', error);
         Swal.close();
         this.manejarErrorPedido(error);
       }
@@ -358,6 +378,23 @@ carrito: CarritoItem[] = [];
     });
   }
   private procesarPago(): void {
+    console.log('🛒🛒🛒 INICIANDO PROCESO DE PAGO 🛒🛒🛒');
+    
+    // ✅ VERIFICAR SESIÓN ANTES DE NADA
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('currentUser');
+    console.log('🔐 SESIÓN AL INICIAR PAGO:');
+    console.log('   - Token:', !!token);
+    console.log('   - UserData:', !!userData);
+    console.log('   - Token value:', token ? 'PRESENTE' : 'AUSENTE');
+    console.log('   - UserData value:', userData ? 'PRESENTE' : 'AUSENTE');
+    
+    if (!token || !userData) {
+      console.error('❌❌❌ ERROR: NO HAY SESIÓN AL INICIAR PAGO');
+      this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
+      return;
+    }
+
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.email) {
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
@@ -383,9 +420,13 @@ carrito: CarritoItem[] = [];
       }
     });
 
+    console.log('📞 LLAMANDO A crearPedido()...');
+    console.log('📦 Pedido request:', pedidoRequest);
+
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        console.log('✅ Pedido creado:', pedidoResponse);
+        console.log('✅ RESPUESTA DE crearPedido RECIBIDA');
+        console.log('📦 Datos de respuesta:', pedidoResponse);
         console.log('🔍 Verificación de respuesta:');
         console.log('  - initPoint:', pedidoResponse.initPoint);
         console.log('  - sandboxInitPoint:', pedidoResponse.sandboxInitPoint);
@@ -418,7 +459,7 @@ carrito: CarritoItem[] = [];
           allowOutsideClick: false
         }).then(() => {
           try {
-            console.log('🎯 Iniciando proceso de checkout...');
+            console.log('🎯 LLAMANDO A procesarCheckout()...');
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
           } catch (error: any) {
             console.error('❌ Error al procesar checkout:', error);
@@ -427,11 +468,13 @@ carrito: CarritoItem[] = [];
         });
       },
       error: (error) => {
+        console.error('❌ ERROR en crearPedido:', error);
         Swal.close();
         this.manejarErrorPedido(error);
       }
     });
   }
+
   private manejarErrorPedido(error: any): void {
     console.error('Error completo:', error);
     console.error('Error status:', error.status);
