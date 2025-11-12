@@ -2,7 +2,7 @@ const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return 'https://navy-library-jaguar-elsewhere.trycloudflare.com';
+  return 'https://green-order-happen-arizona.trycloudflare.com';
 };
 
 export const mercadoPagoEnvironment = {

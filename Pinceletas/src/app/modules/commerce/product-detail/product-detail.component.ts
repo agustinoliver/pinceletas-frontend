@@ -107,43 +107,50 @@ export class ProductDetailComponent implements OnInit {
   }
 
   toggleFavorito(): void {
-    if (!this.producto) return;
+  if (!this.producto) return;
 
-    if (this.esFavorito) {
-      this.commerceService.eliminarFavorito(this.usuarioId, this.producto.id).subscribe({
-        next: () => {
-          this.esFavorito = false;
-          this.mostrarAlertaExito('Producto eliminado de favoritos');
-        },
-        error: (error) => {
-          console.error('Error eliminando favorito:', error);
-          this.mostrarAlertaError('Error eliminando de favoritos');
-        }
-      });
-    } else {
-      const favoritoData = {
-        usuarioId: this.usuarioId,
-        productoId: this.producto.id
-      };
-      
-      this.commerceService.agregarFavorito(favoritoData).subscribe({
-        next: () => {
-          this.esFavorito = true;
-          // ✅ AÑADIR: Disparar animación de favoritos
-          this.animationService.agregarAFavoritos(
-            this.producto!.id,
-            this.producto!.nombre,
-            this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
-          );
-          this.mostrarAlertaExito('Producto agregado a favoritos');
-        },
-        error: (error) => {
-          console.error('Error agregando favorito:', error);
-          this.mostrarAlertaError('Error agregando a favoritos');
-        }
-      });
-    }
+  // ✅ VERIFICAR SI ESTÁ LOGEADO
+  const currentUser = this.authService.getCurrentUser();
+  if (!currentUser) {
+    this.mostrarAlertaLogin('agregar productos a favoritos');
+    return;
   }
+
+  // Si está logeado, continuar con la lógica normal
+  if (this.esFavorito) {
+    this.commerceService.eliminarFavorito(this.usuarioId, this.producto.id).subscribe({
+      next: () => {
+        this.esFavorito = false;
+        this.mostrarAlertaExito('Producto eliminado de favoritos');
+      },
+      error: (error) => {
+        console.error('Error eliminando favorito:', error);
+        this.mostrarAlertaError('Error eliminando de favoritos');
+      }
+    });
+  } else {
+    const favoritoData = {
+      usuarioId: this.usuarioId,
+      productoId: this.producto.id
+    };
+    
+    this.commerceService.agregarFavorito(favoritoData).subscribe({
+      next: () => {
+        this.esFavorito = true;
+        this.animationService.agregarAFavoritos(
+          this.producto!.id,
+          this.producto!.nombre,
+          this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
+        );
+        this.mostrarAlertaExito('Producto agregado a favoritos');
+      },
+      error: (error) => {
+        console.error('Error agregando favorito:', error);
+        this.mostrarAlertaError('Error agregando a favoritos');
+      }
+    });
+  }
+}
 
   getImagenUrl(imagenPath: string): string {
     if (!imagenPath) {
@@ -173,39 +180,68 @@ export class ProductDetailComponent implements OnInit {
   }
 
   agregarAlCarrito(): void {
-    if (this.producto) {
-      if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
-        this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
-        return;
+  if (!this.producto) return;
+
+  // ✅ VERIFICAR SI ESTÁ LOGEADO
+  const currentUser = this.authService.getCurrentUser();
+  if (!currentUser) {
+    this.mostrarAlertaLogin('agregar productos al carrito');
+    return;
+  }
+
+  // Verificar opciones (solo si está logeado)
+  if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
+    this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
+    return;
+  }
+  
+  const carritoRequest: CarritoRequest = {
+    productoId: this.producto.id,
+    cantidad: 1,
+    opcionSeleccionadaId: this.opcionSeleccionada || null
+  };
+  
+  this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
+    next: () => {
+      this.animationService.agregarAlCarrito(
+        this.producto!.id,
+        this.producto!.nombre,
+        this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
+      );
+      this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
+    },
+    error: (error) => {
+      console.error('Error agregando al carrito:', error);
+      if (error.error?.message?.includes('ya está en el carrito')) {
+        this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
+      } else {
+        this.mostrarAlertaError('Error al agregar el producto al carrito');
       }
-      
-      const carritoRequest: CarritoRequest = {
-        productoId: this.producto.id,
-        cantidad: 1,
-        opcionSeleccionadaId: this.opcionSeleccionada || null
-      };
-      
-      this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
-        next: () => {
-          // ✅ AÑADIR: Disparar animación del carrito
-          this.animationService.agregarAlCarrito(
-            this.producto!.id,
-            this.producto!.nombre,
-            this.producto!.imagenes?.[0] ? this.getImagenUrl(this.producto!.imagenes[0]) : undefined
-          );
-          this.mostrarAlertaExito('Producto agregado al carrito exitosamente');
-        },
-        error: (error) => {
-          console.error('Error agregando al carrito:', error);
-          if (error.error?.message?.includes('ya está en el carrito')) {
-            this.mostrarAlertaError('Este producto ya está en tu carrito con la misma opción');
-          } else {
-            this.mostrarAlertaError('Error al agregar el producto al carrito');
-          }
-        }
+    }
+  });
+}
+
+  // ✅ NUEVO: Método para mostrar alerta y redirigir al login
+private mostrarAlertaLogin(accion: string): void {
+  Swal.fire({
+    title: '¡Inicia sesión!',
+    text: `Para ${accion}, necesitas iniciar sesión primero.`,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonText: 'Ir a iniciar sesión',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ed620c',
+    cancelButtonColor: '#6c757d',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Guardar la URL actual para volver después del login
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url }
       });
     }
-  }
+  });
+}
 
   calcularPrecio() {
     if (!this.producto) return null;

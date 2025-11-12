@@ -6,6 +6,7 @@ export interface User {
   telefono: string;
   role: 'USER' | 'ADMIN';
   activo: boolean;
+  terminosAceptados: boolean; // ← NUEVO
   calle?: string;
   numero?: string;
   manzana?: string;

@@ -76,8 +76,18 @@
       <a (click)="goToForgotPassword()" class="link">¿Olvidaste tu contraseña?</a>
       <div class="register-link">
         <span>¿No tienes cuenta? </span>
-        <a (click)="goToRegister()" class="link">Regístrate aquí</a>
+        <!-- ✅ MODIFICAR ESTA LÍNEA para pasar returnUrl -->
+        <a [routerLink]="['/register']" [queryParams]="{ returnUrl: returnUrl }" class="link">
+          Regístrate aquí
+        </a>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Modal de Términos y Condiciones -->
+<app-terminos-modal
+  [showModal]="showTerminosModal"
+  [terminosConfig]="terminosConfig"
+  (modalClosed)="onTerminosModalClosed($event)">
+</app-terminos-modal>

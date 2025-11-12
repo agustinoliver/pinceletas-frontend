@@ -1,0 +1,51 @@
+<div class="modal-backdrop fade show" *ngIf="showModal"></div>
+<div class="modal fade show d-block" *ngIf="showModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-file-contract me-2"></i>
+          Términos y Condiciones
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Términos de Servicio -->
+        <div class="mb-4">
+          <h6 class="fw-bold text-primary">Términos de Servicio</h6>
+          <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+            <div [innerHTML]="formatearTexto(terminosConfig?.terminosServicio)"></div>
+          </div>
+        </div>
+
+        <!-- Política de Privacidad -->
+        <div class="mb-4">
+          <h6 class="fw-bold text-primary">Política de Privacidad</h6>
+          <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+            <div [innerHTML]="formatearTexto(terminosConfig?.politicaPrivacidad)"></div>
+          </div>
+        </div>
+
+        <!-- Checkbox de aceptación -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="aceptarTerminos" [(ngModel)]="aceptado">
+          <label class="form-check-label" for="aceptarTerminos">
+            He leído y acepto los <strong>Términos de Servicio</strong> y la <strong>Política de Privacidad</strong>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onRechazar()">
+          <i class="fas fa-times me-2"></i>
+          Rechazar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onAceptar()" [disabled]="!aceptado">
+          <i class="fas fa-check me-2"></i>
+          Aceptar y Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../../services/dashboard.service';
 import { 
   DashboardResponse, 
-  UserStats,
-  ProductStatsDto,
-  ProductsByCategoryDto, 
-  TopSellingProductDto,
-  OrdersByDateDto,
-  OrdersByStatusDto,
-  PurchasesByUserDto
+  UserStats
 } from '../../../models/dashboard.model';
 import { ChartType, GoogleChartsModule } from 'angular-google-charts';
+
+// 📦 Importaciones para exportar Excel y PDF
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-dashboard-user-act-inac',
@@ -26,121 +26,46 @@ export class DashboardUserActInacComponent implements OnInit {
   error = '';
   activeTab: string = 'usuarios'; // 'usuarios', 'productos', 'pedidos' o 'compras-usuarios'
 
-  // GRÁFICOS DE USUARIOS
+  // === CONFIGURACIONES DE GRÁFICOS ===
   pieChartData: any[][] = [];
   pieChartType: ChartType = ChartType.PieChart;
   pieChartOptions = {
     title: 'Distribución de Usuarios',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#28a745', '#dc3545'],
     backgroundColor: 'transparent',
-    legend: {
-      position: 'labeled',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
-    },
+    legend: { position: 'labeled', textStyle: { color: '#2c3e50', fontSize: 12 } },
     pieHole: 0.4,
     pieSliceText: 'value',
-    tooltip: {
-      text: 'percentage'
-    },
-    chartArea: {
-      width: '90%',
-      height: '80%'
-    },
+    tooltip: { text: 'percentage' },
+    chartArea: { width: '90%', height: '80%' },
     width: 500,
     height: 400
   };
 
-  barChartData: any[][] = [];
-  barChartType: ChartType = ChartType.BarChart;
-  barChartOptions = {
-    title: 'Estadísticas de Usuarios',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
-    colors: ['#ED620C'],
-    backgroundColor: 'transparent',
-    legend: { position: 'none' },
-    hAxis: {
-      title: 'Cantidad',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
-    },
-    vAxis: {
-      title: 'Categoría',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
-    },
-    chartArea: {
-      width: '80%',
-      height: '70%'
-    },
-    width: 500,
-    height: 400
-  };
-
-  // GRÁFICOS DE PRODUCTOS
+  // Gráficos de productos
   categoryChartData: any[][] = [];
   categoryChartType: ChartType = ChartType.ColumnChart;
   categoryChartOptions = {
     title: 'Productos por Categoría',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#28a745', '#17a2b8', '#6c757d'],
     backgroundColor: 'transparent',
     legend: { 
       position: 'top',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
+      textStyle: { color: '#2c3e50', fontSize: 12 }
     },
     hAxis: {
       title: 'Categorías',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
     vAxis: {
       title: 'Cantidad de Productos',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
-    chartArea: {
-      width: '85%',
-      height: '70%'
-    },
+    chartArea: { width: '85%', height: '70%' },
     width: 600,
     height: 400,
     isStacked: true
@@ -150,117 +75,49 @@ export class DashboardUserActInacComponent implements OnInit {
   topProductsChartType: ChartType = ChartType.BarChart;
   topProductsChartOptions = {
     title: 'Top 5 Productos Más Vendidos',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#ED620C'],
     backgroundColor: 'transparent',
     legend: { position: 'none' },
     hAxis: {
       title: 'Unidades Vendidas',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
     vAxis: {
       title: 'Productos',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
-    chartArea: {
-      width: '80%',
-      height: '75%'
-    },
+    chartArea: { width: '80%', height: '75%' },
     width: 600,
     height: 400
   };
 
-  productDistributionChartData: any[][] = [];
-  productDistributionChartType: ChartType = ChartType.PieChart;
-  productDistributionChartOptions = {
-    title: 'Distribución de Productos',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
-    colors: ['#28a745', '#ffc107', '#dc3545'],
-    backgroundColor: 'transparent',
-    legend: {
-      position: 'labeled',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
-    },
-    pieHole: 0.4,
-    pieSliceText: 'value',
-    tooltip: {
-      text: 'percentage'
-    },
-    chartArea: {
-      width: '90%',
-      height: '80%'
-    },
-    width: 500,
-    height: 400
-  };
-
-  // GRÁFICOS DE PEDIDOS
+  // Gráficos de pedidos
   ordersByDateChartData: any[][] = [];
   ordersByDateChartType: ChartType = ChartType.LineChart;
   ordersByDateChartOptions = {
     title: 'Pedidos por Fecha (Últimos 30 días)',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#ED620C', '#28a745', '#dc3545', '#ffc107'],
     backgroundColor: 'transparent',
     legend: { 
       position: 'top',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
+      textStyle: { color: '#2c3e50', fontSize: 12 }
     },
     hAxis: {
       title: 'Fecha',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      },
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' },
       format: 'dd/MM'
     },
     vAxis: {
       title: 'Cantidad de Pedidos',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
-    chartArea: {
-      width: '85%',
-      height: '70%'
-    },
+    chartArea: { width: '85%', height: '70%' },
     width: 600,
     height: 400,
     curveType: 'function'
@@ -270,163 +127,53 @@ export class DashboardUserActInacComponent implements OnInit {
   ordersByStatusChartType: ChartType = ChartType.PieChart;
   ordersByStatusChartOptions = {
     title: 'Distribución de Pedidos por Estado',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6c757d', '#ED620C'],
     backgroundColor: 'transparent',
     legend: {
       position: 'labeled',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
+      textStyle: { color: '#2c3e50', fontSize: 12 }
     },
     pieHole: 0.4,
     pieSliceText: 'value',
-    tooltip: {
-      text: 'percentage'
-    },
-    chartArea: {
-      width: '90%',
-      height: '80%'
-    },
+    tooltip: { text: 'percentage' },
+    chartArea: { width: '90%', height: '80%' },
     width: 500,
     height: 400
   };
 
-  revenueByDateChartData: any[][] = [];
-  revenueByDateChartType: ChartType = ChartType.ColumnChart;
-  revenueByDateChartOptions = {
-    title: 'Ingresos por Fecha',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
-    colors: ['#28a745'],
-    backgroundColor: 'transparent',
-    legend: { position: 'none' },
-    hAxis: {
-      title: 'Fecha',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      },
-      format: 'dd/MM'
-    },
-    vAxis: {
-      title: 'Ingresos ($)',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      },
-      format: 'currency'
-    },
-    chartArea: {
-      width: '85%',
-      height: '70%'
-    },
-    width: 600,
-    height: 400
-  };
-
-  // 🆕 GRÁFICOS PARA COMPRAS POR USUARIO
+  // Gráficos de compras por usuario
   topSpendersChartData: any[][] = [];
   topSpendersChartType: ChartType = ChartType.BarChart;
   topSpendersChartOptions = {
     title: 'Top 10 Usuarios por Monto Gastado',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
+    titleTextStyle: { color: '#2c3e50', fontSize: 18, bold: true },
     colors: ['#ED620C'],
     backgroundColor: 'transparent',
     legend: { position: 'none' },
     hAxis: {
       title: 'Monto Gastado ($)',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      },
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' },
       format: 'currency'
     },
     vAxis: {
       title: 'Usuario',
-      titleTextStyle: {
-        color: '#2c3e50',
-        italic: false
-      },
-      textStyle: {
-        color: '#2c3e50'
-      }
+      titleTextStyle: { color: '#2c3e50', italic: false },
+      textStyle: { color: '#2c3e50' }
     },
-    chartArea: {
-      width: '80%',
-      height: '75%'
-    },
+    chartArea: { width: '80%', height: '75%' },
     width: 600,
     height: 500
   };
 
-  purchasesDistributionChartData: any[][] = [];
-  purchasesDistributionChartType: ChartType = ChartType.PieChart;
-  purchasesDistributionChartOptions = {
-    title: 'Distribución de Compras por Usuario',
-    titleTextStyle: {
-      color: '#2c3e50',
-      fontSize: 18,
-      bold: true
-    },
-    colors: ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6c757d', '#ED620C'],
-    backgroundColor: 'transparent',
-    legend: {
-      position: 'labeled',
-      textStyle: {
-        color: '#2c3e50',
-        fontSize: 12
-      }
-    },
-    pieHole: 0.4,
-    pieSliceText: 'value',
-    tooltip: {
-      text: 'percentage'
-    },
-    chartArea: {
-      width: '90%',
-      height: '80%'
-    },
-    width: 500,
-    height: 400
-  };
-
   // Columnas para los gráficos
   pieChartColumns = ['Estado', 'Cantidad'];
-  barChartColumns = ['Categoría', 'Cantidad'];
   categoryChartColumns = ['Categoría', 'Activos', 'Inactivos', 'Total'];
   topProductsChartColumns = ['Producto', 'Unidades Vendidas'];
-  distributionChartColumns = ['Estado', 'Cantidad'];
-  
-  // Columnas para gráficos de pedidos
   ordersByDateChartColumns = ['Fecha', 'Total', 'Completados', 'Cancelados', 'Pendientes'];
   ordersByStatusChartColumns = ['Estado', 'Cantidad'];
-  revenueByDateChartColumns = ['Fecha', 'Ingresos'];
-
-  // 🆕 Columnas para gráficos de compras por usuario
   topSpendersChartColumns = ['Usuario', 'Monto Gastado'];
-  purchasesDistributionChartColumns = ['Usuario', 'Total Compras'];
 
   constructor(private dashboardService: DashboardService) {}
 
@@ -434,6 +181,7 @@ export class DashboardUserActInacComponent implements OnInit {
     this.loadDashboard();
   }
 
+  // === CARGA DE DATOS ===
   loadDashboard(): void {
     this.loading = true;
     this.error = '';
@@ -444,7 +192,7 @@ export class DashboardUserActInacComponent implements OnInit {
         this.prepareUserChartData(data.userStats);
         this.prepareProductChartData();
         this.prepareOrdersChartData();
-        this.preparePurchasesByUserChartData(); // 🆕 Preparar datos de compras por usuario
+        this.preparePurchasesByUserChartData();
         this.loading = false;
       },
       error: (err) => {
@@ -455,14 +203,9 @@ export class DashboardUserActInacComponent implements OnInit {
     });
   }
 
+  // === PREPARACIÓN DE DATOS ===
   prepareUserChartData(userStats: UserStats): void {
     this.pieChartData = [
-      ['Activos', userStats.activeUsers],
-      ['Inactivos', userStats.inactiveUsers]
-    ];
-
-    this.barChartData = [
-      ['Total', userStats.totalUsers],
       ['Activos', userStats.activeUsers],
       ['Inactivos', userStats.inactiveUsers]
     ];
@@ -486,24 +229,16 @@ export class DashboardUserActInacComponent implements OnInit {
         product.productName,
         product.unitsSold
       ]);
-
-    // Datos para gráfico de distribución general de productos
-    this.productDistributionChartData = [
-      ['Activos', this.dashboardData.productStats.activeProducts],
-      ['Inactivos', this.dashboardData.productStats.inactiveProducts],
-      ['Total', this.dashboardData.productStats.totalProducts]
-    ];
   }
 
-  // MÉTODO PARA PREPARAR DATOS DE PEDIDOS
   prepareOrdersChartData(): void {
     if (!this.dashboardData) return;
 
     // Datos para gráfico de pedidos por fecha
     this.ordersByDateChartData = this.dashboardData.ordersByDate
-      .slice(0, 15) // Últimos 15 días para mejor visualización
+      .slice(0, 15)
       .map(order => [
-        new Date(order.date), // Convertir string a Date
+        new Date(order.date),
         order.totalOrders,
         order.completedOrders,
         order.cancelledOrders,
@@ -515,17 +250,8 @@ export class DashboardUserActInacComponent implements OnInit {
       this.translateStatus(status.status),
       status.totalOrders
     ]);
-
-    // Datos para gráfico de ingresos por fecha
-    this.revenueByDateChartData = this.dashboardData.ordersByDate
-      .slice(0, 15)
-      .map(order => [
-        new Date(order.date),
-        order.totalRevenue
-      ]);
   }
 
-  // 🆕 MÉTODO PARA PREPARAR DATOS DE COMPRAS POR USUARIO
   preparePurchasesByUserChartData(): void {
     if (!this.dashboardData || !this.dashboardData.purchasesByUser) return;
 
@@ -533,42 +259,152 @@ export class DashboardUserActInacComponent implements OnInit {
 
     // Datos para gráfico de top spenders
     this.topSpendersChartData = purchasesByUser
-      .slice(0, 10) // Top 10 usuarios
+      .slice(0, 10)
       .map(user => [
         this.truncateUserName(user.userName),
         user.totalAmountSpent
       ]);
-
-    // Datos para gráfico de distribución de compras
-    this.purchasesDistributionChartData = purchasesByUser
-      .slice(0, 6) // Top 6 usuarios para mejor visualización
-      .map(user => [
-        this.truncateUserName(user.userName),
-        user.totalPurchases
-      ]);
   }
 
-  // 🆕 Método para truncar nombres largos
-  truncateUserName(userName: string): string {
-    return userName.length > 15 ? userName.substring(0, 15) + '...' : userName;
+  // === MÉTODOS DE DESCARGA DE REPORTES ===
+  downloadReport(tipo: string, formato: 'excel' | 'pdf'): void {
+    console.log(`Descargando reporte ${tipo} en formato ${formato}`);
+    switch (tipo) {
+      case 'usuarios': this.downloadUserReport(formato); break;
+      case 'productos-vendidos': this.downloadTopProductsReport(formato); break;
+      case 'productos-categoria': this.downloadProductsByCategoryReport(formato); break;
+      case 'estado-pedidos': this.downloadOrdersByStatusReport(formato); break;
+      case 'pedidos-fecha': this.downloadOrdersByDateReport(formato); break;
+      case 'compras-usuario': this.downloadPurchasesByUserReport(formato); break;
+    }
   }
 
-  // Método para traducir estados de pedidos
-  translateStatus(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      'PENDIENTE': 'Pendiente',
-      'PENDIENTE_PAGO': 'Pendiente Pago',
-      'PAGADO': 'Pagado',
-      'PROCESANDO': 'Procesando',
-      'ENVIADO': 'Enviado',
-      'ENTREGADO': 'Entregado',
-      'CANCELADO': 'Cancelado',
-      'REEMBOLSADO': 'Reembolsado'
+  private downloadUserReport(formato: 'excel' | 'pdf'): void {
+    const data = {
+      title: 'Reporte de Usuarios Activos/Inactivos',
+      headers: ['Estado', 'Cantidad', 'Porcentaje'],
+      rows: [
+        ['Activos', this.dashboardData?.userStats.activeUsers, this.dashboardData?.userStats.activePercentage + '%'],
+        ['Inactivos', this.dashboardData?.userStats.inactiveUsers, 
+         ((this.dashboardData!.userStats.inactiveUsers / this.dashboardData!.userStats.totalUsers) * 100).toFixed(1) + '%'],
+        ['Total', this.dashboardData?.userStats.totalUsers, '100%']
+      ]
     };
-    return statusMap[status] || status;
+    this.generateFile(data, formato);
   }
 
-  // Método para calcular estadísticas de pedidos
+  private downloadTopProductsReport(formato: 'excel' | 'pdf'): void {
+    const headers = ['Producto', 'Categoría', 'Unidades Vendidas', 'Ingresos'];
+    const rows = this.dashboardData!.topSellingProducts.map(product => [
+      product.productName,
+      product.categoryName,
+      product.unitsSold.toString(),
+      this.formatCurrency(product.totalRevenue)
+    ]);
+
+    this.generateFile({
+      title: 'Reporte de Productos Más Vendidos',
+      headers,
+      rows
+    }, formato);
+  }
+
+  private downloadProductsByCategoryReport(formato: 'excel' | 'pdf'): void {
+    const headers = ['Categoría', 'Total Productos', 'Activos', 'Inactivos', '% Activos'];
+    const rows = this.dashboardData!.productsByCategory.map(category => [
+      category.categoryName,
+      category.totalProducts.toString(),
+      category.activeProducts.toString(),
+      category.inactiveProducts.toString(),
+      ((category.activeProducts / category.totalProducts) * 100).toFixed(1) + '%'
+    ]);
+
+    this.generateFile({
+      title: 'Reporte de Productos por Categoría',
+      headers,
+      rows
+    }, formato);
+  }
+
+  private downloadOrdersByStatusReport(formato: 'excel' | 'pdf'): void {
+    const headers = ['Estado', 'Cantidad', 'Porcentaje', 'Ingresos'];
+    const rows = this.dashboardData!.ordersByStatus.map(status => [
+      this.translateStatus(status.status),
+      status.totalOrders.toString(),
+      status.percentage.toFixed(1) + '%',
+      this.formatCurrency(status.totalRevenue)
+    ]);
+
+    this.generateFile({
+      title: 'Reporte de Estado de Pedidos',
+      headers,
+      rows
+    }, formato);
+  }
+
+  private downloadOrdersByDateReport(formato: 'excel' | 'pdf'): void {
+    const headers = ['Fecha', 'Total Pedidos', 'Completados', 'Cancelados', 'Ingresos'];
+    const rows = this.dashboardData!.ordersByDate.slice(0, 15).map(order => [
+      this.formatDate(order.date),
+      order.totalOrders.toString(),
+      order.completedOrders.toString(),
+      order.cancelledOrders.toString(),
+      this.formatCurrency(order.totalRevenue)
+    ]);
+
+    this.generateFile({
+      title: 'Reporte de Pedidos por Fecha',
+      headers,
+      rows
+    }, formato);
+  }
+
+  private downloadPurchasesByUserReport(formato: 'excel' | 'pdf'): void {
+    const headers = ['Usuario', 'Email', 'Total Compras', 'Monto Total', 'Promedio por Compra', 'Última Compra'];
+    const rows = this.dashboardData!.purchasesByUser.map(user => [
+      user.userName,
+      user.userEmail,
+      user.totalPurchases.toString(),
+      this.formatCurrency(user.totalAmountSpent),
+      this.formatCurrency(user.averageOrderAmount),
+      this.formatLastPurchaseDate(user.lastPurchaseDate)
+    ]);
+
+    this.generateFile({
+      title: 'Reporte de Compras por Usuario',
+      headers,
+      rows
+    }, formato);
+  }
+
+  // === MÉTODO FINAL FUNCIONAL ===
+  private generateFile(data: any, formato: 'excel' | 'pdf'): void {
+    if (formato === 'excel') {
+      // === Generar archivo Excel ===
+      const ws = XLSX.utils.aoa_to_sheet([data.headers, ...data.rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      saveAs(blob, `${data.title}.xlsx`);
+    } else {
+      // === Generar archivo PDF ===
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text(data.title, 14, 20);
+      autoTable(doc, {
+        startY: 30,
+        head: [data.headers],
+        body: data.rows,
+        theme: 'striped',
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [237, 98, 12] } // naranja #ED620C
+      });
+      doc.save(`${data.title}.pdf`);
+    }
+  }
+
+  // === MÉTODOS UTILITARIOS ===
   getOrdersStats() {
     if (!this.dashboardData) return null;
 
@@ -587,7 +423,6 @@ export class DashboardUserActInacComponent implements OnInit {
     };
   }
 
-  // 🆕 Método para calcular estadísticas de compras por usuario
   getPurchasesStats() {
     if (!this.dashboardData || !this.dashboardData.purchasesByUser) return null;
 
@@ -598,7 +433,6 @@ export class DashboardUserActInacComponent implements OnInit {
     const avgSpendingPerUser = totalUsers > 0 ? totalRevenue / totalUsers : 0;
     const avgPurchasesPerUser = totalUsers > 0 ? totalPurchases / totalUsers : 0;
 
-    // Encontrar el usuario que más gastó
     const topSpender = purchases.length > 0 ? 
       purchases.reduce((max, user) => user.totalAmountSpent > max.totalAmountSpent ? user : max) 
       : null;
@@ -616,7 +450,6 @@ export class DashboardUserActInacComponent implements OnInit {
     };
   }
 
-  // 🆕 Método para obtener color según el monto gastado
   getSpendingColor(amount: number): string {
     if (amount > 10000) return 'text-success';
     if (amount > 5000) return 'text-warning';
@@ -624,35 +457,18 @@ export class DashboardUserActInacComponent implements OnInit {
     return 'text-secondary';
   }
 
-  // 🆕 Método para formatear fechas de última compra
-  formatLastPurchaseDate(dateString: string): string {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-  }
-
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS'
-    }).format(amount);
-  }
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-AR');
-  }
-
-  refreshDashboard(): void {
-    this.loadDashboard();
+  getOrderStatusColor(status: string): string {
+    const statusColors: { [key: string]: string } = {
+      'ENTREGADO': 'bg-success',
+      'PAGADO': 'bg-primary',
+      'PROCESANDO': 'bg-info',
+      'ENVIADO': 'bg-warning',
+      'PENDIENTE': 'bg-secondary',
+      'PENDIENTE_PAGO': 'bg-light text-dark',
+      'CANCELADO': 'bg-danger',
+      'REEMBOLSADO': 'bg-dark'
+    };
+    return statusColors[status] || 'bg-secondary';
   }
 
   getStatusBadgeClass(status: string): string {
@@ -677,24 +493,45 @@ export class DashboardUserActInacComponent implements OnInit {
     }
   }
 
-  getRevenueColor(revenue: number): string {
-    if (revenue > 10000) return 'text-success';
-    if (revenue > 5000) return 'text-warning';
-    return 'text-info';
+  truncateUserName(userName: string): string {
+    return userName.length > 15 ? userName.substring(0, 15) + '...' : userName;
   }
 
-  // Método para obtener color según estado del pedido
-  getOrderStatusColor(status: string): string {
-    const statusColors: { [key: string]: string } = {
-      'ENTREGADO': 'bg-success',
-      'PAGADO': 'bg-primary',
-      'PROCESANDO': 'bg-info',
-      'ENVIADO': 'bg-warning',
-      'PENDIENTE': 'bg-secondary',
-      'PENDIENTE_PAGO': 'bg-light text-dark',
-      'CANCELADO': 'bg-danger',
-      'REEMBOLSADO': 'bg-dark'
+  // === UTILIDADES ===
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('es-AR');
+  }
+
+  formatLastPurchaseDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('es-AR', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  translateStatus(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'PENDIENTE': 'Pendiente',
+      'PENDIENTE_PAGO': 'Pendiente Pago',
+      'PAGADO': 'Pagado',
+      'PROCESANDO': 'Procesando',
+      'ENVIADO': 'Enviado',
+      'ENTREGADO': 'Entregado',
+      'CANCELADO': 'Cancelado',
+      'REEMBOLSADO': 'Reembolsado'
     };
-    return statusColors[status] || 'bg-secondary';
+    return statusMap[status] || status;
+  }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  refreshDashboard(): void {
+    this.loadDashboard();
   }
 }

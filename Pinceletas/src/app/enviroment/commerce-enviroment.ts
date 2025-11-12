@@ -1,10 +1,10 @@
 export const commerceEnviroment = {
-    apiProductos: 'https://label-contacting-months-subject.trycloudflare.com/productos',
-    apiCategorias: 'https://label-contacting-months-subject.trycloudflare.com/categorias',
-    apiOpciones: 'https://label-contacting-months-subject.trycloudflare.com/opciones-productos',
-    apiFavoritos: 'https://label-contacting-months-subject.trycloudflare.com/favoritos',
-    apiCarrito: 'https://label-contacting-months-subject.trycloudflare.com/carrito',
-    apiPedidos: 'https://label-contacting-months-subject.trycloudflare.com/pedidos'
+    apiProductos: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/productos',
+    apiCategorias: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/categorias',
+    apiOpciones: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/opciones-productos',
+    apiFavoritos: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/favoritos',
+    apiCarrito: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/carrito',
+    apiPedidos: 'https://opposite-tribes-webcams-seeker.trycloudflare.com/pedidos'
 };
 
 // export const commerceEnviroment = {

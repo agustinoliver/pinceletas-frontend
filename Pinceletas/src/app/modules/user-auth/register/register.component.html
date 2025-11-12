@@ -144,3 +144,10 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Términos y Condiciones -->
+<app-terminos-modal
+  [showModal]="showTerminosModal"
+  [terminosConfig]="terminosConfig"
+  (modalClosed)="onTerminosModalClosed($event)">
+</app-terminos-modal>

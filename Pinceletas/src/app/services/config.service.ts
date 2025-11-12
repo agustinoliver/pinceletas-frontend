@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Tienda, Politicas } from '../models/config.model';
+import { Tienda, TerminosCondiciones, ConfiguracionEnvio, ConfiguracionEnvioRequest } from '../models/config.model';
 import { configEnvironment } from '../enviroment/config-environment';
 
 @Injectable({
@@ -10,7 +10,8 @@ import { configEnvironment } from '../enviroment/config-environment';
 export class ConfigService {
 
   private apiTienda = configEnvironment.apiTienda;
-  private apiPoliticas = configEnvironment.apiPoliticas;
+  private apiTerminosCondiciones = configEnvironment.apiTerminosCondiciones;
+  private apiConfiguracionesEnvio = 'http://localhost:8080/configuraciones-envio';
 
   constructor(private http: HttpClient) {}
 
@@ -35,24 +36,59 @@ export class ConfigService {
     return this.http.delete<void>(`${this.apiTienda}/${id}`);
   }
 
-  // Políticas endpoints
-  getPoliticas(): Observable<Politicas[]> {
-    return this.http.get<Politicas[]>(this.apiPoliticas);
+  // Términos y Condiciones endpoints
+  getTerminosCondiciones(): Observable<TerminosCondiciones[]> {
+    return this.http.get<TerminosCondiciones[]>(this.apiTerminosCondiciones);
   }
 
-  getPolitica(id: number): Observable<Politicas> {
-    return this.http.get<Politicas>(`${this.apiPoliticas}/${id}`);
+  getTerminoCondicion(id: number): Observable<TerminosCondiciones> {
+    return this.http.get<TerminosCondiciones>(`${this.apiTerminosCondiciones}/${id}`);
   }
 
-  createPoliticas(politicas: Politicas): Observable<Politicas> {
-    return this.http.post<Politicas>(this.apiPoliticas, politicas);
+  createTerminosCondiciones(terminosCondiciones: TerminosCondiciones): Observable<TerminosCondiciones> {
+    return this.http.post<TerminosCondiciones>(this.apiTerminosCondiciones, terminosCondiciones);
   }
 
-  updatePoliticas(id: number, politicas: Politicas): Observable<Politicas> {
-    return this.http.put<Politicas>(`${this.apiPoliticas}/${id}`, politicas);
+  updateTerminosCondiciones(id: number, terminosCondiciones: TerminosCondiciones): Observable<TerminosCondiciones> {
+    return this.http.put<TerminosCondiciones>(`${this.apiTerminosCondiciones}/${id}`, terminosCondiciones);
   }
 
-  deletePoliticas(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiPoliticas}/${id}`);
+  deleteTerminosCondiciones(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiTerminosCondiciones}/${id}`);
   }
+
+
+
+  // Configuraciones de Envío
+  getConfiguracionesEnvio(): Observable<ConfiguracionEnvio[]> {
+    return this.http.get<ConfiguracionEnvio[]>(this.apiConfiguracionesEnvio);
+  }
+
+  getConfiguracionEnvio(id: number): Observable<ConfiguracionEnvio> {
+    return this.http.get<ConfiguracionEnvio>(`${this.apiConfiguracionesEnvio}/${id}`);
+  }
+
+  getConfiguracionEnvioActiva(): Observable<ConfiguracionEnvio> {
+    return this.http.get<ConfiguracionEnvio>(`${this.apiConfiguracionesEnvio}/activa`);
+  }
+
+  createConfiguracionEnvio(configuracion: ConfiguracionEnvioRequest): Observable<ConfiguracionEnvio> {
+    return this.http.post<ConfiguracionEnvio>(this.apiConfiguracionesEnvio, configuracion);
+  }
+
+  updateConfiguracionEnvio(id: number, configuracion: ConfiguracionEnvioRequest): Observable<ConfiguracionEnvio> {
+    return this.http.put<ConfiguracionEnvio>(`${this.apiConfiguracionesEnvio}/${id}`, configuracion);
+  }
+
+  deleteConfiguracionEnvio(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiConfiguracionesEnvio}/${id}`);
+  }
+
+  calcularCostoEnvio(subtotal: number): Observable<{costoEnvio: number}> {
+  // Convertir a string para evitar problemas de precisión con números grandes
+  const subtotalString = subtotal.toFixed(2);
+  return this.http.get<{costoEnvio: number}>(
+    `${this.apiConfiguracionesEnvio}/calcular-costo?subtotal=${subtotalString}`
+  );
+}
 }

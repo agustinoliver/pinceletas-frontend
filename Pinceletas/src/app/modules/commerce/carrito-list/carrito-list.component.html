@@ -267,10 +267,10 @@
           </button>
 
           <!-- Info adicional -->
-          <div class="alert alert-info mb-0 mt-3">
+          <div class="alert alert-info mb-0 mt-3" *ngIf="montoMinimoEnvioGratis !== undefined">
             <small>
               <i class="fas fa-info-circle me-2"></i>
-              Envío gratis en compras mayores a $50.000
+              Envío gratis en compras mayores a ${{ montoMinimoEnvioGratis.toLocaleString() }}
             </small>
           </div>
         </div>

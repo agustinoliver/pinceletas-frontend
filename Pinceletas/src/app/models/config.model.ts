@@ -6,8 +6,26 @@ export interface Tienda {
   direccion: string;
 }
 
-export interface Politicas {
+export interface TerminosCondiciones {
   id?: number;
-  politicaDevolucion: string;
+  terminosServicio: string;
   politicaPrivacidad: string;
+}
+
+// Configuracion del Envio
+export interface ConfiguracionEnvio {
+  id?: number;
+  nombre: string;
+  costo: number ;
+  montoMinimoEnvioGratis: number;
+  activo: boolean;
+  fechaCreacion?: string;
+  fechaActualizacion?: string;
+}
+
+export interface ConfiguracionEnvioRequest {
+  nombre: string;
+  costo: number;
+  montoMinimoEnvioGratis: number;
+  activo: boolean;
 }

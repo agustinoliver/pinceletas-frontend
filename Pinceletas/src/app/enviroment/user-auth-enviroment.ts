@@ -5,8 +5,8 @@
 //   apiLocations: 'http://localhost:8081/api/locations'
 // };
 export const userAuthEnviroment = {
-  apiBaseUrl: 'https://tub-generating-finder-receiving.trycloudflare.com/api',
-  apiAuth: 'https://tub-generating-finder-receiving.trycloudflare.com/api/auth',
-  apiUsers: 'https://tub-generating-finder-receiving.trycloudflare.com/api/users',
-  apiLocations: 'https://tub-generating-finder-receiving.trycloudflare.com/api/locations'
+  apiBaseUrl: 'https://shore-efficiency-nylon-sbjct.trycloudflare.com/api',
+  apiAuth: 'https://shore-efficiency-nylon-sbjct.trycloudflare.com/api/auth',
+  apiUsers: 'https://shore-efficiency-nylon-sbjct.trycloudflare.com/api/users',
+  apiLocations: 'https://shore-efficiency-nylon-sbjct.trycloudflare.com/api/locations'
 };

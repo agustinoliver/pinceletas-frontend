@@ -390,3 +390,35 @@ html {
   border-color: #4e73df;
   color: white;
 }
+
+/* Estilo para alertas de eliminación automática */
+.alert-warning {
+  border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+  border-left: 4px solid #0dcaf0;
+}
+
+/* Icono de robot */
+.fa-robot {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Badge para sistema automático */
+.badge.bg-warning {
+  font-weight: 600;
+}
+
+.badge.bg-info {
+  font-weight: 600;
+}

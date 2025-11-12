@@ -56,4 +56,11 @@ export class AnimationService {
   resetCarritoCount(): void {
     this.carritoCount.next(0);
   }
+
+   decrementarCarritoCount(): void {
+    const currentCount = this.carritoCount.value;
+    if (currentCount > 0) {
+      this.carritoCount.next(currentCount - 1);
+    }
+  }
 }

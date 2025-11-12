@@ -5,11 +5,14 @@ import { CommonModule } from '@angular/common';
 import { UserAuthService } from '../../../services/user-auth.service';
 import { PasswordToggleComponent } from "../password-toggle/password-toggle.component";
 import Swal from 'sweetalert2';
+import { TerminosCondiciones } from '../../../models/config.model';
+import { ConfigService } from '../../../services/config.service';
+import { TerminosModalComponent } from '../../extras/terminos-modal/terminos-modal.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PasswordToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PasswordToggleComponent, TerminosModalComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -18,6 +21,10 @@ export class RegisterComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   returnUrl: string = '/productlist';
+
+  // NUEVAS VARIABLES PARA TÉRMINOS
+  showTerminosModal = false;
+  terminosConfig: TerminosCondiciones | null = null;
 
   get passwordControl(): FormControl {
     return this.registerForm.get('password') as FormControl;
@@ -30,6 +37,7 @@ export class RegisterComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: UserAuthService,
+    private configService: ConfigService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -49,7 +57,9 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
+    // ✅ CAPTURAR returnUrl desde los queryParams
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/productlist';
+    console.log('📍 Register - returnUrl capturado:', this.returnUrl);
   }
 
   private phoneValidator(control: AbstractControl): ValidationErrors | null {
@@ -137,11 +147,8 @@ export class RegisterComponent implements OnInit {
       this.authService.register(this.registerForm.value).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.mostrarAlertaExito('¡Registro exitoso!', 'Tu cuenta ha sido creada correctamente')
-            .then(() => {
-              // ✅ Redirigir a la URL guardada después del registro
-              this.router.navigateByUrl(this.returnUrl);
-            });
+          // NO redirigir inmediatamente, verificar términos primero
+          this.verificarYMostrarTerminos();
         },
         error: (error) => {
           this.isLoading = false;
@@ -235,12 +242,13 @@ export class RegisterComponent implements OnInit {
       title: 'Términos y Condiciones',
       html: `
         <div class="text-start">
-          <p>Al registrarte, aceptas nuestros términos y condiciones:</p>
+          <p>Al registrarte, deberás aceptar nuestros términos y condiciones que incluyen:</p>
           <ul>
-            <li>Debes proporcionar información veraz y actualizada</li>
-            <li>Eres responsable de mantener la confidencialidad de tu cuenta</li>
-            <li>Nos comprometemos a proteger tu privacidad</li>
+            <li>Protección de tus datos personales</li>
+            <li>Condiciones de uso de la plataforma</li>
+            <li>Políticas de privacidad y seguridad</li>
           </ul>
+          <p class="mt-3"><small>Podrás leerlos completos después del registro.</small></p>
         </div>
       `,
       icon: 'info',
@@ -250,5 +258,77 @@ export class RegisterComponent implements OnInit {
         popup: 'animate__animated animate__fadeInDown'
       }
     });
+  }
+
+
+  // NUEVO MÉTODO: Verificar y mostrar términos después del registro
+  private verificarYMostrarTerminos(): void {
+    const currentUser = this.authService.getCurrentUser();
+    
+    // Si el usuario ya aceptó los términos (caso raro pero posible), continuar normal
+    if (currentUser && currentUser.terminosAceptados) {
+      this.redirigirDespuesDeRegistro();
+      return;
+    }
+
+    // Si no los aceptó, cargar los términos y mostrar modal
+    this.configService.getTerminosCondiciones().subscribe({
+      next: (terminos) => {
+        if (terminos && terminos.length > 0) {
+          this.terminosConfig = terminos[0];
+          this.showTerminosModal = true;
+        } else {
+          // Si no hay términos configurados, continuar igual
+          console.warn('No hay términos y condiciones configurados');
+          this.redirigirDespuesDeRegistro();
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando términos:', error);
+        this.redirigirDespuesDeRegistro(); // Continuar en caso de error
+      }
+    });
+  }
+
+  // NUEVO MÉTODO: Manejar cierre del modal
+  onTerminosModalClosed(aceptado: boolean): void {
+    this.showTerminosModal = false;
+    
+    if (aceptado) {
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser) {
+        // Marcar términos como aceptados en el backend
+        this.authService.marcarTerminosAceptados(currentUser.id).subscribe({
+          next: () => {
+            console.log('Términos aceptados correctamente');
+            // Actualizar el usuario localmente
+            const updatedUser = { ...currentUser, terminosAceptados: true };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            this.authService['currentUserSubject'].next(updatedUser);
+            
+            this.redirigirDespuesDeRegistro();
+          },
+          error: (error) => {
+            console.error('Error marcando términos como aceptados:', error);
+            this.mostrarAlertaError('Error al aceptar términos. Intenta nuevamente.');
+            this.authService.logout();
+          }
+        });
+      }
+    } else {
+      // Si rechaza los términos, cerrar sesión
+      this.authService.logout();
+      this.mostrarAlertaError('Debes aceptar los términos y condiciones para usar la plataforma');
+    }
+  }
+
+  // NUEVO MÉTODO: Redirigir después del registro/aceptación
+  private redirigirDespuesDeRegistro(): void {
+    this.mostrarAlertaExito('¡Registro exitoso!', 'Tu cuenta ha sido creada correctamente')
+      .then(() => {
+        // ✅ Redirigir usando navigateByUrl para respetar la URL completa
+        console.log('➡️ Redirigiendo después del registro a:', this.returnUrl);
+        this.router.navigateByUrl(this.returnUrl);
+      });
   }
 }

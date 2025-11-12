@@ -1,3 +1,4 @@
+<!-- config-admin.component.html - Versión actualizada -->
 <div class="container mt-4">
   <div class="row">
     <div class="col-12">
@@ -61,35 +62,143 @@
       </div>
     </div>
 
-    <!-- Políticas -->
+    <!-- Términos y Condiciones -->
     <div class="col-md-6 mb-4">
       <div class="card shadow-sm">
         <div class="card-header bg-success text-white">
           <h5 class="card-title mb-0">
-            <i class="fas fa-file-contract me-2"></i>Políticas y Términos
+            <i class="fas fa-file-contract me-2"></i>Términos y Condiciones
           </h5>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="guardarPoliticas()">
+          <form (ngSubmit)="guardarTerminosCondiciones()">
             <div class="mb-3">
-              <label for="politicaDevolucion" class="form-label">Política de Devolución</label>
-              <textarea class="form-control" id="politicaDevolucion" 
-                        [(ngModel)]="politicasSeleccionadas.politicaDevolucion" 
-                        name="politicaDevolucion" rows="5" required></textarea>
+              <label for="terminosServicio" class="form-label">Términos de Servicio</label>
+              <textarea class="form-control" id="terminosServicio" 
+                        [(ngModel)]="terminosSeleccionados.terminosServicio" 
+                        name="terminosServicio" rows="5" required
+                        placeholder="Incluir: Generalidades, Permiso de uso, Reserva de derechos, Descripción del servicio, Operaciones habilitadas, Costos, Vigencia, Propiedad intelectual, etc."></textarea>
             </div>
             
             <div class="mb-3">
               <label for="politicaPrivacidad" class="form-label">Política de Privacidad</label>
               <textarea class="form-control" id="politicaPrivacidad" 
-                        [(ngModel)]="politicasSeleccionadas.politicaPrivacidad" 
-                        name="politicaPrivacidad" rows="5" required></textarea>
+                        [(ngModel)]="terminosSeleccionados.politicaPrivacidad" 
+                        name="politicaPrivacidad" rows="5" required
+                        placeholder="Incluir: Protección de datos personales, uso de información, cookies, derechos del usuario, etc."></textarea>
             </div>
             
             <button type="submit" class="btn btn-success">
               <i class="fas fa-save me-2"></i>
-              {{ modoEdicionPoliticas ? 'Actualizar' : 'Crear' }} Políticas
+              {{ modoEdicionTerminos ? 'Actualizar' : 'Crear' }} Términos
             </button>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuración de Envíos -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-shipping-fast me-2"></i>Configuración de Costos de Envío
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Lista de Configuraciones Existentes -->
+            <div class="col-md-6">
+              <h6>Configuraciones Existentes</h6>
+              <div *ngIf="configuracionesEnvio.length === 0" class="alert alert-info">
+                No hay configuraciones de envío creadas.
+              </div>
+              <div *ngFor="let config of configuracionesEnvio" 
+                   class="card mb-2 {{ config.activo ? 'border-success' : '' }}">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-1">{{ config.nombre }}</h6>
+                      <small class="text-muted">
+                        Costo: ${{ config.costo }} | 
+                        Envío gratis desde: ${{ config.montoMinimoEnvioGratis }}
+                        <span *ngIf="config.activo" class="badge bg-success ms-2">Activa</span>
+                      </small>
+                    </div>
+                    <div>
+                      <button class="btn btn-sm btn-outline-primary me-1"
+                              (click)="seleccionarConfiguracionEnvio(config)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger"
+                              (click)="eliminarConfiguracionEnvio(config.id!)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-outline-primary btn-sm mt-2"
+                      (click)="nuevaConfiguracionEnvio()">
+                <i class="fas fa-plus me-1"></i>Nueva Configuración
+              </button>
+            </div>
+
+            <!-- Formulario de Configuración -->
+            <div class="col-md-6">
+              <h6>{{ modoEdicionEnvio ? 'Editar' : 'Nueva' }} Configuración</h6>
+              <form (ngSubmit)="guardarConfiguracionEnvio()">
+                <div class="mb-3">
+                  <label for="nombreEnvio" class="form-label">Nombre de la Configuración</label>
+                  <input type="text" class="form-control" id="nombreEnvio"
+                         [(ngModel)]="configuracionEnvioSeleccionada.nombre"
+                         name="nombreEnvio" required
+                         placeholder="Ej: Costo estándar, Envío express">
+                </div>
+                
+                <div class="mb-3">
+                  <label for="costoEnvio" class="form-label">Costo de Envío ($)</label>
+                  <input type="number" class="form-control" id="costoEnvio"
+                         [(ngModel)]="configuracionEnvioSeleccionada.costo"
+                         placeholder="Ej: 2500"
+                         name="costoEnvio" min="0" step="0.01" required>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="montoMinimo" class="form-label">Monto Mínimo para Envío Gratis ($)</label>
+                  <input type="number" class="form-control" id="montoMinimo"
+                         [(ngModel)]="configuracionEnvioSeleccionada.montoMinimoEnvioGratis"
+                         placeholder="Ej: 50000"
+                         name="montoMinimo" min="0" step="0.01" required>
+                </div>
+                
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="activoEnvio"
+                         [(ngModel)]="configuracionEnvioSeleccionada.activo"
+                         name="activoEnvio">
+                  <label class="form-check-label" for="activoEnvio">
+                    Activar esta configuración
+                  </label>
+                  <small class="form-text text-muted d-block">
+                    Al activar esta configuración, se desactivarán las demás.
+                  </small>
+                </div>
+                
+                <button type="submit" class="btn btn-warning">
+                  <i class="fas fa-save me-2"></i>
+                  {{ modoEdicionEnvio ? 'Actualizar' : 'Crear' }} Configuración
+                </button>
+                
+                <button *ngIf="modoEdicionEnvio" type="button" 
+                        class="btn btn-outline-secondary ms-2"
+                        (click)="nuevaConfiguracionEnvio()">
+                  Cancelar
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -106,17 +215,34 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <h6>Información de Contacto:</h6>
               <p><strong>Nombre:</strong> {{tiendaSeleccionada.nombre || 'No configurado'}}</p>
               <p><strong>Email:</strong> {{tiendaSeleccionada.email || 'No configurado'}}</p>
               <p><strong>Teléfono:</strong> {{tiendaSeleccionada.telefono || 'No configurado'}}</p>
               <p><strong>Dirección:</strong> {{tiendaSeleccionada.direccion || 'No configurado'}}</p>
             </div>
-            <div class="col-md-6">
-              <h6>Políticas:</h6>
-              <p><strong>Devoluciones:</strong> {{(politicasSeleccionadas.politicaDevolucion | slice:0:100) || 'No configurado'}}...</p>
-              <p><strong>Privacidad:</strong> {{(politicasSeleccionadas.politicaPrivacidad | slice:0:100) || 'No configurado'}}...</p>
+            <div class="col-md-4">
+              <h6>Términos y Condiciones:</h6>
+              <p><strong>Términos de Servicio:</strong> {{(terminosSeleccionados.terminosServicio | slice:0:100) || 'No configurado'}}...</p>
+              <p><strong>Política de Privacidad:</strong> {{(terminosSeleccionados.politicaPrivacidad | slice:0:100) || 'No configurado'}}...</p>
+            </div>
+            <div class="col-md-4">
+              <h6>Configuración de Envío Activa:</h6>
+              <div *ngIf="configuracionesEnvio.length > 0">
+                <p *ngFor="let config of configuracionesEnvio">
+                  <span *ngIf="config.activo">
+                    <strong>{{ config.nombre }}</strong><br>
+                    <small class="text-muted">
+                      Costo: ${{ config.costo }}<br>
+                      Envío gratis desde: ${{ config.montoMinimoEnvioGratis }}
+                    </small>
+                  </span>
+                </p>
+              </div>
+              <p *ngIf="configuracionesEnvio.length === 0" class="text-muted">
+                No hay configuración activa
+              </p>
             </div>
           </div>
         </div>

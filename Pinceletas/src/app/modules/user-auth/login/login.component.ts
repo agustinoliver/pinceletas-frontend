@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { UserAuthService } from '../../../services/user-auth.service';
 import { PasswordToggleComponent } from '../password-toggle/password-toggle.component';
 import Swal from 'sweetalert2';
+import { TerminosModalComponent } from '../../extras/terminos-modal/terminos-modal.component';
+import { TerminosCondiciones } from '../../../models/config.model';
+import { ConfigService } from '../../../services/config.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PasswordToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, PasswordToggleComponent, TerminosModalComponent, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -21,6 +24,9 @@ export class LoginComponent implements OnInit {
   mensaje: string = ''; // ✅ Nuevo mensaje para mostrar notificación si viene del pago
   returnUrl: string = '/';
 
+  showTerminosModal = false;
+  terminosConfig: TerminosCondiciones | null = null;
+
   get passwordControl(): FormControl {
     return this.loginForm.get('password') as FormControl;
   }
@@ -28,6 +34,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: UserAuthService,
+    private configService: ConfigService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -48,19 +55,122 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  // NUEVO MÉTODO: Verificar y mostrar términos
+  private verificarYMostrarTerminos(user: any): void {
+  // Si el usuario ya aceptó los términos, continuar normal
+  if (user.terminosAceptados) {
+    this.onLoginSuccess();
+    return;
+  }
+
+  // Si no los aceptó, cargar los términos y mostrar modal
+  this.configService.getTerminosCondiciones().subscribe({
+    next: (terminos) => {
+      if (terminos && terminos.length > 0) {
+        this.terminosConfig = terminos[0];
+        this.showTerminosModal = true;
+        // NO llamar onLoginSuccess aquí - esperar a que el modal se cierre
+      } else {
+        // Si no hay términos configurados, continuar igual
+        console.warn('No hay términos y condiciones configurados');
+        this.onLoginSuccess();
+      }
+    },
+    error: (error) => {
+      console.error('Error cargando términos:', error);
+      this.onLoginSuccess(); // Continuar en caso de error
+    }
+  });
+}
+
+  // NUEVO MÉTODO: Manejar cierre del modal
+  onTerminosModalClosed(aceptado: boolean): void {
+  this.showTerminosModal = false;
+  
+  if (aceptado) {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      // Marcar términos como aceptados en el backend
+      this.authService.marcarTerminosAceptados(currentUser.id).subscribe({
+        next: () => {
+          console.log('Términos aceptados correctamente');
+          // Actualizar el usuario localmente
+          const updatedUser = { ...currentUser, terminosAceptados: true };
+          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          this.authService['currentUserSubject'].next(updatedUser);
+          
+          // ✅ NUEVO: Mostrar alerta de éxito antes de redirigir
+          this.mostrarAlertaExito('¡Bienvenido!', 'Has aceptado los términos y condiciones correctamente')
+            .then(() => {
+              this.onLoginSuccess();
+            });
+        },
+        error: (error) => {
+          console.error('Error marcando términos como aceptados:', error);
+          this.mostrarAlertaError('Error al aceptar términos. Intenta nuevamente.');
+          this.authService.logout();
+        }
+      });
+    }
+  } else {
+    // Si rechaza los términos, cerrar sesión
+    this.authService.logout();
+    this.mostrarAlertaError('Debes aceptar los términos y condiciones para usar la plataforma');
+  }
+}
+
+  // ✅ NUEVO MÉTODO: Alerta de éxito para términos aceptados
+private mostrarAlertaExito(titulo: string, mensaje: string): Promise<any> {
+  return Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: 'success',
+    confirmButtonText: 'Continuar',
+    confirmButtonColor: '#ed620c',
+    timer: 3000,
+    timerProgressBar: true,
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp'
+    }
+  });
+}
+
   // ✅ Nuevo método que maneja redirección post-login dependiendo del origen
   onLoginSuccess(): void {
-    this.route.queryParams.subscribe(params => {
-      if (params['paymentSuccess'] === 'true' || sessionStorage.getItem('comingFromSuccessfulPayment')) {
-        sessionStorage.removeItem('comingFromSuccessfulPayment');
-        console.log('✅ Redirigiendo a /mis-pedidos tras pago exitoso');
-        this.router.navigate(['/mis-pedidos']);
-      } else {
-        console.log('➡️ Redirigiendo a productlist (login normal)');
-        this.router.navigate(['/productlist']);
-      }
-    });
+  const currentUser = this.authService.getCurrentUser();
+  console.log('🔐 Usuario después del login:', currentUser);
+  console.log('📋 Términos aceptados?:', currentUser?.terminosAceptados);
+ 
+  // Verificar si el usuario necesita aceptar términos
+  if (currentUser && !currentUser.terminosAceptados) {
+    console.log('📝 Mostrando términos...');
+    this.verificarYMostrarTerminos(currentUser);
+  } else {
+    // Flujo normal de redirección
+    const params = this.route.snapshot.queryParams;
+    console.log('🔍 Parámetros URL:', params);
+    
+    // ✅ 1. Si viene returnUrl, redirigir ahí (PRIORIDAD MÁXIMA)
+    if (params['returnUrl']) {
+      console.log('➡️ Redirigiendo a returnUrl:', params['returnUrl']);
+      this.router.navigateByUrl(params['returnUrl']);
+    } 
+    // ✅ 2. Si viene de pago exitoso
+    else if (params['paymentSuccess'] === 'true' || sessionStorage.getItem('comingFromSuccessfulPayment')) {
+      sessionStorage.removeItem('comingFromSuccessfulPayment');
+      console.log('✅ Redirigiendo a /mis-pedidos');
+      this.router.navigate(['/mis-pedidos']);
+    } 
+    // ✅ 3. Por defecto a productlist
+    else {
+      console.log('➡️ Redirigiendo a productlist');
+      this.router.navigate(['/productlist']);
+    }
   }
+}
 
   // 🧾 Login normal
   onSubmit(): void {
@@ -81,11 +191,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(loginData).subscribe({
       next: (response) => {
         this.loading = false;
-        this.mostrarAlertaExito('¡Inicio de sesión exitoso!')
-          .then(() => {
-            // 🔄 Usar nueva función centralizada
-            this.onLoginSuccess();
-          });
+        // NO mostrar alerta de éxito aquí, el flujo continúa en onLoginSuccess
+        this.onLoginSuccess();
       },
       error: (error) => {
         this.loading = false;
@@ -121,11 +228,8 @@ export class LoginComponent implements OnInit {
       next: (response) => {
         this.googleLoading = false;
         console.log('Google login successful:', response);
-        this.mostrarAlertaExito('¡Inicio de sesión con Google exitoso!')
-          .then(() => {
-            // 🔄 Usar el mismo flujo post-login
-            this.onLoginSuccess();
-          });
+        // NO mostrar alerta de éxito aquí
+        this.onLoginSuccess();
       },
       error: (error) => {
         this.googleLoading = false;
@@ -157,24 +261,6 @@ export class LoginComponent implements OnInit {
   }
 
   // ⚙️ Utilidades y alertas
-  private mostrarAlertaExito(mensaje: string): Promise<any> {
-    return Swal.fire({
-      title: '¡Éxito!',
-      text: mensaje,
-      icon: 'success',
-      confirmButtonText: 'Continuar',
-      confirmButtonColor: '#ed620c',
-      timer: 2000,
-      timerProgressBar: true,
-      showClass: {
-        popup: 'animate__animated animate__fadeInDown'
-      },
-      hideClass: {
-        popup: 'animate__animated animate__fadeOutUp'
-      }
-    });
-  }
-
   private mostrarAlertaError(mensaje: string): void {
     Swal.fire({
       title: 'Error',

@@ -1,0 +1,17 @@
+.modal-backdrop {
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.modal-dialog-scrollable .modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

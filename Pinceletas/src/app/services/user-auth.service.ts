@@ -481,4 +481,13 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
         this.clearUserData();
       }
     }
+
+    // En UserAuthService
+    marcarTerminosAceptados(userId: number): Observable<any> {
+      return this.http.put(`${this.apiUsers}/profile/${userId}/aceptar-terminos`, {});
+    }
+    
+    verificarTerminosAceptados(userId: number): Observable<{terminosAceptados: boolean}> {
+      return this.http.get<{terminosAceptados: boolean}>(`${this.apiUsers}/profile/${userId}/terminos-aceptados`);
+    }
 }

@@ -1,21 +1,22 @@
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Tienda, Politicas } from '../../../models/config.model';
+import { TerminosCondiciones, Tienda } from '../../../models/config.model';
 import { ConfigService } from '../../../services/config.service';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { HandWaveAnimationComponent } from '../../extras/hand-wave-animation/hand-wave-animation.component';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, HandWaveAnimationComponent],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.css'
 })
 export class FooterComponent implements OnInit, OnDestroy {
   tiendaConfig: Tienda | null = null;
-  politicasConfig: Politicas | null = null;
+  terminosConfig: TerminosCondiciones | null = null;
   politicaModalTitle = '';
   politicaModalContent = '';
   
@@ -26,6 +27,10 @@ export class FooterComponent implements OnInit, OnDestroy {
     nextAvailable: '',
     horario: 'Lunes a Viernes 9:00 - 18:00, Sábados 9:00 - 13:00'
   };
+
+  // Chatbase Bot
+  showChatbaseFloat = true;
+  showChatbaseIframe = false;
 
   // Botón flotante
   showWhatsAppFloat = true;
@@ -63,18 +68,27 @@ export class FooterComponent implements OnInit, OnDestroy {
   selectedMessage = this.whatsappMessages[0];
   private configUpdateSubscription: Subscription | undefined;
 
+  // 🆕 Animación Chatbase
+  chatbaseMessages = [
+    '¿Primera vez usando la app? Este es un buen lugar para empezar.',
+    '¿Algo no te sale? Tranquilo, te damos una mano.',
+    '¿Necesitas ayuda? Nuestro asistente virtual está aquí para ayudarte.',
+    '¿Tienes preguntas? Pregúntale a nuestro asistente inteligente.'
+  ];
+
   constructor(private configService: ConfigService) {}
 
   ngOnInit(): void {
     this.cargarConfiguracionFooter();
     this.checkWhatsAppAvailability();
-    
+    this.setupChatbaseAnimation(); // ✅ NUEVO
+
     // Actualizar estado cada minuto
     setInterval(() => {
       this.checkWhatsAppAvailability();
     }, 60000);
 
-    // Escuchar eventos de actualización de configuración - VERSIÓN CORREGIDA
+    // Escuchar eventos de actualización de configuración
     window.addEventListener('configUpdated', () => {
       console.log('Evento configUpdated recibido, recargando footer...');
       this.cargarConfiguracionFooter();
@@ -90,6 +104,11 @@ export class FooterComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ✅ NUEVO MÉTODO
+  private setupChatbaseAnimation(): void {
+    // La animación se manejará automáticamente en el componente hijo
+  }
+
   // MÉTODO CORREGIDO - Maneja correctamente el array de tiendas
   cargarConfiguracionFooter(): void {
     this.configService.getTiendas().subscribe({
@@ -99,18 +118,16 @@ export class FooterComponent implements OnInit, OnDestroy {
       error: (error) => console.error('Error cargando configuración de tienda:', error)
     });
 
-    this.configService.getPoliticas().subscribe({
-      next: (politicas) => {
-        this.actualizarPoliticasConfig(politicas);
+    this.configService.getTerminosCondiciones().subscribe({
+      next: (terminos) => {
+        this.actualizarTerminosConfig(terminos);
       },
-      error: (error) => console.error('Error cargando políticas:', error)
+      error: (error) => console.error('Error cargando términos y condiciones:', error)
     });
   }
 
-  // NUEVO MÉTODO - Maneja específicamente la actualización de tienda
   private actualizarTiendaConfig(tiendas: Tienda[]): void {
     if (tiendas && tiendas.length > 0) {
-      // Tomar la primera tienda del array
       this.tiendaConfig = { ...tiendas[0] };
       console.log('Tienda config actualizada:', this.tiendaConfig);
     } else {
@@ -119,13 +136,12 @@ export class FooterComponent implements OnInit, OnDestroy {
     }
   }
 
-  // NUEVO MÉTODO - Maneja específicamente la actualización de políticas
-  private actualizarPoliticasConfig(politicas: Politicas[]): void {
-    if (politicas && politicas.length > 0) {
-      this.politicasConfig = { ...politicas[0] };
-      console.log('Políticas config actualizadas:', this.politicasConfig);
+  private actualizarTerminosConfig(terminos: TerminosCondiciones[]): void {
+    if (terminos && terminos.length > 0) {
+      this.terminosConfig = { ...terminos[0] };
+      console.log('Términos config actualizados:', this.terminosConfig);
     } else {
-      this.politicasConfig = null;
+      this.terminosConfig = null;
     }
   }
 
@@ -214,14 +230,14 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   mostrarPolitica(tipo: string): void {
-    if (!this.politicasConfig) return;
+    if (!this.terminosConfig) return;
 
-    if (tipo === 'devolucion') {
-      this.politicaModalTitle = 'Política de Devolución';
-      this.politicaModalContent = this.politicasConfig.politicaDevolucion.replace(/\n/g, '<br>');
+    if (tipo === 'terminos') {
+      this.politicaModalTitle = 'Términos de Servicio';
+      this.politicaModalContent = this.terminosConfig.terminosServicio.replace(/\n/g, '<br>');
     } else if (tipo === 'privacidad') {
       this.politicaModalTitle = 'Política de Privacidad';
-      this.politicaModalContent = this.politicasConfig.politicaPrivacidad.replace(/\n/g, '<br>');
+      this.politicaModalContent = this.terminosConfig.politicaPrivacidad.replace(/\n/g, '<br>');
     }
 
     const modalElement = document.getElementById('politicasModal');
@@ -233,5 +249,29 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toggleWhatsAppFloat(): void {
     this.showWhatsAppFloat = !this.showWhatsAppFloat;
+  }
+
+  // -------------------------------------------------------------------------------
+  // Métodos para Chatbase
+  // -------------------------------------------------------------------------------
+  toggleChatbaseIframe(): void {
+    this.showChatbaseIframe = !this.showChatbaseIframe;
+  }
+
+  closeChatbaseIframe(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.showChatbaseIframe = false;
+    }
+  }
+
+  toggleChatbaseFloat(): void {
+    this.showChatbaseFloat = !this.showChatbaseFloat;
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKeydown(event: KeyboardEvent): void {
+    if (this.showChatbaseIframe) {
+      this.showChatbaseIframe = false;
+    }
   }
 }

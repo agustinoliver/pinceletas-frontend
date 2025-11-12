@@ -123,4 +123,6 @@ export class FloatingAnimationComponent implements OnInit, OnDestroy {
   getIcon(type: 'favorito' | 'carrito'): string {
     return type === 'carrito' ? 'fas fa-shopping-cart' : 'fas fa-heart';
   }
+
+  
 }

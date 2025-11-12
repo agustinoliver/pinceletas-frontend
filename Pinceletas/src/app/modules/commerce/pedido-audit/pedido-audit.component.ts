@@ -310,57 +310,61 @@ export class PedidoAuditComponent implements OnInit {
 
   // ✅ MODIFICADO: Actualizar el método getValorFormateado para el campo usuarioId
   getValorFormateado(campo: string, valor: any): string {
-    if (valor === null || valor === undefined || valor === '') {
-      return '<span class="text-muted">-</span>';
-    }
-    
-    switch (campo) {
-      case 'total':
-        return `$${Number(valor).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      
-      case 'estado':
-        const estado = this.estadosPedido.get(valor) || valor;
-        return `<span class="badge ${this.getBadgeClassEstado(valor)}">${estado}</span>`;
-      
-      case 'fechaCreacion':
-      case 'fechaActualizacion':
-      case 'fechaPagoMp':
-        return this.formatearFechaDesdeBackend(valor);
-      
-      case 'tipoEntrega':
-        return valor === 'envio' ? 
-          '<span class="badge bg-info">Envío a domicilio</span>' : 
-          '<span class="badge bg-secondary">Retiro en local</span>';
-      
-      case 'items':
-        return this.getItemsPreview(valor);
-      
-      // ✅ MODIFICADO: Campo usuarioId - mostrar nombre en lugar de ID
-      case 'usuarioId':
-        const nombreUsuario = this.userAuthService.getNombreUsuario(valor);
-        return `<strong class="text-primary">${nombreUsuario}</strong>`;
-      
-      case 'numeroPedido':
-        return `<code class="text-primary fw-bold">${valor}</code>`;
-      
-      case 'preferenciaIdMp':
-      case 'pagoIdMp':
-        return valor ? `<code class="text-info">${this.acortarTexto(valor, 20)}</code>` : '<span class="text-muted">-</span>';
-      
-      case 'estadoPagoMp':
-        return valor ? `<span class="badge bg-warning text-dark">${valor}</span>` : '<span class="text-muted">-</span>';
-      
-      case 'id':
-        return ''; // No mostrar ID interno
-      
-      default:
-        // Para texto largo, limitar longitud
-        if (typeof valor === 'string' && valor.length > 50) {
-          return `<span title="${valor}">${this.acortarTexto(valor, 50)}</span>`;
-        }
-        return String(valor);
-    }
+  if (valor === null || valor === undefined || valor === '') {
+    return '<span class="text-muted">-</span>';
   }
+
+  switch (campo) {
+    case 'total':
+      return `$${Number(valor).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    
+    case 'estado':
+      const estado = this.estadosPedido.get(valor) || valor;
+      return `<span class="badge ${this.getBadgeClassEstado(valor)}">${estado}</span>`;
+    
+    case 'fechaCreacion':
+    case 'fechaActualizacion':
+    case 'fechaPagoMp':
+      return this.formatearFechaDesdeBackend(valor);
+    
+    case 'tipoEntrega':
+      return valor === 'envio' ? 
+        '<span class="badge bg-info">Envío a domicilio</span>' : 
+        '<span class="badge bg-secondary">Retiro en local</span>';
+    
+    case 'items':
+      return this.getItemsPreview(valor);
+    
+    // ✅ MODIFICADO: Campo usuarioId - detectar usuario del sistema (ID = 0)
+    case 'usuarioId':
+      if (valor === 0) {
+        return '<strong class="text-info"><i class="fas fa-robot me-1"></i>Sistema Automático</strong>';
+      }
+      const nombreUsuario = this.userAuthService.getNombreUsuario(valor);
+      return `<strong class="text-primary">${nombreUsuario}</strong>`;
+    
+    case 'numeroPedido':
+      return `<code class="text-primary fw-bold">${valor}</code>`;
+    
+    case 'preferenciaIdMp':
+    case 'pagoIdMp':
+      return valor ? `<code class="text-info">${this.acortarTexto(valor, 20)}</code>` : '<span class="text-muted">-</span>';
+    
+    case 'estadoPagoMp':
+      return valor ? `<span class="badge bg-warning text-dark">${valor}</span>` : '<span class="text-muted">-</span>';
+    
+    case 'id':
+      return ''; // No mostrar ID interno
+    
+    default:
+      // Para texto largo, limitar longitud
+      if (typeof valor === 'string' && valor.length > 50) {
+        return `<span title="${valor}">${this.acortarTexto(valor, 50)}</span>`;
+      }
+      return String(valor);
+  }
+}
+
 
   // ✅ NUEVO: Obtener nombre del producto desde el cache
   getNombreProducto(productoId: number): string {
@@ -369,8 +373,14 @@ export class PedidoAuditComponent implements OnInit {
 
   // ✅ NUEVO: Obtener nombre del usuario usando el servicio
   getNombreUsuario(usuarioId: number): string {
-    return this.userAuthService.getNombreUsuario(usuarioId);
+  // ✅ NUEVO: Detectar si es eliminación automática del sistema
+  if (usuarioId === 0) {
+    return '🤖 Sistema Automático';
   }
+  
+  return this.userAuthService.getNombreUsuario(usuarioId);
+}
+
 
   formatearFechaDesdeBackend(fecha: any): string {
     if (!fecha) return '<span class="text-muted">-</span>';
@@ -554,4 +564,31 @@ export class PedidoAuditComponent implements OnInit {
     ['CANCELADO', 'Cancelado'],
     ['REEMBOLSADO', 'Reembolsado']
   ]);
+
+  //Auditoria de eliminación automática
+  esEliminacionAutomatica(auditoria: AuditoriaPedido): boolean {
+  return auditoria.accion === 'ELIMINAR' && auditoria.usuarioId === 0;
+  }
+  
+  obtenerMotivoEliminacion(auditoria: AuditoriaPedido): string {
+  if (!this.esEliminacionAutomatica(auditoria)) {
+    return '';
+  }
+
+  try {
+    const nuevos = this.parseJson(auditoria.valoresNuevos);
+    if (nuevos && nuevos.razon) {
+      switch (nuevos.razon) {
+        case '7_DIAS_PENDIENTE_PAGO':
+          return '⏰ Pedido eliminado automáticamente: 7 días en estado PENDIENTE_PAGO sin completar el pago';
+        default:
+          return '🤖 Eliminado por el sistema automáticamente';
+      }
+    }
+  } catch (e) {
+    console.error('Error parseando motivo:', e);
+  }
+  
+  return '🤖 Eliminado por el sistema automáticamente';
+  }
 }

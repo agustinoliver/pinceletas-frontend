@@ -11,6 +11,8 @@ import Swal from 'sweetalert2';
 import { PedidoService } from '../../../services/pedido.service';
 import { PedidoRequest } from '../../../models/pedido.model';
 import { MercadoPagoService } from '../../../services/mercado-pago.service';
+import { ConfigService } from '../../../services/config.service';
+import { AnimationService } from '../../../services/animation.service';
 
 @Component({
   selector: 'app-carrito-list',
@@ -29,6 +31,8 @@ carrito: CarritoItem[] = [];
     total: 0,
     tipoEntrega: 'envio'
   };
+
+  montoMinimoEnvioGratis: number = 0; // ✅ NUEVA PROPIEDAD
   
   private backendUrl = 'http://localhost:8080';
   private usuarioId: number = 1;
@@ -38,6 +42,8 @@ carrito: CarritoItem[] = [];
     private authService: UserAuthService,
     private pedidoService: PedidoService,
     private mercadoPagoService: MercadoPagoService,
+    private configService: ConfigService,
+    private animationService: AnimationService,
     private router: Router
   ) {}
 
@@ -47,6 +53,7 @@ carrito: CarritoItem[] = [];
       this.usuarioId = currentUser.id;
     }
     this.cargarCarrito();
+    this.obtenerMontoMinimoEnvioGratis(); // ✅ NUEVA LLAMADA
   }
 
   cargarCarrito(): void {
@@ -93,25 +100,44 @@ carrito: CarritoItem[] = [];
     this.resumen.subtotal = subtotalSinDescuento;
     this.resumen.descuento = totalDescuentos;
 
-    // ✅ NUEVO: Calcular envío basado en tipo de entrega
+    // ✅ CORREGIDO: Calcular envío basado en tipo de entrega
     this.calcularEnvio(subtotalConDescuento);
     
-    // Envío gratis si el subtotal con descuento es mayor a 50.000
-    this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 0; // Cambia el segundo 0 por el costo de envío si quieres
+    // ✅ ELIMINAR esta línea duplicada:
+    // this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 0;
 
     // Calcular total (subtotal con descuento + envío)
     this.resumen.total = subtotalConDescuento + this.resumen.envio;
-}
+  }
 
- // ✅ NUEVO: Método para calcular el costo de envío
+ // ✅ CORREGIDO: Método para calcular el costo de envío
   calcularEnvio(subtotalConDescuento: number): void {
     if (this.resumen.tipoEntrega === 'retiro') {
-      this.resumen.envio = 0; // Retiro en local siempre es gratis
+      this.resumen.envio = 0;
+      this.actualizarTotal(subtotalConDescuento); // ✅ Actualizar inmediatamente
     } else {
-      // Envío a domicilio: gratis si el subtotal es mayor a 50.000
-      this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 2500; // Cambia 2500 por tu costo de envío
+      // Usar el servicio para obtener el costo de envío configurado
+      this.configService.calcularCostoEnvio(subtotalConDescuento).subscribe({
+        next: (response) => {
+          this.resumen.envio = response.costoEnvio;
+          this.actualizarTotal(subtotalConDescuento);
+        },
+        error: (error) => {
+          console.error('Error calculando costo de envío:', error);
+          // Fallback por si hay error
+          this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 2500;
+          this.actualizarTotal(subtotalConDescuento);
+        }
+      });
     }
   }
+
+   // ✅ NUEVO: Método para actualizar el total
+  actualizarTotal(subtotalConDescuento: number): void {
+    this.resumen.total = subtotalConDescuento + this.resumen.envio;
+  }
+
+
 // ✅ NUEVO: Método para actualizar el resumen cuando cambia el tipo de entrega
   actualizarResumen(): void {
     let subtotalConDescuento = 0;
@@ -128,9 +154,6 @@ carrito: CarritoItem[] = [];
 
     // Recalcular envío
     this.calcularEnvio(subtotalConDescuento);
-    
-    // Recalcular total
-    this.resumen.total = subtotalConDescuento + this.resumen.envio;
   }
 
   modificarCantidad(item: CarritoItem, nuevaCantidad: number): void {
@@ -161,26 +184,30 @@ carrito: CarritoItem[] = [];
   }
 
   eliminarItem(item: CarritoItem, event: Event): void {
-    event.stopPropagation();
-    
-    this.mostrarConfirmacionEliminacion(
-      `¿Eliminar "${item.producto.nombre}" del carrito?`
-    ).then((result) => {
-      if (result.isConfirmed) {
-        this.commerceService.eliminarDelCarrito(item.id).subscribe({
-          next: () => {
-            this.carrito = this.carrito.filter(i => i.id !== item.id);
-            this.calcularResumen();
-            this.mostrarAlertaExito('Producto eliminado del carrito');
-          },
-          error: (error) => {
-            console.error('Error eliminando del carrito:', error);
-            this.mostrarAlertaError('Error eliminando del carrito');
-          }
-        });
-      }
-    });
-  }
+  event.stopPropagation();
+  
+  this.mostrarConfirmacionEliminacion(
+    `¿Eliminar "${item.producto.nombre}" del carrito?`
+  ).then((result) => {
+    if (result.isConfirmed) {
+      this.commerceService.eliminarDelCarrito(item.id).subscribe({
+        next: () => {
+          this.carrito = this.carrito.filter(i => i.id !== item.id);
+          this.calcularResumen();
+          
+          // ✅ AÑADIR ESTA LÍNEA: Decrementar el contador del carrito
+          this.animationService.decrementarCarritoCount();
+          
+          this.mostrarAlertaExito('Producto eliminado del carrito');
+        },
+        error: (error) => {
+          console.error('Error eliminando del carrito:', error);
+          this.mostrarAlertaError('Error eliminando del carrito');
+        }
+      });
+    }
+  });
+}
 
   comprarSoloEsteProducto(item: CarritoItem, event: Event): void {
     event.stopPropagation();
@@ -232,9 +259,36 @@ carrito: CarritoItem[] = [];
       item.producto.descuentoPorcentaje || 0
     );
     
-    // Calcular envío para este producto individual
+    // ✅ CORREGIDO: Usar el servicio para calcular envío en compra individual
     const subtotalProducto = precioConDescuento.precioFinal * item.cantidad;
-    const envioProducto = tipoEntrega === 'retiro' ? 0 : (subtotalProducto > 50000 ? 0 : 2500);
+    
+    let envioProducto = 0;
+    if (tipoEntrega === 'envio') {
+      // Usar el servicio para obtener el costo real
+      this.configService.calcularCostoEnvio(subtotalProducto).subscribe({
+        next: (response) => {
+          envioProducto = response.costoEnvio;
+          this.procesarConfirmacionCompraIndividual(item, tipoEntrega, subtotalProducto, envioProducto);
+        },
+        error: (error) => {
+          console.error('Error calculando envío individual:', error);
+          // Fallback
+          envioProducto = subtotalProducto > 50000 ? 0 : 2500;
+          this.procesarConfirmacionCompraIndividual(item, tipoEntrega, subtotalProducto, envioProducto);
+        }
+      });
+    } else {
+      this.procesarConfirmacionCompraIndividual(item, tipoEntrega, subtotalProducto, 0);
+    }
+  }
+
+  // ✅ NUEVO: Método auxiliar para procesar la confirmación
+  private procesarConfirmacionCompraIndividual(
+    item: CarritoItem, 
+    tipoEntrega: 'envio' | 'retiro', 
+    subtotalProducto: number, 
+    envioProducto: number
+  ): void {
     const totalProducto = subtotalProducto + envioProducto;
 
     Swal.fire({
@@ -640,4 +694,18 @@ carrito: CarritoItem[] = [];
       reverseButtons: true
     });
   }
+
+  // ✅ NUEVO: Método para obtener el monto mínimo de envío gratis
+private obtenerMontoMinimoEnvioGratis(): void {
+  this.configService.getConfiguracionEnvioActiva().subscribe({
+    next: (config) => {
+      this.montoMinimoEnvioGratis = config.montoMinimoEnvioGratis;
+    },
+    error: (error) => {
+      console.error('Error obteniendo configuración de envío:', error);
+      // Valor por defecto en caso de error
+      this.montoMinimoEnvioGratis = 50000;
+    }
+  });
+}
 }

@@ -1,4 +1,6 @@
-/* Variables CSS */
+/* ========================================================= */
+/* VARIABLES GLOBALES */
+/* ========================================================= */
 :root {
   --primary-color: #ed620c;
   --primary-hover: #d4560a;
@@ -6,7 +8,9 @@
   --whatsapp-dark: #128C7E;
 }
 
-/* Footer Principal */
+/* ========================================================= */
+/* FOOTER PRINCIPAL */
+/* ========================================================= */
 .footer {
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
   border-top: 3px solid var(--primary-color);
@@ -20,6 +24,11 @@
   font-weight: 600;
 }
 
+.footer h6 {
+  color: var(--primary-color);
+  margin-top: 1rem;
+}
+
 .footer a {
   transition: all 0.3s ease;
 }
@@ -29,6 +38,8 @@
   transform: translateX(5px);
 }
 
+/* --------------------------------------------------------- */
+/* ENLACES DEL FOOTER */
 .footer-link {
   cursor: pointer;
   position: relative;
@@ -53,6 +64,8 @@
   left: -15px;
 }
 
+/* --------------------------------------------------------- */
+/* ICONOS SOCIALES */
 .social-icon {
   transition: all 0.3s ease;
   padding: 8px;
@@ -71,6 +84,8 @@
   color: white !important;
 }
 
+/* --------------------------------------------------------- */
+/* CONTENIDO DE POLÍTICAS */
 .politicas-content {
   line-height: 1.6;
   max-height: 60vh;
@@ -83,7 +98,56 @@
   content: "";
 }
 
-/* WhatsApp Widget en Footer */
+/* --------------------------------------------------------- */
+/* HORARIO DE ATENCIÓN */
+.horario-atencion {
+  font-size: 0.9rem;
+  color: #ffffff;
+  font-weight: 500;
+  margin-top: 8px;
+  display: block;
+}
+
+.horario-atencion .fa-clock {
+  color: rgb(255, 255, 255);
+  margin-right: 4px;
+}
+
+/* --------------------------------------------------------- */
+/* SELECT EN EL FOOTER */
+.form-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
+  color: white;
+}
+
+.form-select option {
+  background: #2c3e50;
+  color: white;
+  padding: 8px;
+}
+
+.form-select option:hover {
+  background: var(--primary-color) !important;
+}
+
+.form-select option:checked {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* ========================================================= */
+/* WIDGET DE WHATSAPP EN FOOTER */
+/* ========================================================= */
 .whatsapp-widget {
   background: rgba(255, 255, 255, 0.05);
   padding: 15px;
@@ -116,7 +180,7 @@
 
 .whatsapp-btn {
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #25D366;;
+  color: #25D366;
   padding: 10px 14px;
   font-weight: 600;
   width: 100%;
@@ -124,102 +188,154 @@
   transition: all 0.3s ease;
 }
 
-.whatsapp-btn:hover {
-  background: var(--whatsapp-dark);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-} 
-
-/* SOLUCIÓN PUNTO 1: Estilos para el select en el footer */
-.form-select {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  border-radius: 6px;
-  margin-bottom: 10px;
+.footer .whatsapp-btn {
+  transform: none !important;
 }
 
-.form-select:focus {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(237, 98, 12, 0.25);
-  color: white;
+.footer .whatsapp-btn:hover {
+  transform: translateY(-1px) !important;
+  color: var(--whatsapp-green) !important;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.5);
 }
 
-.form-select option {
-  background: #2c3e50;
-  color: white;
-  padding: 8px;
-}
-
-.form-select option:hover {
-  background: var(--primary-color) !important;
-}
-
-.form-select option:checked {
-  background: var(--primary-color);
-  color: white;
-}
-
-/* BOTÓN FLOTANTE MEJORADO - POR ENCIMA DEL FOOTER */
+/* ========================================================= */
+/* BOTÓN FLOTANTE DE WHATSAPP */
+/* ========================================================= */
 .whatsapp-float {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  z-index: 10000; /* Alto z-index para estar por encima del footer */
-  transition: all 0.3s ease;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  animation: whatsappFloat 4s ease-in-out infinite;
 }
 
 .whatsapp-main-btn-container {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-/* BOTÓN PRINCIPAL CON COLOR */
 .whatsapp-main-btn {
-  background: var(--whatsapp-green);
-  color: #25D366;
   width: 70px;
   height: 70px;
   border-radius: 50%;
   border: none;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(37, 211, 102, 0.4),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2);
   transition: all 0.3s ease;
-  animation: float 3s ease-in-out infinite;
-  cursor: pointer;
+  backdrop-filter: blur(25px);
   position: relative;
-  z-index: 10;
+  overflow: hidden;
 }
 
-.whatsapp-main-btn.pulse {
-  animation: float 3s ease-in-out infinite, pulse-glow 2s ease-in-out infinite;
+/* Brillo interno animado */
+.whatsapp-main-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 70%);
+  transform: rotate(25deg);
+  transition: opacity 0.4s ease;
+  opacity: 0;
+}
+
+.whatsapp-main-btn:hover::after {
+  opacity: 1;
 }
 
 .whatsapp-main-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.7);
-  background: var(--whatsapp-dark);
+  box-shadow:
+    0 0 10px rgba(37, 211, 102, 0.4),
+    0 10px 40px rgba(37, 211, 102, 0.5);
 }
 
-/* SOLUCIÓN PUNTO 2: OPCIONES DESPLEGABLES CON ESTILOS SIMILARES AL FOOTER */
+/* Pulso suave si está online */
+.whatsapp-main-btn.pulse::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.5);
+  animation: whatsappPulse 1.8s infinite ease-out;
+  z-index: -1;
+}
+
+/* Botón cerrar WhatsApp */
+.whatsapp-close {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  border: 2px solid white;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10002;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.whatsapp-close:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.whatsapp-float:hover .whatsapp-close {
+  opacity: 1;
+}
+
+/* Animaciones */
+@keyframes whatsappFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes whatsappPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------- */
+/* OPCIONES DE MENSAJE */
 .message-options {
   position: absolute;
   bottom: 85px;
   right: 0;
-  background: #2c3e50; /* Mismo fondo oscuro que el footer */
+  background: #2c3e50;
   border-radius: 10px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.4);
   width: 280px;
   z-index: 10001;
   animation: slideUp 0.3s ease;
-  border: 2px solid var(--primary-color); /* Borde naranja como el footer */
+  border: 2px solid var(--primary-color);
   overflow: hidden;
   display: block !important;
   opacity: 1 !important;
@@ -263,23 +379,24 @@
 
 .options-list {
   padding: 0.5rem;
-  background: #2c3e50; /* Fondo oscuro consistente */
+  background: #2c3e50;
 }
 
-/* SOLUCIÓN PUNTO 3: OPCIONES CON ESTILOS SIMILARES AL SELECT DEL FOOTER */
+/* --------------------------------------------------------- */
+/* OPCIONES INDIVIDUALES */
 .message-option {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
   border: none;
-  background: rgba(255, 255, 255, 0.1); /* Similar al select del footer */
+  background: rgba(255, 255, 255, 0.1);
   width: 100%;
   text-align: left;
   border-radius: 6px;
   transition: all 0.3s ease;
   cursor: pointer;
-  color: white; /* Texto blanco como en el footer */
+  color: white;
   font-size: 0.85rem;
   margin-bottom: 5px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -291,23 +408,18 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* SOLUCIÓN PUNTO 4: OPCIÓN SELECCIONADA VISIBLE Y CON ESTILOS */
 .message-option.active {
-  background: var(--primary-color) !important; /* Naranja para seleccionado */
+  background: var(--primary-color) !important;
   color: white !important;
   font-weight: 600;
   border-color: var(--primary-hover);
   box-shadow: 0 2px 8px rgba(237, 98, 12, 0.3);
 }
 
-.message-option.active i {
-  color: white !important;
-}
-
 .message-option i {
   width: 16px;
   font-size: 0.9rem;
-  color: #ccc; /* Color claro para íconos */
+  color: #ccc;
   transition: all 0.3s ease;
 }
 
@@ -315,6 +427,7 @@
   color: var(--primary-color);
 }
 
+.message-option.active i,
 .message-option.active:hover i {
   color: white;
 }
@@ -324,7 +437,8 @@
   font-weight: 500;
 }
 
-/* SOLUCIÓN PUNTO 5: BOTÓN "CHATEAR AHORA" CON ESTILOS IDÉNTICOS AL FOOTER */
+/* --------------------------------------------------------- */
+/* BOTÓN "CHATEAR AHORA" */
 .options-footer {
   padding: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -355,7 +469,6 @@
   color: white !important;
 }
 
-/* Estados consistentes con el footer */
 .whatsapp-send-btn:disabled,
 .whatsapp-send-btn.btn-outline-success {
   background: transparent !important;
@@ -369,7 +482,8 @@
   color: white !important;
 }
 
-/* TOOLTIP MEJORADO */
+/* --------------------------------------------------------- */
+/* TOOLTIP DE WHATSAPP */
 .whatsapp-tooltip {
   position: absolute;
   right: 90px;
@@ -421,7 +535,8 @@
   right: 95px;
 }
 
-/* BOTÓN CERRAR VISIBLE */
+/* --------------------------------------------------------- */
+/* BOTÓN CERRAR */
 .whatsapp-close {
   position: absolute;
   top: -5px;
@@ -452,7 +567,9 @@
   opacity: 1;
 }
 
-/* Animaciones */
+/* ========================================================= */
+/* ANIMACIONES */
+/* ========================================================= */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -470,114 +587,339 @@
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================================= */
+/* CHATBASE FLOTANTE IZQUIERDA */
+/* ========================================================= */
+.chatbase-float {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.chatbase-main-btn-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chatbase-main-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow:
+    0 6px 25px rgba(102, 126, 234, 0.5),
+    0 0 20px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  animation: chatbaseFloat 3s ease-in-out infinite;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.chatbase-main-btn:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 8px 35px rgba(102, 126, 234, 0.7),
+    0 0 30px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.chatbase-main-btn::before {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.2);
+  animation: chatbasePulse 2s ease-out infinite;
+}
+
+/* --------------------------------------------------------- */
+/* TOOLTIP CHATBASE (continuación) */
+.chatbase-tooltip {
+  position: absolute;
+  left: 90px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 50%,
+    rgba(102, 126, 234, 0.05) 100%);
+  color: #1a1a1a;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  width: 180px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(102, 126, 234, 0.3),
+    0 8px 32px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+  border: 1px solid rgba(102, 126, 234, 0.5);
+  backdrop-filter: blur(25px);
+  line-height: 1.4;
+}
+
+.chatbase-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 8px solid rgba(102, 126, 234, 0.3);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+.tooltip-message {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #667eea;
+}
+
+.chatbase-float:hover .chatbase-tooltip {
+  opacity: 1;
+  left: 95px;
+}
+
+/* --------------------------------------------------------- */
+/* BOTÓN CERRAR CHATBASE */
+.chatbase-close {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  border: 2px solid white;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10002;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.chatbase-close:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.chatbase-float:hover .chatbase-close {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------- */
+/* ANIMACIONES CHATBASE */
+@keyframes chatbaseFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes chatbasePulse {
+  0% {
+    transform: scale(1);
     opacity: 1;
-    transform: translateY(0);
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
   }
 }
 
-/* Responsive */
+/* ========================================================= */
+/* OTROS AJUSTES */
+/* ========================================================= */
+.fas.fa-hand-wave::before {
+  content: "👋";
+}
+
+.hand-wave-container {
+  pointer-events: none;
+}
+
+/* ========================================================= */
+/* RESPONSIVE DESIGN */
+/* ========================================================= */
 @media (max-width: 768px) {
+  /* Footer */
   .footer {
     text-align: center;
   }
-  
+
   .footer .row > div {
     margin-bottom: 1.5rem;
   }
-  
+
   .social-icon {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
   }
-  
+
+  /* WhatsApp */
   .whatsapp-float {
     bottom: 20px;
     right: 20px;
   }
-  
+
   .whatsapp-main-btn {
     width: 60px;
     height: 60px;
     font-size: 28px;
   }
-  
+
   .message-options {
     width: 250px;
     right: -50px;
   }
-  
+
   .options-header h6 {
     font-size: 0.8rem;
   }
-  
+
   .message-option {
     padding: 0.6rem;
     font-size: 0.8rem;
   }
-  
+
   .whatsapp-send-btn {
     padding: 10px !important;
     font-size: 0.85rem;
   }
-  
+
   .whatsapp-tooltip {
     display: none;
+  }
+
+  /* Chatbase */
+  .chatbase-float {
+    bottom: 80px;
+    left: 20px;
   }
 }
 
 @media (max-width: 480px) {
+  /* WhatsApp */
   .whatsapp-widget {
     padding: 12px;
   }
-  
+
   .whatsapp-float {
     bottom: 15px;
     right: 15px;
   }
-  
+
   .whatsapp-main-btn {
     width: 55px;
     height: 55px;
     font-size: 24px;
   }
-  
+
   .message-options {
     width: 220px;
     right: -30px;
   }
+
+  /* Chatbase */
+  .chatbase-float {
+    bottom: 70px;
+    left: 15px;
+  }
 }
 
-.footer h6 {
-  color: var(--primary-color);
-  margin-top: 1rem;
+/* ========================================================= */
+/* OVERLAY E IFRAME CHATBASE (FALTANTE) */
+/* ========================================================= */
+.chatbase-iframe-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
 }
 
-.horario-atencion {
-  font-size: 0.9rem;
-  color: #ffffff;
-  font-weight: 500;
-  margin-top: 8px;
-  display: block;
+.chatbase-iframe-container {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 450px;
+  height: 80vh;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: slideUp 0.3s ease;
 }
 
-.horario-atencion .fa-clock {
-  color: rgb(255, 255, 255);
-  margin-right: 4px;
+.btn-close-iframe-top {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-.footer .whatsapp-btn:hover {
-  transform: translateY(-1px) !important; /* mantiene solo el efecto vertical */
-  color: var(--whatsapp-green) !important; /* texto verde */
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.5);
+.btn-close-iframe-top:hover {
+  background: #dc3545;
+  transform: scale(1.1) rotate(90deg);
 }
 
-/* Evita que se aplique la regla general del footer */
-.footer .whatsapp-btn {
-  transform: none !important;
+.chatbase-iframe {
+  flex: 1;
+  border: none;
+}
+
+/* Animaciones faltantes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
