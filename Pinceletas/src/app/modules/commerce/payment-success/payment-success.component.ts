@@ -32,10 +32,17 @@ export class PaymentSuccessComponent implements OnInit {
   ngOnInit(): void {
     console.log('💰 PAYMENT SUCCESS - INICIANDO');
     
+    // ✅ SOLUCIÓN: Esperar un ciclo para que el guard termine
+    setTimeout(() => {
+      this.verificarSesionYProcesar();
+    }, 100);
+  }
+
+  private verificarSesionYProcesar(): void {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
     
-    console.log('🔍 Estado de sesión tras guard:', {
+    console.log('🔍 Estado de sesión después del guard:', {
       token: !!token,
       userData: !!userData,
       currentUser: this.authService.getCurrentUser()
@@ -63,6 +70,7 @@ export class PaymentSuccessComponent implements OnInit {
       });
       return;
     }
+
     console.log('✅ SESIÓN ACTIVA - Procesando pago...');
     this.capturarParametrosMercadoPago();
   }
