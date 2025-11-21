@@ -2,7 +2,7 @@ const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return 'https://green-order-happen-arizona.trycloudflare.com';
+  return 'https://tu-frontend-en-render.onrender.com';
 };
 
 export const mercadoPagoEnvironment = {
