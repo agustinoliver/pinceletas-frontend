@@ -269,9 +269,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKeydown(event: KeyboardEvent): void {
-    if (this.showChatbaseIframe) {
-      this.showChatbaseIframe = false;
+  onEscapeKeydown(event: Event): void {
+    if (event instanceof KeyboardEvent && this.showChatbaseIframe) {
+        this.showChatbaseIframe = false;
     }
   }
 }

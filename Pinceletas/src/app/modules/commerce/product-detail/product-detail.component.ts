@@ -22,7 +22,7 @@ export class ProductDetailComponent implements OnInit {
   esFavorito: boolean = false;
   imagenPrincipal: string = ''; // ✅ NUEVO: Imagen actualmente mostrada
   
-  private backendUrl = 'http://localhost:8080';
+  private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId: number = 1;
   private returnUrl: string = '/productlist';
 

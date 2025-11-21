@@ -21,7 +21,7 @@ export class ProductListComponent implements OnInit {
   categoriaSeleccionada: string = 'todas';
   filtroNombre: string = '';
   
-  private backendUrl = 'http://localhost:8080';
+  private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
 
   constructor(
     private commerceService: CommerceService,

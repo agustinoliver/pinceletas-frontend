@@ -31,7 +31,7 @@ export class DashboardService {
    * Obtiene el reporte de usuarios activos/inactivos
    */
   getUserStatsReport(): Observable<UserStatsReport> {
-    return this.http.get<UserStatsReport>('http://localhost:8081/api/reports/users/active-inactive');
+    return this.http.get<UserStatsReport>('https://pinceletas-user-auth.onrender.com/api/reports/users/active-inactive');
   }
 
 

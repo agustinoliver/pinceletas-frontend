@@ -22,7 +22,7 @@ export class ProductListAdminComponent implements OnInit {
   tipoMensaje: 'success' | 'error' | '' = '';
   eliminandoProducto: number | null = null;
 
-  private backendUrl = 'http://localhost:8080';
+  private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId = 1; // Por defecto, puedes hacerlo dinámico
 
   constructor(

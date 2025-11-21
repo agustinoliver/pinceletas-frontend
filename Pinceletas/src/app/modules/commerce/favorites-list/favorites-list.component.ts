@@ -25,7 +25,7 @@ export class FavoritesListComponent implements OnInit{
   categoriaSeleccionada: string = 'todas';
   categoriasUnicas: string[] = [];
   
-  private backendUrl = 'http://localhost:8080';
+  private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId: number = 1;
 
   constructor(

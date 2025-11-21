@@ -458,7 +458,7 @@ export class ProductEditComponent implements OnInit {
   getImagenUrl(imagenPath: string): string {
     if (!imagenPath) return '';
     if (imagenPath.startsWith('http')) return imagenPath;
-    return `http://localhost:8080${imagenPath}`;
+    return `https://pinceletas-commerce-service.onrender.com${imagenPath}`;
   }
 
   limpiarImagenes(): void {

@@ -11,7 +11,7 @@ export class ConfigService {
 
   private apiTienda = configEnvironment.apiTienda;
   private apiTerminosCondiciones = configEnvironment.apiTerminosCondiciones;
-  private apiConfiguracionesEnvio = 'http://localhost:8080/configuraciones-envio';
+  private apiConfiguracionesEnvio = 'https://pinceletas-commerce-service.onrender.com/configuraciones-envio';
 
   constructor(private http: HttpClient) {}
 
