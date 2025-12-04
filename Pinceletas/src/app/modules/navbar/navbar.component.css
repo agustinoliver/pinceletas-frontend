@@ -176,8 +176,13 @@
 }
 
 .user-name {
-  color: var(--text-dark) !important;
-  font-weight: 500;
+    /* AGREGAR ESTO: Padding consistente y display para centrado */
+    padding: 0.7rem 1.2rem; 
+    display: flex;
+    align-items: center;
+    /* FIN DE LA ADICIÓN */
+    color: var(--text-dark) !important;
+    font-weight: 500;
 }
 
 .user-name i {
