@@ -1,18 +1,14 @@
-/* product-list.component.css */
-
-/* Variables de colores de la empresa */
 :root {
-  --primary-color: #ED620C;    /* Naranja principal */
-  --accent-color: #EBED6D;     /* Amarillo de acento */
-  --primary-hover: #d4560a;    /* Naranja más oscuro para hover */
-  --accent-hover: #e0e25a;     /* Amarillo más oscuro para hover */
-  --text-dark: #2c3e50;        /* Texto oscuro formal */
-  --text-light: #6c757d;       /* Texto secundario */
-  --bg-light: #f8f9fa;         /* Fondo claro */
-  --border-color: #e9ecef;     /* Color de bordes */
+  --primary-color: #ED620C;
+  --accent-color: #EBED6D;
+  --primary-hover: #d4560a;
+  --accent-hover: #e0e25a;
+  --text-dark: #2c3e50;
+  --text-light: #6c757d;
+  --bg-light: #f8f9fa;
+  --border-color: #e9ecef;
 }
 
-/* Filtros */
 .filtros-container {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
   border-left: 4px solid var(--primary-hover) !important;
@@ -20,8 +16,6 @@
   color: var(--text-dark);
 }
 
-
-/* Contenedor de imagen mejorado */
 .image-container {
   height: 240px;
   border-radius: 18px 18px 0 0 !important;
@@ -34,10 +28,9 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
-  border-radius: 14px 14px 0 0 !important; /* Coincide con el container */
+  border-radius: 14px 14px 0 0 !important;
 }
 
-/* Placeholder para imágenes que no cargan */
 .image-placeholder {
   display: flex;
   flex-direction: column;
@@ -53,7 +46,6 @@
   color: var(--primary-color);
 }
 
-/* Estilos para las tarjetas de productos */
 .producto-card {
   background: linear-gradient(145deg, #ffffff, #f6f7f9);
   border: none !important;
@@ -94,7 +86,6 @@
   font-size: 0.85rem;
 }
 
-/* Estilos para elementos de Bootstrap personalizados */
 .btn-outline-secondary {
   border-color: var(--text-light);
   color: var(--text-light);
@@ -127,7 +118,6 @@
   color: var(--text-dark) !important;
 }
 
-/* Mejoras en los formularios */
 .form-select:focus,
 .form-control:focus {
   border-color: var(--primary-color);
@@ -139,14 +129,12 @@
   font-weight: 600;
 }
 
-/* Badge personalizado */
 .badge.bg-accent {
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.35em 0.65em;
 }
 
-/* Efectos de hover en elementos interactivos */
 .producto-card {
   cursor: pointer;
 }
@@ -155,7 +143,6 @@
   border-radius: 0 0 16px 16px !important;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .image-container {
     height: 200px;
@@ -170,7 +157,6 @@
   }
 }
 
-/* Animaciones suaves */
 .card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -179,7 +165,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important; /* Sombra base más visible */
 }
 
-/* Mejora en la legibilidad */
 .card-title {
   color: var(--text-dark);
   font-weight: 600;
@@ -190,7 +175,6 @@
   color: var(--text-light) !important;
 }
 
-/* Botón limpiar personalizado */
 .btn-limpiar {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: #fff;
@@ -208,7 +192,6 @@
   transform: translateY(-2px);
 }
 
-/* Mejor distribución y responsividad del bloque de filtros */
 .filtros-container {
   padding: 1.5rem;
   border-left: 4px solid var(--primary-color) !important;
@@ -238,8 +221,256 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+@media (max-width: 991px) {
+  .filtros-container {
+    padding: 1.2rem;
+  }
 
+  .filtros-grid .col-lg-4,
+  .filtros-grid .col-lg-5,
+  .filtros-grid .col-lg-3 {
+    margin-bottom: 0.8rem;
+  }
 
+  .producto-card {
+    margin-bottom: 1.5rem;
+  }
 
+  .image-container {
+    height: 220px;
+  }
 
+  .card-title {
+    font-size: 1rem;
+  }
+}
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .filtros-container {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .filtros-grid {
+    text-align: left;
+  }
+
+  .filtros-grid label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .form-select,
+  .form-control {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .btn-limpiar {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .producto-card {
+    border-radius: 14px;
+    margin-bottom: 1.2rem;
+  }
+
+  .image-container {
+    height: 200px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  .card-body {
+    padding: 0.9rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .h5 {
+    font-size: 1rem;
+  }
+
+  small {
+    font-size: 0.8rem;
+  }
+
+  .badge.bg-danger {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .card .fa-search {
+    font-size: 2.5rem;
+  }
+
+  .card h4 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 0.8rem;
+  }
+
+  .filtros-container {
+    padding: 0.8rem;
+  }
+
+  .filtros-grid label {
+    font-size: 0.85rem;
+  }
+
+  .form-select,
+  .form-control {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .input-group-text {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-limpiar {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .col-lg-4,
+  .col-md-6 {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .producto-card {
+    border-radius: 12px;
+  }
+
+  .image-container {
+    height: 180px;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+  }
+
+  .card-body {
+    padding: 0.8rem;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .h5 {
+    font-size: 0.95rem;
+  }
+
+  small {
+    font-size: 0.75rem;
+  }
+
+  .fas,
+  .far {
+    font-size: 0.9rem;
+  }
+
+  .badge.bg-danger {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .badge.bg-danger i {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .filtros-container {
+    padding: 0.6rem;
+  }
+
+  .form-select,
+  .form-control {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .btn-limpiar {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .image-container {
+    height: 160px;
+  }
+
+  .card-title {
+    font-size: 0.85rem;
+  }
+
+  .card-body {
+    padding: 0.7rem;
+  }
+
+  .h5 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .image-container {
+    height: 150px;
+  }
+
+  .producto-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 577px) {
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-lg-4,
+  .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .producto-card {
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(237, 98, 12, 0.1);
+  }
+
+  .btn-limpiar {
+    min-height: 44px;
+  }
+
+  .form-select,
+  .form-control {
+    min-height: 40px;
+  }
+}

@@ -1,4 +1,3 @@
-/* Navbar personalizado con colores sutiles */
 .navbar-custom {
   background: #ffffff !important;
   padding: 0.8rem 0;
@@ -18,7 +17,6 @@
   background: linear-gradient(90deg, transparent 0%, var(--primary-color) 50%, transparent 100%);
 }
 
-/* Brand mejorado */
 .navbar-brand {
   font-size: 1.6rem;
   transition: all 0.3s ease;
@@ -36,7 +34,6 @@
   text-shadow: 0 2px 8px rgba(237, 98, 12, 0.2);
 }
 
-/* Enlaces de navegación mejorados */
 .nav-link-custom {
   font-weight: 500;
   transition: all 0.3s ease;
@@ -60,12 +57,10 @@
   box-shadow: 0 4px 12px rgba(237, 98, 12, 0.2);
 }
 
-/* Dropdown container */
 .dropdown {
   position: relative;
 }
 
-/* Estilos para el dropdown de administración */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -123,7 +118,6 @@
   cursor: pointer;
 }
 
-/* Flecha del dropdown */
 .dropdown-toggle::after {
   display: inline-block;
   margin-left: 0.5em;
@@ -140,7 +134,6 @@
   transform: rotate(180deg);
 }
 
-/* Botones especiales mejorados */
 .btn-register {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white !important;
@@ -167,7 +160,6 @@
   color: white !important;
 }
 
-/* Nombre de usuario mejorado */
 .user-welcome {
   background: var(--accent-light);
   border-radius: 8px;
@@ -176,11 +168,9 @@
 }
 
 .user-name {
-    /* AGREGAR ESTO: Padding consistente y display para centrado */
     padding: 0.7rem 1.2rem; 
     display: flex;
     align-items: center;
-    /* FIN DE LA ADICIÓN */
     color: var(--text-dark) !important;
     font-weight: 500;
 }
@@ -189,7 +179,6 @@
   color: var(--primary-color) !important;
 }
 
-/* Toggle mejorado */
 .custom-toggler {
   border: 2px solid var(--primary-light);
   padding: 0.5rem 0.7rem;
@@ -204,13 +193,11 @@
   background: var(--primary-light);
 }
 
-/* Icono del toggler */
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28237, 98, 12, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
   transition: transform 0.3s ease;
 }
 
-/* Estados del menú móvil */
 .navbar-collapse.show {
   animation: slideDown 0.3s ease-out;
 }
@@ -226,7 +213,6 @@
   }
 }
 
-/* Responsive mejorado */
 @media (max-width: 991px) {
   .navbar-collapse {
     margin-top: 1rem;
@@ -237,7 +223,6 @@
     border: 1px solid var(--border-color);
   }
 
-  /* Dropdown en móvil */
   .dropdown-menu {
     position: static;
     float: none;
@@ -252,7 +237,6 @@
     display: block;
   }
 
-  /* Ajustes de espaciado en móvil */
   .nav-link-custom {
     padding: 0.8rem 1rem !important;
     margin: 0.1rem 0;
@@ -268,13 +252,11 @@
     margin: 0.3rem 0;
   }
 
-  /* Mejor alineación en móvil */
   .navbar-nav {
     text-align: center;
   }
 }
 
-/* Estados de hover para todos los elementos interactivos */
 .nav-item {
   transition: transform 0.2s ease;
 }
@@ -283,7 +265,6 @@
   transform: translateY(-1px);
 }
 
-/* Mejoras de accesibilidad */
 .nav-link-custom:focus,
 .dropdown-item:focus,
 .custom-toggler:focus {
@@ -291,7 +272,6 @@
   outline-offset: 2px;
 }
 
-/* Efectos de transición suaves */
 .navbar-collapse,
 .dropdown-menu,
 .nav-link-custom,
@@ -299,7 +279,6 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Soporte para modo oscuro */
 @media (prefers-color-scheme: dark) {
   .navbar-custom {
     background: #1a1a1a !important;
@@ -328,8 +307,6 @@
     background-color: #3d3d3d;
   }
 }
-
-/* Indicador visual para elementos activos */
 .nav-link-custom.active::after {
   content: '';
   position: absolute;
@@ -342,20 +319,17 @@
   border-radius: 2px;
 }
 
-/* Mejora para el componente de notificaciones */
 app-dropdown-notification {
   display: flex;
   align-items: center;
 }
 
-/* Estados de carga */
 .navbar-brand.loading,
 .nav-link-custom.loading {
   opacity: 0.7;
   pointer-events: none;
 }
 
-/* Utilidades para variables CSS (si no las tienes definidas) */
 :root {
   --primary-color: #ed620c;
   --primary-hover: #d4560a;
@@ -366,9 +340,6 @@ app-dropdown-notification {
   --danger-color: #dc3545;
   --border-color: #dee2e6;
 }
-
-
-/* ✅ AÑADIR: Estilos para el badge del carrito con animación */
 .carrito-badge {
   font-size: 0.7rem;
   padding: 0.25em 0.4em;
@@ -398,7 +369,6 @@ app-dropdown-notification {
   }
 }
 
-/* ✅ AÑADIR: Estilos para el indicador de favoritos */
 .favorito-indicator {
   position: absolute;
   top: -5px;
@@ -425,7 +395,6 @@ app-dropdown-notification {
   }
 }
 
-/* ✅ AÑADIR: Mejoras responsivas para los badges */
 @media (max-width: 991px) {
   .carrito-badge {
     position: relative !important;
@@ -436,7 +405,6 @@ app-dropdown-notification {
   }
 }
 
-/* ✅ AÑADIR: Estilos para el resaltado de favoritos */
 .favorito-highlight {
   background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
   color: white !important;
@@ -491,7 +459,6 @@ app-dropdown-notification {
   }
 }
 
-/* ✅ Indicador de pulso para favoritos */
 .favorito-pulse-indicator {
   position: absolute;
   top: 5px;
@@ -514,14 +481,12 @@ app-dropdown-notification {
   }
 }
 
-/* ✅ Mejorar el contraste del texto cuando está resaltado */
 .favorito-highlight .fa-heart,
 .favorito-highlight .nav-link-custom {
   color: white !important;
   font-weight: bold;
 }
 
-/* ✅ Asegurar que el resaltado se vea bien en móviles */
 @media (max-width: 991px) {
   .favorito-highlight {
     margin: 2px 0;
@@ -531,5 +496,176 @@ app-dropdown-notification {
   .favorito-pulse-indicator {
     top: 10px;
     right: 10px;
+  }
+}
+@media (max-width: 991px) {
+  .navbar-collapse {
+    margin-top: 1rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    margin: 0.25rem 0;
+  }
+
+  .nav-link-custom {
+    padding: 0.8rem 1rem !important;
+    margin: 0.1rem 0;
+    display: block;
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    position: static;
+    float: none;
+    width: 100%;
+    margin: 0.5rem 0;
+    border: none;
+    box-shadow: none;
+    background: var(--primary-light);
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+
+  .dropdown-item {
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    margin: 0.2rem 0;
+  }
+
+  .btn-register,
+  .btn-logout {
+    margin: 0.5rem 0;
+    width: 100%;
+  }
+
+  .user-welcome {
+    margin: 0.5rem 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .carrito-badge {
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+    margin-left: 8px;
+    display: inline-flex !important;
+  }
+
+  .user-name {
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  app-dropdown-notification {
+    width: 100%;
+  }
+
+  .notification-toggle {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.3rem;
+  }
+
+  .custom-toggler {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .navbar-collapse {
+    padding: 1rem;
+    margin-top: 0.5rem;
+    max-height: 65vh;
+  }
+
+  .nav-link-custom {
+    padding: 0.7rem 0.8rem !important;
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .dropdown-item {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+    padding: 0.7rem 0.8rem;
+  }
+
+  .carrito-badge {
+    font-size: 0.65rem;
+    padding: 0.2em 0.35em;
+    min-width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .navbar-brand i {
+    font-size: 0.9rem;
+  }
+
+  .nav-link-custom {
+    padding: 0.6rem 0.7rem !important;
+    font-size: 0.9rem;
+  }
+
+  .dropdown-item {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-collapse {
+    padding: 0.8rem;
+    max-height: 60vh;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .navbar-collapse {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 991px) {
+  .navbar-collapse::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .navbar-collapse::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+
+  .navbar-collapse::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 2px;
   }
 }

@@ -1,11 +1,10 @@
-/* Fondo sutil con los colores de la marca */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ebed6d; /* Color de fondo amarillo */
-  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); /* Textura de fondo */
+  background-color: #ebed6d;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
   background-repeat: repeat;
   background-size: auto;
   padding: 20px;
@@ -75,7 +74,6 @@ label {
   margin-top: 5px;
 }
 
-/* Botón principal */
 .btn-primary {
   width: 100%;
   padding: 14px;
@@ -101,7 +99,6 @@ label {
   transform: none;
 }
 
-/* Separador */
 .separator {
   display: flex;
   align-items: center;
@@ -126,7 +123,6 @@ label {
   margin-left: 10px;
 }
 
-/* Botón Google */
 .btn-google {
   width: 100%;
   padding: 12px;
@@ -161,7 +157,6 @@ label {
   align-items: center;
 }
 
-/* Estados de carga */
 .loading {
   display: flex;
   align-items: center;
@@ -182,7 +177,6 @@ label {
   100% { transform: rotate(360deg); }
 }
 
-/* Alert Messages */
 .alert {
   padding: 12px;
   border-radius: 8px;
@@ -197,7 +191,6 @@ label {
   color: #721c24;
 }
 
-/* Links */
 .links {
   text-align: center;
   margin-top: 20px;
@@ -224,7 +217,6 @@ label {
   font-size: 14px;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .card {
     padding: 30px 20px;
@@ -232,5 +224,108 @@ label {
   
   h2 {
     font-size: 24px;
+  }
+}
+@media (max-width: 768px) {
+  .login-container {
+    padding: 15px;
+    min-height: 100vh;
+  }
+
+  .card {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 25px;
+  }
+
+  .form-label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+
+  .btn-primary {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .separator {
+    font-size: 13px;
+    margin: 18px 0;
+  }
+
+  .btn-google {
+    padding: 11px;
+    font-size: 15px;
+  }
+
+  .google-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .link {
+    font-size: 13px;
+  }
+
+  .register-link {
+    font-size: 13px;
+  }
+
+  .error-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 25px 16px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+
+  .form-control {
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+
+  .btn-primary,
+  .btn-google {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+  .card {
+    padding: 20px 14px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .form-control {
+    padding: 8px 10px;
+    font-size: 14px;
   }
 }

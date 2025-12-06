@@ -1,11 +1,10 @@
-/* Register Component Styles */
 .register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ebed6d; /* Color de fondo amarillo */
-  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); /* Textura de fondo */
+  background-color: #ebed6d;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
   background-repeat: repeat;
   background-size: auto;
   padding: 20px;
@@ -74,7 +73,6 @@
   color: var(--danger-color);
 }
 
-/* Botón principal - Mejorado pero manteniendo clases Bootstrap */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   border: none;
@@ -96,7 +94,6 @@
   transform: none;
 }
 
-/* Alert Messages */
 .alert-danger {
   background-color: #fee;
   border: 1px solid #f5c6cb;
@@ -107,7 +104,6 @@
   text-align: center;
 }
 
-/* Links */
 .text-decoration-none {
   color: var(--primary-color) !important;
   text-decoration: none;
@@ -123,21 +119,18 @@
   color: var(--text-light);
 }
 
-/* Estados de carga */
 .spinner-border-sm {
   width: 1rem;
   height: 1rem;
   border-width: 0.15em;
 }
 
-/* Texto de ayuda */
 .form-text {
   color: var(--text-light) !important;
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
-/* Asegurar que los inputs de contraseña tengan fondo blanco */
 .password-toggle-container .form-control {
   background: white !important;
   border: 2px solid var(--border-color);
@@ -148,7 +141,6 @@
   border-color: var(--primary-color);
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .card-body {
     padding: 30px 20px;
@@ -156,5 +148,89 @@
   
   .card-title {
     font-size: 24px;
+  }
+}
+@media (max-width: 768px) {
+  .register-container {
+    padding: 15px;
+  }
+
+  .card-body {
+    padding: 30px 20px;
+  }
+
+  .card-title {
+    font-size: 24px;
+    margin-bottom: 1.2rem;
+  }
+
+  .form-label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+
+  .btn-primary {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .text-center {
+    font-size: 13px;
+  }
+
+  .text-decoration-none {
+    font-size: 13px;
+  }
+
+  .form-text {
+    font-size: 12px;
+  }
+
+  .invalid-feedback {
+    font-size: 12px;
+  }
+
+  .row .col-md-6 {
+    margin-bottom: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-body {
+    padding: 25px 16px;
+  }
+
+  .card-title {
+    font-size: 22px;
+  }
+
+  .form-control {
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+  .card-body {
+    padding: 20px 14px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .form-control {
+    padding: 8px 10px;
+    font-size: 14px;
   }
 }
