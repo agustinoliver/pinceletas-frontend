@@ -56,6 +56,10 @@
   left: -15px;
 }
 
+.footer .d-flex.gap-3 {
+  justify-content: center;
+}
+
 .social-icon {
   transition: all 0.3s ease;
   padding: 8px;
@@ -722,6 +726,10 @@
     margin-bottom: 1.5rem;
   }
 
+  .footer .d-flex.gap-3 {
+    justify-content: center !important;
+  }
+
   .social-icon {
     width: 35px;
     height: 35px;
@@ -763,8 +771,14 @@
   }
 
   .chatbase-float {
-    bottom: 80px;
+    bottom: 20px;
     left: 20px;
+  }
+
+  .chatbase-main-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
   }
 }
 
@@ -790,8 +804,13 @@
   }
 
   .chatbase-float {
-    bottom: 70px;
+    bottom: 15px;
     left: 15px;
+  }
+  .chatbase-main-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 24px;
   }
 }
 
@@ -912,6 +931,15 @@
   .whatsapp-send-btn {
     padding: 11px !important;
     font-size: 0.9rem;
+  }
+  .whatsapp-float {
+    bottom: 25px;
+    right: 25px;
+  }
+
+  .chatbase-float {
+    bottom: 25px;
+    left: 25px;
   }
 }
 
@@ -1169,10 +1197,15 @@
     font-size: 0.75rem;
   }
 
+  .whatsapp-float {
+    bottom: 12px;
+    right: 12px;
+  }
+
   .whatsapp-main-btn {
     width: 52px;
     height: 52px;
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .message-options {
@@ -1180,17 +1213,27 @@
     bottom: 65px;
   }
 
+  .chatbase-float {
+    bottom: 12px;
+    left: 12px;
+  }
+
   .chatbase-main-btn {
     width: 52px;
     height: 52px;
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 
 @media (max-height: 600px) and (orientation: landscape) {
-  .whatsapp-float,
+  .whatsapp-float {
+    bottom: 10px;
+    right: 15px;
+  }
+
   .chatbase-float {
     bottom: 10px;
+    left: 15px;
   }
 
   .message-options {
@@ -1205,6 +1248,10 @@
 
 @media (max-width: 768px) {
   body {
+    padding-bottom: 100px;
+  }
+
+  body.has-footer {
     padding-bottom: 80px;
   }
 }
