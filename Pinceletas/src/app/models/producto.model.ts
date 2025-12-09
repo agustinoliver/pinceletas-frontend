@@ -28,7 +28,6 @@ export interface ProductoCreateRequest {
   imagenes: File[];
   descuentoPorcentaje?: number;
 }
-// ✅ NUEVO: Interfaz auxiliar para cálculos de precio
 export interface PrecioCalculado {
   precioOriginal: number;
   descuentoPorcentaje: number;
@@ -36,7 +35,6 @@ export interface PrecioCalculado {
   precioFinal: number;
 }
 
-// Utilidad para calcular precios con descuento
 export function calcularPrecioConDescuento(precio: number, descuentoPorcentaje: number = 0): PrecioCalculado {
   const descuento = Math.max(0, Math.min(descuentoPorcentaje || 0, 100));
   const montoDescuento = precio * (descuento / 100);
@@ -49,7 +47,6 @@ export function calcularPrecioConDescuento(precio: number, descuentoPorcentaje: 
     precioFinal
   };
 }
-// ✅ NUEVO: Método para obtener imagen principal
 export function getImagenPrincipal(producto: Producto): string {
   return producto.imagenes && producto.imagenes.length > 0 
     ? producto.imagenes[0] 

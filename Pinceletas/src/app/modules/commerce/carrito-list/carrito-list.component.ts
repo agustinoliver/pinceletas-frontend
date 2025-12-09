@@ -32,7 +32,7 @@ carrito: CarritoItem[] = [];
     tipoEntrega: 'envio'
   };
 
-  montoMinimoEnvioGratis: number = 0; // ✅ NUEVA PROPIEDAD
+  montoMinimoEnvioGratis: number = 0;
   
   private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId: number = 1;
@@ -53,7 +53,7 @@ carrito: CarritoItem[] = [];
       this.usuarioId = currentUser.id;
     }
     this.cargarCarrito();
-    this.obtenerMontoMinimoEnvioGratis(); // ✅ NUEVA LLAMADA
+    this.obtenerMontoMinimoEnvioGratis();
   }
 
   cargarCarrito(): void {
@@ -78,45 +78,33 @@ carrito: CarritoItem[] = [];
     let totalDescuentos = 0;
     let subtotalConDescuento = 0;
 
-    // Calcular subtotal sin descuento y total de descuentos
     this.carrito.forEach(item => {
       const precioOriginal = item.producto.precio;
       const cantidad = item.cantidad;
       const descuentoPorcentaje = item.producto.descuentoPorcentaje || 0;
       
-      // Subtotal sin descuento
       subtotalSinDescuento += precioOriginal * cantidad;
       
-      // Monto de descuento para este producto
       const montoDescuentoProducto = precioOriginal * (descuentoPorcentaje / 100) * cantidad;
       totalDescuentos += montoDescuentoProducto;
       
-      // Subtotal con descuento
       const precioConDescuento = calcularPrecioConDescuento(precioOriginal, descuentoPorcentaje);
       subtotalConDescuento += precioConDescuento.precioFinal * cantidad;
     });
 
-    // Asignar los valores al resumen
     this.resumen.subtotal = subtotalSinDescuento;
     this.resumen.descuento = totalDescuentos;
 
-    // ✅ CORREGIDO: Calcular envío basado en tipo de entrega
     this.calcularEnvio(subtotalConDescuento);
     
-    // ✅ ELIMINAR esta línea duplicada:
-    // this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 0;
-
-    // Calcular total (subtotal con descuento + envío)
     this.resumen.total = subtotalConDescuento + this.resumen.envio;
   }
 
- // ✅ CORREGIDO: Método para calcular el costo de envío
   calcularEnvio(subtotalConDescuento: number): void {
     if (this.resumen.tipoEntrega === 'retiro') {
       this.resumen.envio = 0;
-      this.actualizarTotal(subtotalConDescuento); // ✅ Actualizar inmediatamente
+      this.actualizarTotal(subtotalConDescuento);
     } else {
-      // Usar el servicio para obtener el costo de envío configurado
       this.configService.calcularCostoEnvio(subtotalConDescuento).subscribe({
         next: (response) => {
           this.resumen.envio = response.costoEnvio;
@@ -124,7 +112,6 @@ carrito: CarritoItem[] = [];
         },
         error: (error) => {
           console.error('Error calculando costo de envío:', error);
-          // Fallback por si hay error
           this.resumen.envio = subtotalConDescuento > 50000 ? 0 : 2500;
           this.actualizarTotal(subtotalConDescuento);
         }
@@ -132,17 +119,14 @@ carrito: CarritoItem[] = [];
     }
   }
 
-   // ✅ NUEVO: Método para actualizar el total
   actualizarTotal(subtotalConDescuento: number): void {
     this.resumen.total = subtotalConDescuento + this.resumen.envio;
   }
 
 
-// ✅ NUEVO: Método para actualizar el resumen cuando cambia el tipo de entrega
   actualizarResumen(): void {
     let subtotalConDescuento = 0;
 
-    // Recalcular subtotal con descuento
     this.carrito.forEach(item => {
       const precioOriginal = item.producto.precio;
       const cantidad = item.cantidad;
@@ -152,7 +136,6 @@ carrito: CarritoItem[] = [];
       subtotalConDescuento += precioConDescuento.precioFinal * cantidad;
     });
 
-    // Recalcular envío
     this.calcularEnvio(subtotalConDescuento);
   }
 
@@ -195,7 +178,6 @@ carrito: CarritoItem[] = [];
           this.carrito = this.carrito.filter(i => i.id !== item.id);
           this.calcularResumen();
           
-          // ✅ AÑADIR ESTA LÍNEA: Decrementar el contador del carrito
           this.animationService.decrementarCarritoCount();
           
           this.mostrarAlertaExito('Producto eliminado del carrito');
@@ -212,7 +194,6 @@ carrito: CarritoItem[] = [];
   comprarSoloEsteProducto(item: CarritoItem, event: Event): void {
     event.stopPropagation();
     
-    // Primero preguntar por el tipo de entrega
     Swal.fire({
       title: 'Selecciona método de entrega',
       html: `
@@ -253,18 +234,15 @@ carrito: CarritoItem[] = [];
     });
   }
   private confirmarCompraIndividual(item: CarritoItem, tipoEntrega: 'envio' | 'retiro'): void {
-    // Calcular el precio para este producto individual
     const precioConDescuento = calcularPrecioConDescuento(
       item.producto.precio,
       item.producto.descuentoPorcentaje || 0
     );
     
-    // ✅ CORREGIDO: Usar el servicio para calcular envío en compra individual
     const subtotalProducto = precioConDescuento.precioFinal * item.cantidad;
     
     let envioProducto = 0;
     if (tipoEntrega === 'envio') {
-      // Usar el servicio para obtener el costo real
       this.configService.calcularCostoEnvio(subtotalProducto).subscribe({
         next: (response) => {
           envioProducto = response.costoEnvio;
@@ -272,7 +250,6 @@ carrito: CarritoItem[] = [];
         },
         error: (error) => {
           console.error('Error calculando envío individual:', error);
-          // Fallback
           envioProducto = subtotalProducto > 50000 ? 0 : 2500;
           this.procesarConfirmacionCompraIndividual(item, tipoEntrega, subtotalProducto, envioProducto);
         }
@@ -282,7 +259,6 @@ carrito: CarritoItem[] = [];
     }
   }
 
-  // ✅ NUEVO: Método auxiliar para procesar la confirmación
   private procesarConfirmacionCompraIndividual(
     item: CarritoItem, 
     tipoEntrega: 'envio' | 'retiro', 
@@ -317,17 +293,16 @@ carrito: CarritoItem[] = [];
   }
 
   private procesarPagoProductoIndividual(item: CarritoItem, tipoEntrega: 'envio' | 'retiro'): void {
-    console.log('🛒🛒🛒 INICIANDO PROCESO DE PAGO INDIVIDUAL 🛒🛒🛒');
+    console.log(' INICIANDO PROCESO DE PAGO INDIVIDUAL');
     
-    // ✅ VERIFICAR SESIÓN ANTES DE NADA
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
-    console.log('🔐 SESIÓN AL INICIAR PAGO INDIVIDUAL:');
+    console.log(' SESIÓN AL INICIAR PAGO INDIVIDUAL:');
     console.log('   - Token:', !!token);
     console.log('   - UserData:', !!userData);
     
     if (!token || !userData) {
-      console.error('❌❌❌ ERROR: NO HAY SESIÓN AL INICIAR PAGO INDIVIDUAL');
+      console.error(' ERROR: NO HAY SESIÓN AL INICIAR PAGO INDIVIDUAL');
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
       return;
     }
@@ -357,13 +332,13 @@ carrito: CarritoItem[] = [];
       }
     });
 
-    console.log('📞 LLAMANDO A crearPedido() (INDIVIDUAL)...');
-    console.log('📦 Pedido request individual:', pedidoRequest);
+    console.log(' LLAMANDO A crearPedido() (INDIVIDUAL)...');
+    console.log(' Pedido request individual:', pedidoRequest);
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        console.log('✅ RESPUESTA DE crearPedido RECIBIDA (INDIVIDUAL)');
-        console.log('📦 Datos de respuesta individual:', pedidoResponse);
+        console.log(' RESPUESTA DE crearPedido RECIBIDA (INDIVIDUAL)');
+        console.log(' Datos de respuesta individual:', pedidoResponse);
         Swal.close();
         
         Swal.fire({
@@ -382,23 +357,22 @@ carrito: CarritoItem[] = [];
           timerProgressBar: true
         }).then(() => {
           try {
-            console.log('🎯 LLAMANDO A procesarCheckout() (INDIVIDUAL)...');
-            console.log('📦 Respuesta del pedido individual:', pedidoResponse);
+            console.log(' LLAMANDO A procesarCheckout() (INDIVIDUAL)...');
+            console.log(' Respuesta del pedido individual:', pedidoResponse);
             
-            // Verificar que tenemos las URLs
             if (!pedidoResponse.initPoint && !pedidoResponse.sandboxInitPoint) {
               throw new Error('El servidor no devolvió las URLs de pago');
             }
             
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
           } catch (error: any) {
-            console.error('❌ Error al procesar checkout individual:', error);
+            console.error(' Error al procesar checkout individual:', error);
             this.mostrarAlertaError(error.message || 'Error al obtener el enlace de pago');
           }
         });
       },
       error: (error) => {
-        console.error('❌ ERROR en crearPedido (INDIVIDUAL):', error);
+        console.error(' ERROR en crearPedido (INDIVIDUAL):', error);
         Swal.close();
         this.manejarErrorPedido(error);
       }
@@ -432,12 +406,12 @@ carrito: CarritoItem[] = [];
     });
   }
   private procesarPago(): void {
-    console.log('🛒 INICIANDO PROCESO DE PAGO...');
+    console.log(' INICIANDO PROCESO DE PAGO...');
     
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('currentUser');
     
-    console.log('🔐 Verificación de sesión:', {
+    console.log(' Verificación de sesión:', {
       token: !!token,
       userData: !!userData,
       tokenLength: token?.length,
@@ -445,7 +419,7 @@ carrito: CarritoItem[] = [];
     });
     
     if (!token || !userData) {
-      console.error('❌ ERROR CRÍTICO: No hay sesión');
+      console.error(' ERROR CRÍTICO: No hay sesión');
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
       this.router.navigate(['/login'], {
         queryParams: { returnUrl: '/carrito' }
@@ -455,7 +429,7 @@ carrito: CarritoItem[] = [];
 
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.email) {
-      console.error('❌ Usuario no disponible en servicio');
+      console.error(' Usuario no disponible en servicio');
       this.mostrarAlertaError('Debes estar logueado para realizar un pedido');
       return;
     }
@@ -479,14 +453,14 @@ carrito: CarritoItem[] = [];
       }
     });
 
-    console.log('📞 Llamando a crearPedido()...');
+    console.log(' Llamando a crearPedido()...');
 
     this.pedidoService.crearPedido(pedidoRequest).subscribe({
       next: (pedidoResponse) => {
-        console.log('✅ Pedido creado:', pedidoResponse);
+        console.log(' Pedido creado:', pedidoResponse);
         
         if (!pedidoResponse.sandboxInitPoint && !pedidoResponse.initPoint) {
-          console.error('❌ No hay URLs de pago');
+          console.error(' No hay URLs de pago');
           Swal.close();
           this.mostrarAlertaError('Error: No se generaron las URLs de pago');
           return;
@@ -516,17 +490,17 @@ carrito: CarritoItem[] = [];
               throw new Error('Sesión perdida antes de redirigir');
             }
             
-            console.log('✅ Sesión confirmada, procesando checkout...');
+            console.log(' Sesión confirmada, procesando checkout...');
             this.mercadoPagoService.procesarCheckout(pedidoResponse);
             
           } catch (error: any) {
-            console.error('❌ Error en checkout:', error);
+            console.error(' Error en checkout:', error);
             this.mostrarAlertaError(error.message || 'Error al procesar el pago');
           }
         });
       },
       error: (error) => {
-        console.error('❌ Error en crearPedido:', error);
+        console.error(' Error en crearPedido:', error);
         Swal.close();
         this.manejarErrorPedido(error);
       }
@@ -542,9 +516,7 @@ carrito: CarritoItem[] = [];
     let mensajeError = 'Error al procesar el pedido. Intente nuevamente.';
     let esDireccionIncompleta = false;
 
-    // Verificar códigos de estado HTTP específicos PRIMERO
     if (error.status === 400) {
-      // Bad Request - Aquí viene el error de dirección incompleta
       if (error.error && error.error.message) {
         mensajeError = error.error.message;
       } else if (typeof error.error === 'string') {
@@ -556,7 +528,6 @@ carrito: CarritoItem[] = [];
                                mensajeError.toLowerCase().includes('perfil');
     } 
     else if (error.status === 403) {
-      // Forbidden - Sin permisos
       if (error.error && error.error.message) {
         mensajeError = error.error.message;
       } else {
@@ -567,7 +538,6 @@ carrito: CarritoItem[] = [];
       mensajeError = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente';
     }
     else {
-      // Otros códigos de error
       if (error.error) {
         if (typeof error.error === 'string') {
           mensajeError = error.error;
@@ -577,7 +547,6 @@ carrito: CarritoItem[] = [];
       }
     }
 
-    // Si es un error de dirección incompleta, mostrar opción de ir al perfil
     if (esDireccionIncompleta) {
       Swal.fire({
         title: 'Dirección Incompleta',
@@ -597,12 +566,10 @@ carrito: CarritoItem[] = [];
         cancelButtonColor: '#6c757d'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Redirigir al perfil del usuario
           this.router.navigate(['/profile']);
         }
       });
     } else {
-      // Error genérico
       this.mostrarAlertaError(mensajeError);
     }
   }
@@ -635,12 +602,10 @@ carrito: CarritoItem[] = [];
   }
 
   getOpcionSeleccionada(item: CarritoItem): string {
-  // ✅ NUEVO: Mostrar la opción específica seleccionada
   if (item.opcionSeleccionada) {
     return item.opcionSeleccionada.tipo;
   }
   
-  // Si no hay opción seleccionada pero el producto tiene opciones
   if (item.producto.opciones && item.producto.opciones.length > 0) {
     return 'Sin opción seleccionada';
   }
@@ -648,7 +613,6 @@ carrito: CarritoItem[] = [];
   return '';
 }
 
-  // ✅ NUEVO: Métodos para calcular precios con descuento
   calcularPrecioProducto(item: CarritoItem) {
     return calcularPrecioConDescuento(
       item.producto.precio,
@@ -695,7 +659,6 @@ carrito: CarritoItem[] = [];
     });
   }
 
-  // ✅ NUEVO: Método para obtener el monto mínimo de envío gratis
 private obtenerMontoMinimoEnvioGratis(): void {
   this.configService.getConfiguracionEnvioActiva().subscribe({
     next: (config) => {
@@ -703,7 +666,6 @@ private obtenerMontoMinimoEnvioGratis(): void {
     },
     error: (error) => {
       console.error('Error obteniendo configuración de envío:', error);
-      // Valor por defecto en caso de error
       this.montoMinimoEnvioGratis = 50000;
     }
   });

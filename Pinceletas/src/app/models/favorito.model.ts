@@ -18,5 +18,5 @@ export interface Favorito {
       tipo: string;
     }>;
   };
-  opcionSeleccionada?: number; // ✅ NUEVO: Para guardar la opción seleccionada
+  opcionSeleccionada?: number;
 }

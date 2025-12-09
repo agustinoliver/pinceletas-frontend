@@ -19,7 +19,7 @@ export interface CarritoItem {
     }>;
   };
   cantidad: number;
-  opcionSeleccionada?: { // ✅ NUEVO: Opción específica seleccionada
+  opcionSeleccionada?: {
     id: number;
     tipo: string;
   };
@@ -28,7 +28,7 @@ export interface CarritoItem {
 export interface CarritoRequest {
   productoId: number;
   cantidad: number;
-  opcionSeleccionadaId?: number | null; // ✅ CORREGIDO: Permitir null
+  opcionSeleccionadaId?: number | null;
 }
 
 export interface ResumenCarrito {

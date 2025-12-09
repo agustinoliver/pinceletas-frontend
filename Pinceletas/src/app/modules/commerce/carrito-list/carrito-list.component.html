@@ -1,5 +1,4 @@
 <div class="container mt-4">
-  <!-- Header -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
@@ -18,7 +17,6 @@
     </div>
   </div>
 
-  <!-- Loading -->
   <div *ngIf="cargando" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Cargando...</span>
@@ -26,9 +24,7 @@
     <p class="text-muted mt-2">Cargando tu carrito...</p>
   </div>
 
-  <!-- Carrito con productos -->
   <div *ngIf="!cargando && carrito.length > 0" class="row">
-    <!-- Lista de productos -->
     <div class="col-lg-8 mb-4">
       <div class="carrito-items">
         <div 
@@ -36,7 +32,6 @@
           class="card carrito-item-card mb-3 shadow-sm">
           <div class="card-body">
             <div class="row align-items-center">
-              <!-- Imagen del producto -->
               <div class="col-md-2 col-3">
                 <div class="carrito-image-container" (click)="verDetalleProducto(item.producto.id)">
                   <img
@@ -54,7 +49,6 @@
                 </div>
               </div>
 
-              <!-- Información del producto -->
               <div class="col-md-4 col-9">
                 <h5 class="carrito-product-name mb-1" (click)="verDetalleProducto(item.producto.id)">
                   {{ item.producto.nombre }}
@@ -82,7 +76,6 @@
                 </small>
               </div>
 
-              <!-- Selector de cantidad -->
               <div class="col-md-2 col-6 text-center mt-2 mt-md-0">
                 <label class="form-label small text-muted mb-1">Cantidad</label>
                 <select 
@@ -95,7 +88,6 @@
                 </select>
               </div>
 
-              <!-- Precio -->
               <div class="col-md-2 col-6 text-center mt-2 mt-md-0">
                 <label class="form-label small text-muted mb-1">Total</label>
                 <p class="carrito-price mb-0">
@@ -103,7 +95,6 @@
                 </p>
               </div>
 
-              <!-- Acciones -->
               <div class="col-md-2 col-12 text-center mt-3 mt-md-0">
                 <button 
                   class="btn btn-outline-danger btn-sm w-100 mb-2"
@@ -126,7 +117,6 @@
       </div>
     </div>
 
-    <!-- Resumen del carrito -->
     <div class="col-lg-4">
       <div class="card resumen-card shadow-sm sticky-top">
         <div class="card-header bg-primary text-white">
@@ -136,7 +126,6 @@
           </h5>
         </div>
         <div class="card-body">
-          <!-- ✅ NUEVA SECCIÓN: Selección de tipo de entrega -->
         <div class="tipo-entrega-section mb-4">
           <h6 class="mb-3">
             <i class="fas fa-truck me-2"></i>
@@ -194,7 +183,6 @@
             </label>
           </div>
           
-          <!-- Información del local -->
           <div class="alert alert-info mt-3 mb-0" *ngIf="resumen.tipoEntrega === 'retiro'">
             <small>
               <i class="fas fa-info-circle me-2"></i>
@@ -205,13 +193,11 @@
         </div>
 
         <hr class="mb-4">
-          <!-- Tabs: Concepto y Monto -->
           <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
             <span class="text-muted small">Concepto</span>
             <span class="text-muted small">Monto</span>
           </div>
 
-          <!-- Subtotal -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-dark">
               <i class="fas fa-tag me-2 text-muted"></i>
@@ -220,7 +206,6 @@
             <span class="fw-bold">${{ resumen.subtotal.toFixed(2) }}</span>
           </div>
 
-          <!-- Envío -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-dark">
               <i class="fas fa-truck me-2 text-muted"></i>
@@ -231,7 +216,6 @@
             </span>
           </div>
 
-          <!-- Descuento -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-dark">
               <i class="fas fa-percent me-2 text-muted"></i>
@@ -247,7 +231,6 @@
 
           <hr>
 
-          <!-- Total -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <span class="h5 mb-0">
               <i class="fas fa-receipt me-2 text-primary"></i>
@@ -258,7 +241,6 @@
             </span>
           </div>
 
-          <!-- Botón Completar Compra -->
           <button 
             class="btn btn-primary btn-lg w-100 mb-2"
             (click)="completarCompra()">
@@ -266,7 +248,6 @@
             {{ resumen.tipoEntrega === 'envio' ? 'Completar Compra' : 'Preparar para Retiro' }}
           </button>
 
-          <!-- Info adicional -->
           <div class="alert alert-info mb-0 mt-3" *ngIf="montoMinimoEnvioGratis !== undefined">
             <small>
               <i class="fas fa-info-circle me-2"></i>
@@ -278,7 +259,6 @@
     </div>
   </div>
 
-  <!-- Mensaje cuando el carrito está vacío -->
   <div class="row" *ngIf="!cargando && carrito.length === 0">
     <div class="col-12 text-center">
       <div class="card border-0 shadow-sm">

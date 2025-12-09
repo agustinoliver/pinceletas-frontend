@@ -25,7 +25,6 @@ export interface PedidoResponse {
   preferenciaIdMp: string;
   estadoPagoMp: string;
   items: ItemPedidoResponse[];
-  // Agregar estas propiedades para Mercado Pago
   initPoint?: string;
   sandboxInitPoint?: string;
 }

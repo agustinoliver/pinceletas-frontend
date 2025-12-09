@@ -17,7 +17,6 @@ export interface SystemMetrics {
   uptimePercentage: number;
 }
 
-// Interfaces para Productos
 export interface ProductStatsDto {
   totalProducts: number;
   activeProducts: number;
@@ -41,9 +40,8 @@ export interface TopSellingProductDto {
   averagePrice: number;
 }
 
-// 🆕 NUEVAS INTERFACES PARA PEDIDOS
 export interface OrdersByDateDto {
-  date: string; // LocalDate se convierte a string en JSON
+  date: string;
   totalOrders: number;
   totalRevenue: number;
   completedOrders: number;
@@ -63,16 +61,13 @@ export interface DashboardResponse {
   systemMetrics: SystemMetrics;
   timestamp: string;
   
-  // Productos
   productStats: ProductStatsDto;
   productsByCategory: ProductsByCategoryDto[];
   topSellingProducts: TopSellingProductDto[];
   
-  // 🆕 NUEVOS CAMPOS PARA PEDIDOS
   ordersByDate: OrdersByDateDto[];
   ordersByStatus: OrdersByStatusDto[];
 
-  // 🆕 NUEVO: Compras por usuario
   purchasesByUser: PurchasesByUserDto[];
 }
 

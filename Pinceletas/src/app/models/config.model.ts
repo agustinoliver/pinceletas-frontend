@@ -12,7 +12,6 @@ export interface TerminosCondiciones {
   politicaPrivacidad: string;
 }
 
-// Configuracion del Envio
 export interface ConfiguracionEnvio {
   id?: number;
   nombre: string;
