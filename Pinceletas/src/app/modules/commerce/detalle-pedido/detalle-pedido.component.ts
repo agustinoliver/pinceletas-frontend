@@ -47,7 +47,6 @@ export class DetallePedidoComponent implements OnInit{
   }
 
   volverALista(): void {
-    // Determinar si es admin o usuario normal
     const currentUrl = this.router.url;
     if (currentUrl.includes('/admin/')) {
       this.router.navigate(['/admin/pedidos']);

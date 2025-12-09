@@ -20,7 +20,6 @@ export class FavoritesListComponent implements OnInit{
   favoritosFiltrados: Favorito[] = [];
   cargando = false;
   
-  // Filtros
   filtroNombre: string = '';
   categoriaSeleccionada: string = 'todas';
   categoriasUnicas: string[] = [];
@@ -48,7 +47,6 @@ export class FavoritesListComponent implements OnInit{
     this.commerceService.getFavoritos(this.usuarioId).subscribe({
       next: (data) => {
         console.log('Favoritos recibidos:', data);
-        // ✅ INICIALIZAR opcionSeleccionada para cada favorito
         this.favoritos = data.map(favorito => ({
           ...favorito,
           opcionSeleccionada: undefined
@@ -64,7 +62,6 @@ export class FavoritesListComponent implements OnInit{
       }
     });
   }
-  // ✅ NUEVO: Método para manejar cambios en la selección de opciones
   onOpcionChange(favorito: Favorito): void {
     console.log('Opción seleccionada:', favorito.opcionSeleccionada);
   }
@@ -81,7 +78,6 @@ export class FavoritesListComponent implements OnInit{
   aplicarFiltros(): void {
     let filtrados = [...this.favoritos];
 
-    // Filtro por categoría
     if (this.categoriaSeleccionada !== 'todas') {
       filtrados = filtrados.filter(f => {
         const categoriaNombre = typeof f.producto.categoria === 'string'
@@ -91,7 +87,6 @@ export class FavoritesListComponent implements OnInit{
       });
     }
 
-    // Filtro por nombre
     if (this.filtroNombre.trim() !== '') {
       filtrados = filtrados.filter(f =>
         f.producto.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase())
@@ -111,7 +106,7 @@ export class FavoritesListComponent implements OnInit{
     this.router.navigate(['/productdetail', productoId], { 
       state: { 
         returnUrl: '/favorites',
-        opciones: opciones // Opcional: pasar información de opciones
+        opciones: opciones
       } 
     });
   }
@@ -125,7 +120,6 @@ export class FavoritesListComponent implements OnInit{
       if (result.isConfirmed) {
         this.commerceService.eliminarFavorito(this.usuarioId, favorito.producto.id).subscribe({
           next: () => {
-            // Remover de las listas locales
             this.favoritos = this.favoritos.filter(f => f.id !== favorito.id);
             this.favoritosFiltrados = this.favoritosFiltrados.filter(f => f.id !== favorito.id);
             this.extraerCategoriasUnicas();
@@ -133,7 +127,6 @@ export class FavoritesListComponent implements OnInit{
           },
           error: (error) => {
             console.error('Error eliminando favorito:', error);
-            // ✅ Mostrar mensaje de error más específico
             const mensajeError = error.error?.message || 'Error eliminando de favoritos';
             this.mostrarAlertaError(mensajeError);
           }
@@ -145,7 +138,6 @@ export class FavoritesListComponent implements OnInit{
   agregarAlCarrito(favorito: Favorito, event: Event): void {
     event.stopPropagation();
     
-    // ✅ VALIDAR: Si el producto tiene opciones, debe tener una seleccionada
     if (favorito.producto.opciones && favorito.producto.opciones.length > 0 && !favorito.opcionSeleccionada) {
       this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
       return;

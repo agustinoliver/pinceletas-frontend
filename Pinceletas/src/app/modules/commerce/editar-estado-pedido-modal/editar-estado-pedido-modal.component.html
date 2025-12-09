@@ -1,7 +1,6 @@
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <!-- Header -->
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
           <i class="fas fa-edit me-2"></i>
@@ -10,9 +9,7 @@
         <button type="button" class="btn-close btn-close-white" (click)="cerrar()"></button>
       </div>
 
-      <!-- Body -->
       <div class="modal-body">
-        <!-- Información del pedido -->
         <div class="card border-light bg-light mb-4" *ngIf="pedido">
           <div class="card-body">
             <div class="row">
@@ -40,7 +37,6 @@
           </div>
         </div>
 
-        <!-- Selector de estados -->
         <div class="mb-4">
           <label class="form-label fw-bold mb-3">
             Nuevo Estado <span class="text-danger">*</span>
@@ -77,14 +73,12 @@
             </div>
           </div>
         </div>
-        <!-- Alerta según el estado -->
         <div class="alert" [class]="'alert-' + getTipoAlerta()" *ngIf="getMensajeAlerta()">
           <i class="fas fa-exclamation-triangle me-2"></i>
           <strong>Atención:</strong> {{ getMensajeAlerta() }}
         </div>
       </div>
 
-      <!-- Footer -->
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" (click)="cerrar()">
           <i class="fas fa-times me-2"></i>

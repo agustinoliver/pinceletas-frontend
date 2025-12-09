@@ -1,22 +1,18 @@
-/* favorites-list.component.css - Estilos actualizados para coincidir con product-list */
-
-/* Variables de colores de la empresa */
 :root {
-  --primary-color: #ED620C;    /* Naranja principal */
-  --accent-color: #EBED6D;     /* Amarillo de acento */
-  --primary-hover: #d4560a;    /* Naranja más oscuro para hover */
-  --accent-hover: #e0e25a;     /* Amarillo más oscuro para hover */
-  --text-dark: #2c3e50;        /* Texto oscuro formal */
-  --text-light: #6c757d;       /* Texto secundario */
-  --bg-light: #f8f9fa;         /* Fondo claro */
-  --border-color: #e9ecef;     /* Color de bordes */
-  --danger-color: #dc3545;     /* Color para elementos de peligro */
+  --primary-color: #ED620C;
+  --accent-color: #EBED6D;
+  --primary-hover: #d4560a;
+  --accent-hover: #e0e25a;
+  --text-dark: #2c3e50;
+  --text-light: #6c757d;
+  --bg-light: #f8f9fa;
+  --border-color: #e9ecef;
+  --danger-color: #dc3545;
 }
 
-/* TARJETAS ACTUALIZADAS PARA COINCIDIR CON PRODUCT-LIST */
 .favorite-card {
   transition: all 0.3s ease;
-  border: 2px solid #000000 !important; /* Borde negro más grueso */
+  border: 2px solid #000000 !important;
   background: white;
   border-radius: 16px !important;
   overflow: hidden;
@@ -33,7 +29,6 @@
   color: var(--primary-color);
 }
 
-/* Contenedor de imagen actualizado */
 .image-container {
   position: relative;
   width: 100%;
@@ -59,11 +54,10 @@
   transform: scale(1.08);
 }
 
-/* Badge de favorito posicionado correctamente */
 .favorite-badge {
   position: absolute;
   top: 10px;
-  left: 10px; /* Cambié a left para no interferir con el badge de descuento */
+  left: 10px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   width: 40px;
@@ -81,12 +75,10 @@
   color: var(--primary-color);
 }
 
-/* Card body con bordes redondeados */
 .favorite-card .card-body {
   border-radius: 0 0 14px 14px !important;
 }
 
-/* Placeholder para imágenes */
 .image-placeholder {
   display: flex;
   flex-direction: column;
@@ -102,15 +94,12 @@
   color: var(--primary-color);
 }
 
-/* Filtros actualizados */
 .filtros-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-left: 4px solid var(--primary-color) !important;
   border-radius: 12px !important;
-  /* Quité el border: 1px solid #000000 !important; */
 }
 
-/* Botones personalizados */
 .btn-group .btn {
   border-radius: 0.375rem;
   transition: all 0.3s ease;
@@ -141,7 +130,6 @@
   border-color: var(--danger-color);
 }
 
-/* Mejoras en los formularios */
 .form-select:focus,
 .form-control:focus {
   border-color: var(--primary-color);
@@ -169,7 +157,6 @@
   color: var(--text-dark) !important;
 }
 
-/* Badge personalizado */
 .badge.bg-accent {
   font-size: 0.75rem;
   font-weight: 500;
@@ -181,7 +168,6 @@
   background-color: var(--text-light) !important;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .image-container {
     height: 200px;
@@ -204,7 +190,6 @@
   }
 }
 
-/* Mejora en la legibilidad */
 .card-title {
   color: var(--text-dark);
   font-weight: 600;
@@ -215,14 +200,12 @@
   color: var(--text-light) !important;
 }
 
-/* Alertas personalizadas */
 .alert-info {
   background-color: rgba(237, 98, 12, 0.1);
   border-color: rgba(237, 98, 12, 0.2);
   color: var(--text-dark);
 }
 
-/* Sombra base para las cards */
 .shadow-sm {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }

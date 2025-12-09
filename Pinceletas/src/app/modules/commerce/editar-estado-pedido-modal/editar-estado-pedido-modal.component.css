@@ -37,7 +37,6 @@
   padding: 1rem 2rem;
 }
 
-/* Tarjetas de estado */
 .estado-card {
   transition: all 0.3s ease;
   border: 2px solid var(--border-color);
@@ -62,7 +61,6 @@
   padding: 1rem;
 }
 
-/* Form check en estados */
 .form-check {
   margin-bottom: 0;
 }
@@ -85,7 +83,6 @@
   color: var(--text-dark);
 }
 
-/* Iconos de estado */
 .fa-2x {
   font-size: 2rem;
 }
@@ -110,7 +107,6 @@
   color: var(--danger-color) !important;
 }
 
-/* Alertas del modal */
 .alert {
   border-radius: 8px;
   border: none;
@@ -133,7 +129,6 @@
   color: #856404;
 }
 
-/* Información del pedido en modal */
 .bg-light {
   background-color: var(--bg-light) !important;
 }
@@ -142,7 +137,6 @@
   border: 1px solid var(--border-color) !important;
 }
 
-/* Botones del modal */
 .btn-outline-secondary {
   border-width: 2px;
 }
@@ -168,7 +162,6 @@
   filter: brightness(0) invert(1);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .modal-dialog {
     margin: 1rem;
