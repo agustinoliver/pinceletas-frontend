@@ -15,7 +15,6 @@ import Swal from 'sweetalert2';
   styleUrl: './product-create.component.css'
 })
 export class ProductCreateComponent implements OnInit {
-  // Datos del formulario de producto
   producto = {
     nombre: '',
     descripcion: '',
@@ -28,8 +27,6 @@ export class ProductCreateComponent implements OnInit {
     descuentoPorcentaje: 0
   };
   
-
-  // Datos para nuevas categorías y opciones
   nuevaCategoria = {
     nombre: ''
   };
@@ -38,18 +35,15 @@ export class ProductCreateComponent implements OnInit {
     tipo: ''
   };
 
-  // Listas para selects
   categorias: Categoria[] = [];
   opciones: OpcionProducto[] = [];
   opcionesSeleccionadas: number[] = [];
 
-  // Estados
   cargando = false;
   mensaje = '';
   tipoMensaje: 'success' | 'error' | '' = '';
   imagenPrevia: string[] = [];
 
-  // Estados para eliminación
   eliminandoCategoria: number | null = null;
   eliminandoOpcion: number | null = null;
 
@@ -214,14 +208,12 @@ export class ProductCreateComponent implements OnInit {
   onImagenSeleccionada(event: any): void {
     const files = event.target.files;
     if (files && files.length > 0) {
-      // Limitar a 5 imágenes máximo
       const maxFiles = Math.min(files.length, 5);
       
       for (let i = 0; i < maxFiles; i++) {
         const file = files[i];
         this.producto.imagenes.push(file);
         
-        // Crear preview
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.imagenPrevia.push(e.target.result);
@@ -231,7 +223,6 @@ export class ProductCreateComponent implements OnInit {
     }
   }
 
-  // ✅ NUEVO: Eliminar una imagen seleccionada
   eliminarImagen(index: number): void {
     this.producto.imagenes.splice(index, 1);
     this.imagenPrevia.splice(index, 1);
@@ -300,7 +291,6 @@ export class ProductCreateComponent implements OnInit {
     });
   }
 
-  // Métodos de SweetAlert
   private mostrarAlertaExito(mensaje: string): Promise<any> {
     return Swal.fire({
       title: '¡Éxito!',
@@ -375,12 +365,10 @@ export class ProductCreateComponent implements OnInit {
     });
   }
 
-  // Verificar si una categoría puede ser eliminada (no tiene productos)
   puedeEliminarCategoria(categoria: Categoria): boolean {
     return !categoria.productos || categoria.productos.length === 0;
   }
 
-  // Obtener el texto del tooltip para categorías
   getTooltipCategoria(categoria: Categoria): string {
     if (this.puedeEliminarCategoria(categoria)) {
       return 'Eliminar categoría';
@@ -388,22 +376,17 @@ export class ProductCreateComponent implements OnInit {
       return 'No se puede eliminar: La categoría tiene productos asociados';
     }
   }
-  // Verifica si el descuento es válido (entero entre 1 y 100)
   esDescuentoValido(valor: any): boolean {
     const num = Number(valor);
 
-    // Permitir exactamente 0
     if (num === 0) return true;
 
-    // Permitir solo enteros entre 1 y 100
     return Number.isInteger(num) && num >= 1 && num <= 100;
   }
 
-  // Corrige automáticamente valores inválidos al tipear
   validarDescuento(): void {
     const num = Number(this.producto.descuentoPorcentaje);
     if (!this.esDescuentoValido(num)) {
-      // Solo marcar en rojo visualmente, no modifica el valor
     }
   }
 

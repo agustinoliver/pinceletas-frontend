@@ -1,4 +1,3 @@
-<!-- product-detail.component.html -->
 <div class="container mt-4" *ngIf="producto">
   <div class="row">
     <div class="col-12 mb-3">
@@ -9,9 +8,7 @@
   </div>
 
   <div class="row">
-    <!-- Galería de imágenes del producto -->
     <div class="col-md-6 mb-4">
-      <!-- Carrusel de imágenes del producto -->
       <div class="image-container-detail position-relative" *ngIf="producto?.imagenes?.length">
         <div *ngIf="tieneDescuento()" class="position-absolute top-0 end-0 m-3">
           <span class="badge bg-danger p-2" style="font-size: 1rem;">
@@ -32,7 +29,6 @@
             </div>
           </div>
 
-          <!-- Controles del carrusel -->
           <button class="carousel-control-prev" type="button" data-bs-target="#carouselProducto" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Anterior</span>
@@ -44,20 +40,17 @@
         </div>
       </div>
 
-      <!-- Placeholder cuando no hay imágenes -->
       <div class="image-placeholder-detail" *ngIf="!producto?.imagenes?.length">
         <i class="fas fa-image fa-3x"></i>
         <span>Imagen no disponible</span>
       </div>
     </div>
 
-    <!-- Información del producto -->
     <div class="col-md-6">
       <div class="product-info">
         <h1 class="product-title mb-3">{{ producto.nombre }}</h1>
         <p class="product-description text-muted mb-4">{{ producto.descripcion }}</p>
         
-        <!-- Sección de precios -->
         <div class="price-section mb-4 p-3 bg-light rounded">
           <div *ngIf="tieneDescuento()">
             <p class="text-muted text-decoration-line-through mb-2" style="font-size: 1.1rem;">
@@ -78,7 +71,6 @@
           </div>
         </div>
 
-        <!-- Selector de opciones - SOLO si el producto tiene opciones -->
         <div class="options-section mb-4" *ngIf="producto.opciones && producto.opciones.length > 0">
           <label class="form-label fw-bold">Selecciona una opción:</label>
           <select 
@@ -97,7 +89,6 @@
           </small>
         </div>
 
-        <!-- Botones de acción -->
         <div class="action-buttons">
           <button 
             class="btn btn-primary btn-lg me-3"
@@ -116,7 +107,6 @@
           </button>
         </div>
 
-        <!-- Información adicional -->
         <div class="product-meta mt-4 pt-4 border-top">
           <div class="row">
             <div class="col-6">
@@ -140,7 +130,6 @@
   </div>
 </div>
 
-<!-- Loading state -->
 <div class="container mt-4" *ngIf="!producto">
   <div class="row">
     <div class="col-12 text-center">

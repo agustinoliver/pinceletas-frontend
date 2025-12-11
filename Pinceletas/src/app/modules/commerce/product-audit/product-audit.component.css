@@ -1,6 +1,3 @@
-/* product-audit.component.css */
-
-/* Estilos generales */
 .container {
   max-width: 1200px;
 }
@@ -20,7 +17,6 @@
   background-color: #f8f9fc !important;
 }
 
-/* Botones del selector de tipo */
 .btn-group {
   border-radius: 0.5rem;
   overflow: hidden;
@@ -49,7 +45,6 @@
   transform: translateY(-1px);
 }
 
-/* Badges */
 .badge {
   font-size: 0.75em;
   font-weight: 500;
@@ -77,7 +72,6 @@
   background-color: #36b9cc !important;
 }
 
-/* Estilos para las tablas de auditoría */
 .table {
   margin-bottom: 0;
   border-collapse: separate;
@@ -105,7 +99,6 @@
   box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
 }
 
-/* Colores para las diferentes acciones */
 .table-success th {
   background-color: #d1eddd !important;
   color: #0f5132;
@@ -124,7 +117,6 @@
   border-color: #f1b0b7;
 }
 
-/* Estilos para filas modificadas */
 .table-warning td {
   background-color: #fffdf6;
 }
@@ -139,7 +131,6 @@
   font-weight: 500;
 }
 
-/* Estilos para los filtros */
 .form-label {
   font-weight: 600;
   color: #5a5c69;
@@ -159,7 +150,6 @@
   box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
 }
 
-/* Alertas */
 .alert {
   border: none;
   border-radius: 0.5rem;
@@ -178,19 +168,16 @@
   border-left: 4px solid #dc3545;
 }
 
-/* Loading spinner */
 .spinner-border {
   width: 3rem;
   height: 3rem;
   border-width: 0.3em;
 }
 
-/* Iconos */
 .fas {
   opacity: 0.8;
 }
 
-/* Mejoras de espaciado */
 .mb-4 {
   margin-bottom: 1.5rem !important;
 }
@@ -204,7 +191,6 @@
   padding-bottom: 3rem !important;
 }
 
-/* Títulos */
 h1, h2, h3, h4, h5, h6 {
   color: #5a5c69;
   font-weight: 600;
@@ -218,7 +204,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #1cc88a !important;
 }
 
-/* Estados hover para botones */
 .btn-outline-primary:hover {
   background-color: #4e73df;
   border-color: #4e73df;
@@ -231,7 +216,6 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-1px);
 }
 
-/* ✅ MEJORADO: Miniaturas de imágenes */
 .audit-thumbnail {
   width: 50px;
   height: 50px;
@@ -250,7 +234,6 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
-/* Contenedor de miniaturas */
 .position-relative {
   transition: transform 0.2s ease;
 }
@@ -259,19 +242,16 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
-/* Badges para estados activo/inactivo */
 .badge.bg-success, .badge.bg-danger {
   font-size: 0.7em;
   padding: 0.3em 0.6em;
 }
 
-/* Mejoras para textos */
 .text-muted {
   color: #6c757d !important;
   font-style: italic;
 }
 
-/* Responsive improvements */
 @media (max-width: 768px) {
   .btn-group {
     flex-direction: column;
@@ -306,7 +286,6 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
   }
 
-  /* Miniaturas más pequeñas en móviles */
   .audit-thumbnail {
     width: 35px;
     height: 35px;
@@ -339,37 +318,30 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Efectos de transición suaves */
 .card, .btn, .badge, .table {
   transition: all 0.3s ease-in-out;
 }
 
-/* Mejora visual para textos muted */
 .text-muted {
   color: #858796 !important;
 }
 
-/* Sombra suave para cards */
 .shadow-sm {
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
-/* Estilo para cuando no hay datos */
 .text-center.text-muted {
   font-style: italic;
 }
 
-/* Mejora para los badges dentro de los botones */
 .btn .badge {
   transform: scale(0.9);
 }
 
-/* Scroll suave */
 html {
   scroll-behavior: smooth;
 }
 
-/* Mejoras para tablas en modo comparación */
 .table-warning td.text-danger {
   background-color: rgba(231, 74, 59, 0.1);
 }

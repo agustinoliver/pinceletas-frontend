@@ -1,10 +1,7 @@
 <div class="container-fluid product-edit-container py-4">
   <div class="row justify-content-center">
     <div class="col-12 col-lg-10 col-xl-8">
-      
-      <!-- Eliminamos los mensajes de alerta nativos ya que usamos SweetAlert -->
-
-      <!-- Loading del producto -->
+    
       <div *ngIf="cargandoProducto" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando producto...</span>
@@ -12,7 +9,6 @@
         <p class="text-muted mt-2">Cargando producto...</p>
       </div>
 
-      <!-- Agregar este loading después del loading del producto -->
         <div *ngIf="cargandoCategorias" class="text-center py-3">
           <div class="spinner-border spinner-border-sm text-primary" role="status">
             <span class="visually-hidden">Cargando categorías...</span>
@@ -20,7 +16,6 @@
           <small class="text-muted ms-2">Cargando categorías...</small>
         </div>
 
-      <!-- Card principal -->
       <div *ngIf="!cargandoProducto" class="card shadow-lg">
         <div class="card-header bg-warning text-dark">
           <div class="d-flex justify-content-between align-items-center">
@@ -35,7 +30,6 @@
         <div class="card-body" [class.loading]="cargando">
           <form (ngSubmit)="actualizarProducto()" #productoForm="ngForm">
             
-            <!-- Información Básica del Producto -->
             <div class="form-section">
               <h5 class="section-title">
                 <i class="fas fa-info-circle me-2"></i>
@@ -43,7 +37,6 @@
               </h5>
               
               <div class="row">
-                <!-- Nombre -->
                 <div class="col-md-6 mb-3">
                   <label for="nombre" class="form-label required-field">Nombre del Producto</label>
                   <input
@@ -58,7 +51,6 @@
                   >
                 </div>
 
-                <!-- Precio -->
                 <div class="col-md-6 mb-3">
                   <label for="precio" class="form-label required-field">Precio</label>
                   <div class="input-group">
@@ -78,7 +70,6 @@
                   </div>
                 </div>
 
-                <!-- Descuento Porcentaje -->
                 <div class="col-md-6 mb-3">
                   <label for="descuento" class="form-label">Descuento (%)</label>
                   <div class="input-group">
@@ -105,7 +96,6 @@
                 </div>
 
 
-                <!-- Precio Final Calculado (solo lectura) -->
                 <div class="col-md-6 mb-3" *ngIf="producto.precio > 0">
                   <label class="form-label">Precio Final</label>
                   <div class="input-group">
@@ -122,7 +112,6 @@
                   </small>
                 </div>
 
-                <!-- Descripción -->
                 <div class="col-12 mb-3">
                   <label for="descripcion" class="form-label">Descripción</label>
                   <textarea
@@ -136,11 +125,9 @@
                   ></textarea>
                 </div>
 
-                <!-- Imagen -->
                 <div class="col-12 mb-3">
                   <label for="imagenes" class="form-label">Imágenes del Producto</label>
                   
-                  <!-- Imágenes actuales -->
                   <div *ngIf="producto.imagenesActuales && producto.imagenesActuales.length > 0 && !imagenesCambiadas" class="mb-3">
                     <label class="form-label fw-bold">Imágenes actuales:</label>
                     <div class="row">
@@ -163,7 +150,6 @@
                     </div>
                   </div>
 
-                  <!-- Nuevas imágenes -->
                   <input
                     type="file"
                     id="imagenes"
@@ -176,7 +162,6 @@
                   >
                   <div class="form-text">Puedes seleccionar hasta 5 imágenes. Formatos: JPG, PNG, GIF.</div>
 
-                  <!-- Opción para mantener imágenes existentes -->
                   <div class="form-check mt-2" *ngIf="producto.imagenesActuales && producto.imagenesActuales.length > 0">
                     <input
                       class="form-check-input"
@@ -190,7 +175,6 @@
                     </label>
                   </div>
                   
-                  <!-- Preview de nuevas imágenes -->
                   <div *ngIf="imagenPrevia.length > 0 && imagenesCambiadas" class="mt-3">
                     <label class="form-label fw-bold">Nuevas imágenes (vista previa):</label>
                     <div class="row">
@@ -214,7 +198,6 @@
                   </div>
                 </div>
 
-                <!-- Estado Activo -->
                 <div class="col-12 mb-3">
                   <div class="form-check form-switch">
                     <input
@@ -233,7 +216,6 @@
               </div>
             </div>
 
-            <!-- Categoría -->
             <div class="form-section">
               <h5 class="section-title">
                 <i class="fas fa-tags me-2"></i>
@@ -257,7 +239,6 @@
                     </option>
                   </select>
                   
-                  <!-- Lista de categorías con botones de eliminar -->
                   <div class="mt-2">
                     <label class="form-label small">Categorías existentes:</label>
                     <div class="categorias-list">
@@ -279,7 +260,6 @@
                   </div>
                 </div>
 
-                <!-- Crear Nueva Categoría -->
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Crear Nueva Categoría</label>
                   <div class="input-group">
@@ -306,14 +286,12 @@
               </div>
             </div>
 
-            <!-- Opciones de Producto -->
             <div class="form-section">
               <h5 class="section-title">
                 <i class="fas fa-cog me-2"></i>
                 Opciones del Producto
               </h5>
               
-              <!-- Opciones existentes -->
               <div class="mb-4">
                 <label class="form-label">Seleccionar Opciones Existentes</label>
                 <div class="options-container">
@@ -352,7 +330,6 @@
                 </div>
               </div>
 
-              <!-- Crear Nueva Opción -->
               <div class="mb-3">
                 <label class="form-label">Crear Nueva Opción</label>
                 <div class="input-group">
@@ -378,7 +355,6 @@
               </div>
             </div>
 
-            <!-- Botones de Acción -->
             <div class="form-section">
               <div class="row">
                 <div class="col-12">

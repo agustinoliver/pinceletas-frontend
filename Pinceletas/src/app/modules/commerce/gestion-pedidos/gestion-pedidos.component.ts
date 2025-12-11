@@ -19,16 +19,13 @@ export class GestionPedidosComponent implements OnInit {
   pedidosFiltrados: PedidoResponse[] = [];
   cargando = false;
 
-  // ✅ NUEVO: Para el modal
   mostrarModalEditarEstado = false;
   pedidoSeleccionado: PedidoResponse | null = null;
   
-  // Filtros
   filtroNumeroPedido: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   
-  // Estados disponibles
   estados = ['PENDIENTE', 'PENDIENTE_PAGO', 'PAGADO', 'PROCESANDO', 'ENVIADO', 'ENTREGADO', 'CANCELADO', 'REEMBOLSADO'];
   
   private intervaloRefresh: any;
@@ -46,12 +43,11 @@ export class GestionPedidosComponent implements OnInit {
   
 
   cargarPedidos(): void {
-    if (this.cargando) return; // Evitar carga simultánea
+    if (this.cargando) return;
     
     this.cargando = true;
     this.pedidoService.obtenerTodosLosPedidos().subscribe({
       next: (data) => {
-        // Ordenar por fecha de creación descendente (más recientes primero)
         this.pedidos = data.sort((a, b) => 
           new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()
         );
@@ -69,14 +65,12 @@ export class GestionPedidosComponent implements OnInit {
   aplicarFiltros(): void {
     let filtrados = [...this.pedidos];
 
-    // Filtro por número de pedido
     if (this.filtroNumeroPedido.trim() !== '') {
       filtrados = filtrados.filter(pedido =>
         pedido.numeroPedido.toLowerCase().includes(this.filtroNumeroPedido.toLowerCase())
       );
     }
 
-    // Filtro por fecha inicio
     if (this.filtroFechaInicio) {
       const fechaInicio = new Date(this.filtroFechaInicio);
       filtrados = filtrados.filter(pedido => 
@@ -84,7 +78,6 @@ export class GestionPedidosComponent implements OnInit {
       );
     }
 
-    // Filtro por fecha fin
     if (this.filtroFechaFin) {
       const fechaFin = new Date(this.filtroFechaFin);
       fechaFin.setHours(23, 59, 59, 999);
@@ -114,7 +107,6 @@ export class GestionPedidosComponent implements OnInit {
     
     this.pedidoService.actualizarEstadoPedido(this.pedidoSeleccionado.id, estadoUpdate).subscribe({
       next: (pedidoActualizado) => {
-        // Actualizar el pedido en la lista local
         const index = this.pedidos.findIndex(p => p.id === this.pedidoSeleccionado!.id);
         if (index !== -1) {
           this.pedidos[index] = pedidoActualizado;
@@ -164,13 +156,11 @@ export class GestionPedidosComponent implements OnInit {
         return 'badge bg-secondary';
     }
   }
-  // ✅ NUEVO: Abrir modal en lugar de dropdown
   abrirModalEditarEstado(pedido: PedidoResponse): void {
     this.pedidoSeleccionado = pedido;
     this.mostrarModalEditarEstado = true;
   }
 
-  // ✅ NUEVO: Cerrar modal
   cerrarModal(): void {
     this.mostrarModalEditarEstado = false;
     this.pedidoSeleccionado = null;

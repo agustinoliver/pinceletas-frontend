@@ -20,7 +20,7 @@ export class ProductDetailComponent implements OnInit {
   producto: Producto | null = null;
   opcionSeleccionada: number | null = null;
   esFavorito: boolean = false;
-  imagenPrincipal: string = ''; // ✅ NUEVO: Imagen actualmente mostrada
+  imagenPrincipal: string = '';
   
   private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId: number = 1;
@@ -31,7 +31,7 @@ export class ProductDetailComponent implements OnInit {
     private router: Router,
     private commerceService: CommerceService,
     private authService: UserAuthService,
-    private animationService: AnimationService // ✅ AÑADIR
+    private animationService: AnimationService
   ) {}
 
   ngOnInit(): void {
@@ -56,15 +56,13 @@ export class ProductDetailComponent implements OnInit {
     this.commerceService.getProductoById(id).subscribe({
       next: (producto) => {
         this.producto = producto;
-        console.log('📸 Producto cargado:', producto); // ✅ DEBUG
-        console.log('📸 Imágenes del producto:', producto.imagenes);
+        console.log(' Producto cargado:', producto);
+        console.log(' Imágenes del producto:', producto.imagenes);
         
-        // ✅ CORREGIDO: Establecer imagen principal
         if (producto.imagenes && producto.imagenes.length > 0) {
           this.imagenPrincipal = producto.imagenes[0];
         }
         
-        // Si solo hay una opción, seleccionarla automáticamente
         if (producto.opciones && producto.opciones.length === 1) {
           this.opcionSeleccionada = producto.opciones[0].id;
         }
@@ -76,16 +74,14 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  // ✅ NUEVO: Cambiar imagen principal
   cambiarImagenPrincipal(imagen: string): void {
-    console.log('🖱️ Cambiando imagen principal a:', imagen);
-    console.log('🖱️ URL completa nueva imagen:', this.getImagenUrl(imagen));
+    console.log(' Cambiando imagen principal a:', imagen);
+    console.log(' URL completa nueva imagen:', this.getImagenUrl(imagen));
     this.imagenPrincipal = imagen;
   }
 
-  // ✅ NUEVO: Manejar error en miniaturas
   handleThumbnailError(event: any): void {
-    console.error('❌ Error cargando miniatura:', event);
+    console.error(' Error cargando miniatura:', event);
     const target = event.target;
     target.style.display = 'none';
   }
@@ -109,14 +105,12 @@ export class ProductDetailComponent implements OnInit {
   toggleFavorito(): void {
   if (!this.producto) return;
 
-  // ✅ VERIFICAR SI ESTÁ LOGEADO
   const currentUser = this.authService.getCurrentUser();
   if (!currentUser) {
     this.mostrarAlertaLogin('agregar productos a favoritos');
     return;
   }
 
-  // Si está logeado, continuar con la lógica normal
   if (this.esFavorito) {
     this.commerceService.eliminarFavorito(this.usuarioId, this.producto.id).subscribe({
       next: () => {
@@ -154,15 +148,15 @@ export class ProductDetailComponent implements OnInit {
 
   getImagenUrl(imagenPath: string): string {
     if (!imagenPath) {
-      console.warn('❌ imagenPath está vacío');
+      console.warn(' imagenPath está vacío');
       return '';
     }
     if (imagenPath.startsWith('http')) {
-      console.log('🌐 URL ya es completa:', imagenPath);
+      console.log(' URL ya es completa:', imagenPath);
       return imagenPath;
     }
     const urlCompleta = `${this.backendUrl}${imagenPath}`;
-    console.log('🔗 URL construida:', urlCompleta);
+    console.log(' URL construida:', urlCompleta);
     return urlCompleta;
   }
 
@@ -175,21 +169,19 @@ export class ProductDetailComponent implements OnInit {
   }
 
   handleImageError(event: any): void {
-    console.error('❌ Error cargando imagen principal:', event);
+    console.error(' Error cargando imagen principal:', event);
     event.target.style.display = 'none';
   }
 
   agregarAlCarrito(): void {
   if (!this.producto) return;
 
-  // ✅ VERIFICAR SI ESTÁ LOGEADO
   const currentUser = this.authService.getCurrentUser();
   if (!currentUser) {
     this.mostrarAlertaLogin('agregar productos al carrito');
     return;
   }
 
-  // Verificar opciones (solo si está logeado)
   if (this.producto.opciones && this.producto.opciones.length > 0 && !this.opcionSeleccionada) {
     this.mostrarAlertaError('Por favor selecciona una opción antes de agregar al carrito');
     return;
@@ -221,7 +213,6 @@ export class ProductDetailComponent implements OnInit {
   });
 }
 
-  // ✅ NUEVO: Método para mostrar alerta y redirigir al login
 private mostrarAlertaLogin(accion: string): void {
   Swal.fire({
     title: '¡Inicia sesión!',
@@ -235,7 +226,6 @@ private mostrarAlertaLogin(accion: string): void {
     reverseButtons: true
   }).then((result) => {
     if (result.isConfirmed) {
-      // Guardar la URL actual para volver después del login
       this.router.navigate(['/login'], {
         queryParams: { returnUrl: this.router.url }
       });

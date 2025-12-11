@@ -26,11 +26,9 @@ export class ProductAuditComponent implements OnInit {
   cargando: boolean = false;
   error: string = '';
 
-  // Cache para categorías y opciones
   categoriasCache: Map<number, string> = new Map();
   opcionesCache: Map<number, string> = new Map();
 
-  // Filtros
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   filtroAccion: string = 'todas';
@@ -47,7 +45,6 @@ export class ProductAuditComponent implements OnInit {
   cargarDatosIniciales() {
     this.cargando = true;
     
-    // Cargar categorías y opciones primero
     forkJoin({
       categorias: this.commerceService.getCategoriasConProductos(),
       opciones: this.commerceService.getOpcionesProductos()
@@ -56,12 +53,10 @@ export class ProductAuditComponent implements OnInit {
         console.log('Categorías cargadas:', result.categorias);
         console.log('Opciones cargadas:', result.opciones);
         
-        // Llenar cache de categorías
         result.categorias.forEach(cat => {
           this.categoriasCache.set(cat.id, cat.nombre);
         });
         
-        // Llenar cache de opciones
         result.opciones.forEach(op => {
           this.opcionesCache.set(op.id, op.tipo);
         });
@@ -69,7 +64,6 @@ export class ProductAuditComponent implements OnInit {
         console.log('Cache de categorías:', this.categoriasCache);
         console.log('Cache de opciones:', this.opcionesCache);
         
-        // Ahora cargar las auditorías
         this.cargarAuditoriasProductos();
       },
       error: (err) => {
@@ -144,12 +138,10 @@ export class ProductAuditComponent implements OnInit {
 
   filtrarAuditorias(auditorias: any[]): any[] {
     return auditorias.filter(auditoria => {
-      // Filtro por acción
       if (this.filtroAccion !== 'todas' && auditoria.accion !== this.filtroAccion) {
         return false;
       }
 
-      // Filtro por fecha
       const fechaAuditoria = new Date(auditoria.fechaAccion);
       
       if (this.filtroFechaInicio) {
@@ -161,7 +153,7 @@ export class ProductAuditComponent implements OnInit {
 
       if (this.filtroFechaFin) {
         const fechaFin = new Date(this.filtroFechaFin);
-        fechaFin.setHours(23, 59, 59, 999); // Incluir todo el día
+        fechaFin.setHours(23, 59, 59, 999);
         if (fechaAuditoria > fechaFin) {
           return false;
         }
@@ -226,7 +218,6 @@ export class ProductAuditComponent implements OnInit {
     }
   }
 
-  // Métodos para productos
   obtenerCambiosProducto(auditoria: AuditoriaProducto): any {
     const anteriores = this.parseJson(auditoria.valoresAnteriores);
     const nuevos = this.parseJson(auditoria.valoresNuevos);
@@ -236,7 +227,6 @@ export class ProductAuditComponent implements OnInit {
     console.log('Valores anteriores:', anteriores);
     console.log('Valores nuevos:', nuevos);
 
-    // Filtrar campos y ordenar
     const camposFiltradosAnteriores = this.filtrarYOrdenarCamposProducto(anteriores);
     const camposFiltradosNuevos = this.filtrarYOrdenarCamposProducto(nuevos);
 
@@ -270,14 +260,12 @@ export class ProductAuditComponent implements OnInit {
     return ['nombre', 'precio', 'descuentoPorcentaje', 'descripcion', 'imagenes', 'activo', 'categoriaId', 'opcionesIds'];
   }
 
-  // Métodos para categorías (solo nombre)
   obtenerCambiosCategoria(auditoria: AuditoriaCategoria): any {
     const anteriores = this.parseJson(auditoria.valoresAnteriores);
     const nuevos = this.parseJson(auditoria.valoresNuevos);
     
     if (!anteriores && !nuevos) return null;
 
-    // Filtrar solo nombre
     const filtrarCampos = (obj: any) => {
       if (!obj) return null;
       const filtrado: any = {};
@@ -317,7 +305,6 @@ export class ProductAuditComponent implements OnInit {
     return camposModificados;
   }
 
-  // ✅ MÉTODO MEJORADO: Formatear valores para mostrar
   getValorFormateado(campo: string, valor: any): string {
     if (valor === null || valor === undefined) return '-';
     
@@ -339,15 +326,13 @@ export class ProductAuditComponent implements OnInit {
         }
         return '<span class="text-muted">Sin opciones</span>';
       case 'categoriaId':
-        // USAR EL CACHE DE CATEGORÍAS
         const categoriaNombre = this.categoriasCache.get(Number(valor));
         return categoriaNombre ? 
           `<span class="badge bg-info text-dark">${categoriaNombre}</span>` : 
           `<span class="text-muted">Categoría ${valor}</span>`;
       case 'id':
-        return ''; // No mostrar ID
+        return '';
       default:
-        // Para texto largo como descripción, limitar longitud
         if (campo === 'descripcion' && String(valor).length > 100) {
           return String(valor).substring(0, 100) + '...';
         }
@@ -370,13 +355,11 @@ export class ProductAuditComponent implements OnInit {
     return nombres[campo] || campo;
   }
 
-  // ✅ MÉTODO MEJORADO: Para mostrar imágenes en formato visual
   getImagenesPreview(imagenes: any): string {
     if (!imagenes || !Array.isArray(imagenes) || imagenes.length === 0) {
       return '<span class="text-muted">Sin imágenes</span>';
     }
 
-    // Si es un array de strings (URLs)
     const urls = imagenes.filter(img => typeof img === 'string');
     
     if (urls.length === 0) {
@@ -410,7 +393,6 @@ export class ProductAuditComponent implements OnInit {
     `;
   }
 
-  // ✅ MÉTODO AUXILIAR: Para formateo simple (sin HTML)
   formatearValor(campo: string, valor: any): string {
     if (valor === null || valor === undefined) return '-';
     

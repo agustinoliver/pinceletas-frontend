@@ -19,7 +19,6 @@ export class MisPedidosComponent implements OnInit{
   pedidosFiltrados: PedidoResponse[] = [];
   cargando = false;
   
-  // Filtros
   filtroNumeroPedido: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
@@ -49,12 +48,11 @@ export class MisPedidosComponent implements OnInit{
   
 
   cargarPedidos(): void {
-    if (this.cargando) return; // Evitar carga simultánea
+    if (this.cargando) return;
     
     this.cargando = true;
     this.pedidoService.obtenerPedidosPorUsuario(this.usuarioId).subscribe({
       next: (data) => {
-        // Ordenar por fecha de creación descendente (más recientes primero)
         this.pedidos = data.sort((a, b) => 
           new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()
         );
@@ -72,14 +70,12 @@ export class MisPedidosComponent implements OnInit{
   aplicarFiltros(): void {
     let filtrados = [...this.pedidos];
 
-    // Filtro por número de pedido
     if (this.filtroNumeroPedido.trim() !== '') {
       filtrados = filtrados.filter(pedido =>
         pedido.numeroPedido.toLowerCase().includes(this.filtroNumeroPedido.toLowerCase())
       );
     }
 
-    // Filtro por fecha inicio
     if (this.filtroFechaInicio) {
       const fechaInicio = new Date(this.filtroFechaInicio);
       filtrados = filtrados.filter(pedido => 
@@ -87,7 +83,6 @@ export class MisPedidosComponent implements OnInit{
       );
     }
 
-    // Filtro por fecha fin
     if (this.filtroFechaFin) {
       const fechaFin = new Date(this.filtroFechaFin);
       fechaFin.setHours(23, 59, 59, 999);

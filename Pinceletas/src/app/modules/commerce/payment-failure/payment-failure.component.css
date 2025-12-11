@@ -40,7 +40,6 @@
   padding: 3rem 2rem;
 }
 
-/* Responsive para todos los payment */
 @media (max-width: 768px) {
   .payment-failure-card .card-body,
   .payment-pending-card .card-body {

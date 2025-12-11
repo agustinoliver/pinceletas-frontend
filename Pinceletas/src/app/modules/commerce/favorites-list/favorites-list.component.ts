@@ -152,7 +152,6 @@ export class FavoritesListComponent implements OnInit{
     this.commerceService.agregarAlCarrito(this.usuarioId, carritoRequest).subscribe({
       next: () => {
         this.mostrarAlertaExito(`"${favorito.producto.nombre}" agregado al carrito`);
-        // ✅ OPCIONAL: Limpiar la selección después de agregar
         favorito.opcionSeleccionada = undefined;
       },
       error: (error) => {
@@ -198,7 +197,6 @@ export class FavoritesListComponent implements OnInit{
     return (favorito.producto.descuentoPorcentaje || 0) > 0;
   }
 
-  // Métodos SweetAlert
   private mostrarAlertaExito(mensaje: string): void {
     Swal.fire({
       title: '¡Éxito!',
@@ -235,7 +233,6 @@ export class FavoritesListComponent implements OnInit{
   }
 
   getCategoriaNombre(favorito: Favorito): string {
-  // Si categoria es null/undefined o nombre es null/undefined, retorna 'Sin categoría'
   if (!favorito.producto.categoria || !favorito.producto.categoria.nombre) {
     return 'Sin categoría';
   }

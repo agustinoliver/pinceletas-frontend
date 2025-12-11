@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoService } from '../../../services/pedido.service';
 import { CommerceService } from '../../../services/commerce.service';
-import { UserAuthService } from '../../../services/user-auth.service'; // ✅ AGREGAR ESTE IMPORT
+import { UserAuthService } from '../../../services/user-auth.service';
 import { AuditoriaPedido } from '../../../models/auditorias.model';
 import { Producto } from '../../../models/producto.model';
 
@@ -22,27 +22,24 @@ export class PedidoAuditComponent implements OnInit {
   cargando: boolean = false;
   error: string = '';
 
-  // Filtros
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   filtroAccion: string = 'todas';
   filtroPedidoId: string = '';
 
-  // Cache para productos
   productosCache: Map<number, string> = new Map();
 
   constructor(
     private pedidoService: PedidoService,
     private commerceService: CommerceService,
-    private userAuthService: UserAuthService, // ✅ AGREGAR ESTE SERVICE
+    private userAuthService: UserAuthService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    this.cargarAuditoriasPrimero(); // ✅ MODIFICADO
+    this.cargarAuditoriasPrimero();
   }
 
-  // ✅ MODIFICADO: Cargar auditorías primero y luego usuarios
   cargarAuditoriasPrimero() {
     this.cargando = true;
     
@@ -51,11 +48,9 @@ export class PedidoAuditComponent implements OnInit {
         console.log('Auditorías cargadas:', data);
         this.auditoriasPedidos = this.ordenarPorFechaDesc(data);
         
-        // Extraer IDs de usuarios únicos de las auditorías
         const usuarioIds = this.obtenerUsuarioIdsUnicos(data);
         console.log('IDs de usuarios encontrados:', usuarioIds);
         
-        // Cargar productos y usuarios en paralelo
         this.cargarProductosYUsuarios(usuarioIds);
       },
       error: (err) => {
@@ -66,41 +61,34 @@ export class PedidoAuditComponent implements OnInit {
     });
   }
 
-  // ✅ NUEVO: Obtener IDs de usuarios únicos de las auditorías
   obtenerUsuarioIdsUnicos(auditorias: AuditoriaPedido[]): number[] {
     const ids = auditorias
       .map(a => a.usuarioId)
-      .filter(id => id !== 0); // Excluir usuario "Sistema"
+      .filter(id => id !== 0);
     
-    return [...new Set(ids)]; // Devolver únicos
+    return [...new Set(ids)];
   }
 
-  // ✅ NUEVO: Cargar productos y usuarios
   cargarProductosYUsuarios(usuarioIds: number[]) {
-    // Cargar productos
     this.commerceService.getProductos().subscribe({
       next: (productos) => {
         console.log('Productos cargados para cache:', productos);
         
-        // Llenar cache de productos con ID -> Nombre
         productos.forEach(producto => {
           this.productosCache.set(producto.id, producto.nombre);
         });
         
         console.log('Cache de productos creado:', this.productosCache);
         
-        // Ahora cargar usuarios al cache
         this.cargarUsuariosAlCache(usuarioIds);
       },
       error: (err) => {
         console.error('Error cargando productos, continuando sin nombres...', err);
-        // Continuar con carga de usuarios aunque falle la carga de productos
         this.cargarUsuariosAlCache(usuarioIds);
       }
     });
   }
 
-  // ✅ NUEVO: Cargar usuarios al cache
   cargarUsuariosAlCache(usuarioIds: number[]) {
     if (usuarioIds.length === 0) {
       console.log('No hay usuarios para cargar en el cache');
@@ -119,7 +107,6 @@ export class PedidoAuditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error cargando usuarios al cache:', err);
-        // Continuar aunque falle la carga de usuarios
         this.aplicarFiltros();
         this.cargando = false;
       }
@@ -157,19 +144,16 @@ export class PedidoAuditComponent implements OnInit {
 
   filtrarAuditorias(auditorias: AuditoriaPedido[]): AuditoriaPedido[] {
     return auditorias.filter(auditoria => {
-      // Filtro por acción
       if (this.filtroAccion !== 'todas' && auditoria.accion !== this.filtroAccion) {
         return false;
       }
 
-      // Filtro por pedido ID
       if (this.filtroPedidoId.trim() !== '') {
         if (!auditoria.pedidoId.toString().includes(this.filtroPedidoId)) {
           return false;
         }
       }
 
-      // Filtro por fecha
       const fechaAuditoria = new Date(auditoria.fechaAccion);
       
       if (this.filtroFechaInicio) {
@@ -277,7 +261,6 @@ export class PedidoAuditComponent implements OnInit {
 
   getCamposOrdenados(): string[] {
     return [
-      // Información principal del pedido
       'numeroPedido',
       'estado',
       'total',
@@ -285,30 +268,25 @@ export class PedidoAuditComponent implements OnInit {
       'fechaActualizacion',
       'tipoEntrega',
       
-      // Información del usuario
       'usuarioId',
       'emailContacto',
       'telefonoContacto',
       
-      // Dirección de envío
       'direccionEnvio',
       'ciudadEnvio',
       'provinciaEnvio',
       'codigoPostalEnvio',
       'paisEnvio',
       
-      // Información de pago
       'preferenciaIdMp',
       'pagoIdMp',
       'estadoPagoMp',
       'fechaPagoMp',
       
-      // Items del pedido
       'items'
     ];
   }
 
-  // ✅ MODIFICADO: Actualizar el método getValorFormateado para el campo usuarioId
   getValorFormateado(campo: string, valor: any): string {
   if (valor === null || valor === undefined || valor === '') {
     return '<span class="text-muted">-</span>';
@@ -335,7 +313,6 @@ export class PedidoAuditComponent implements OnInit {
     case 'items':
       return this.getItemsPreview(valor);
     
-    // ✅ MODIFICADO: Campo usuarioId - detectar usuario del sistema (ID = 0)
     case 'usuarioId':
       if (valor === 0) {
         return '<strong class="text-info"><i class="fas fa-robot me-1"></i>Sistema Automático</strong>';
@@ -354,10 +331,9 @@ export class PedidoAuditComponent implements OnInit {
       return valor ? `<span class="badge bg-warning text-dark">${valor}</span>` : '<span class="text-muted">-</span>';
     
     case 'id':
-      return ''; // No mostrar ID interno
+      return '';
     
     default:
-      // Para texto largo, limitar longitud
       if (typeof valor === 'string' && valor.length > 50) {
         return `<span title="${valor}">${this.acortarTexto(valor, 50)}</span>`;
       }
@@ -366,16 +342,13 @@ export class PedidoAuditComponent implements OnInit {
 }
 
 
-  // ✅ NUEVO: Obtener nombre del producto desde el cache
   getNombreProducto(productoId: number): string {
     return this.productosCache.get(productoId) || `Producto #${productoId}`;
   }
 
-  // ✅ NUEVO: Obtener nombre del usuario usando el servicio
   getNombreUsuario(usuarioId: number): string {
-  // ✅ NUEVO: Detectar si es eliminación automática del sistema
   if (usuarioId === 0) {
-    return '🤖 Sistema Automático';
+    return ' Sistema Automático';
   }
   
   return this.userAuthService.getNombreUsuario(usuarioId);
@@ -388,30 +361,24 @@ export class PedidoAuditComponent implements OnInit {
     try {
       let fechaParseada: Date;
       
-      // Si es un array (formato [año, mes, día, hora, minuto, segundo, nanosegundo])
       if (Array.isArray(fecha)) {
         const [year, month, day, hour = 0, minute = 0, second = 0] = fecha;
         fechaParseada = new Date(year, month - 1, day, hour, minute, second);
       }
-      // Si es string en formato ISO
       else if (typeof fecha === 'string') {
         fechaParseada = new Date(fecha);
       }
-      // Si es objeto con propiedades separadas
       else if (typeof fecha === 'object' && fecha !== null) {
         const { year, month, day, hour = 0, minute = 0, second = 0 } = fecha;
         fechaParseada = new Date(year, month - 1, day, hour, minute, second);
       }
-      // Si ya es un timestamp numérico
       else if (typeof fecha === 'number') {
         fechaParseada = new Date(fecha);
       }
-      // Fallback
       else {
         fechaParseada = new Date(fecha);
       }
       
-      // Validar que la fecha sea válida
       if (isNaN(fechaParseada.getTime())) {
         console.warn('Fecha inválida detectada:', fecha);
         return '<span class="text-warning">Fecha inválida</span>';
@@ -460,14 +427,12 @@ export class PedidoAuditComponent implements OnInit {
     }
   }
 
-  // ✅ CORREGIDO COMPLETAMENTE: Mostrar preview de items del pedido con nombres reales
   getItemsPreview(items: any[]): string {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return '<span class="text-muted">No hay items</span>';
     }
 
     const previews = items.slice(0, 3).map((item: any, index: number) => {
-      // ✅ CORREGIDO: Usar el cache de productos para obtener nombres reales
       const nombreProducto = this.getNombreProducto(item.productoId);
       const cantidad = item.cantidad || 1;
       const precioUnitario = item.precioUnitario ? Number(item.precioUnitario).toLocaleString('es-AR', { 
@@ -553,7 +518,6 @@ export class PedidoAuditComponent implements OnInit {
     this.router.navigate(['/admin/pedidos/detalle', pedidoId]);
   }
 
-  // Cache para estados de pedido
   estadosPedido: Map<string, string> = new Map([
     ['PENDIENTE_PAGO', 'Pendiente de Pago'],
     ['PENDIENTE', 'Pendiente'],
@@ -565,7 +529,6 @@ export class PedidoAuditComponent implements OnInit {
     ['REEMBOLSADO', 'Reembolsado']
   ]);
 
-  //Auditoria de eliminación automática
   esEliminacionAutomatica(auditoria: AuditoriaPedido): boolean {
   return auditoria.accion === 'ELIMINAR' && auditoria.usuarioId === 0;
   }
@@ -580,15 +543,15 @@ export class PedidoAuditComponent implements OnInit {
     if (nuevos && nuevos.razon) {
       switch (nuevos.razon) {
         case '7_DIAS_PENDIENTE_PAGO':
-          return '⏰ Pedido eliminado automáticamente: 7 días en estado PENDIENTE_PAGO sin completar el pago';
+          return ' Pedido eliminado automáticamente: 7 días en estado PENDIENTE_PAGO sin completar el pago';
         default:
-          return '🤖 Eliminado por el sistema automáticamente';
+          return ' Eliminado por el sistema automáticamente';
       }
     }
   } catch (e) {
     console.error('Error parseando motivo:', e);
   }
   
-  return '🤖 Eliminado por el sistema automáticamente';
+  return ' Eliminado por el sistema automáticamente';
   }
 }

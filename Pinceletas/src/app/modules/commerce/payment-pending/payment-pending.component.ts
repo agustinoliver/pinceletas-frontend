@@ -23,23 +23,21 @@ export class PaymentPendingComponent implements OnInit{
   ) {}
 
   ngOnInit(): void {
-    console.log('⏳ Pago pendiente de confirmación');
+    console.log(' Pago pendiente de confirmación');
     
-    // Capturar parámetros de Mercado Pago
     this.route.queryParams.subscribe(params => {
-      console.log('📋 Parámetros recibidos:', params);
+      console.log(' Parámetros recibidos:', params);
 
       this.preferenceId = params['preference_id'] || params['pref_id'];
       this.paymentId = params['payment_id'];
       this.numeroPedido = params['external_reference'];
 
-      console.log('🔍 Datos extraídos:');
+      console.log(' Datos extraídos:');
       console.log('  - Preference ID:', this.preferenceId);
       console.log('  - Payment ID:', this.paymentId);
       console.log('  - Número de Pedido:', this.numeroPedido);
 
       if (this.paymentId) {
-        // Notificar al backend que el pago está pendiente
         this.notificarPagoPendiente();
       } else {
         this.procesando = false;
@@ -56,15 +54,14 @@ export class PaymentPendingComponent implements OnInit{
     this.pedidoService.procesarWebhookPago(
       this.preferenceId || '', 
       this.paymentId || '', 
-      'pending' // Estado pendiente
+      'pending'
     ).subscribe({
       next: () => {
-        console.log('✅ Backend notificado sobre pago pendiente');
+        console.log(' Backend notificado sobre pago pendiente');
         this.procesando = false;
       },
       error: (error) => {
-        console.error('❌ Error notificando backend:', error);
-        // Aunque falle, continuar mostrando la página
+        console.error(' Error notificando backend:', error);
         this.procesando = false;
       }
     });
@@ -83,30 +80,30 @@ export class PaymentPendingComponent implements OnInit{
    */
   verificarEstado(): void {
     if (!this.numeroPedido) {
-      console.warn('⚠️ No hay número de pedido para verificar');
+      console.warn(' No hay número de pedido para verificar');
       this.verMisPedidos();
       return;
     }
 
-    console.log('🔄 Verificando estado del pedido:', this.numeroPedido);
+    console.log(' Verificando estado del pedido:', this.numeroPedido);
     
     this.pedidoService.obtenerPedidoPorNumero(this.numeroPedido).subscribe({
       next: (pedido) => {
-        console.log('📦 Estado del pedido:', pedido.estado);
+        console.log(' Estado del pedido:', pedido.estado);
         
         if (pedido.estado === 'PAGADO') {
-          console.log('✅ Pago confirmado, redirigiendo...');
+          console.log(' Pago confirmado, redirigiendo...');
           this.router.navigate(['/mis-pedidos']);
         } else if (pedido.estado === 'CANCELADO') {
-          console.log('❌ Pago cancelado, redirigiendo...');
+          console.log(' Pago cancelado, redirigiendo...');
           this.router.navigate(['/payment/failure']);
         } else {
-          console.log('⏳ Pago aún pendiente');
+          console.log(' Pago aún pendiente');
           alert('Tu pago aún está siendo procesado. Por favor verifica en unos minutos.');
         }
       },
       error: (error) => {
-        console.error('❌ Error verificando estado:', error);
+        console.error(' Error verificando estado:', error);
         alert('No se pudo verificar el estado del pedido. Por favor contacta a soporte.');
       }
     });

@@ -16,7 +16,6 @@ import Swal from 'sweetalert2';
   styleUrl: './product-edit.component.css'
 })
 export class ProductEditComponent implements OnInit {
-  // Datos del producto a editar
   productoId: number = 0;
   productoOriginal: Producto | null = null;
   
@@ -29,13 +28,12 @@ export class ProductEditComponent implements OnInit {
     categoriaId: 0,
     opcionesIds: [] as number[],
     usuarioId: 1,
-    imagenes: [] as File[], // ✅ CAMBIADO: para nuevas imágenes
-    imagenesActuales: [] as string[], // ✅ NUEVO: imágenes existentes
-    mantenerImagenes: true, // ✅ NUEVO: flag para mantener imágenes
+    imagenes: [] as File[],
+    imagenesActuales: [] as string[],
+    mantenerImagenes: true,
     descuentoPorcentaje: 0
   };
 
-  // Datos para nuevas categorías y opciones
   nuevaCategoria = {
     nombre: ''
   };
@@ -44,20 +42,17 @@ export class ProductEditComponent implements OnInit {
     tipo: ''
   };
 
-  // Listas para selects
   categorias: Categoria[] = [];
   opciones: OpcionProducto[] = [];
 
-  // Estados
   cargando = false;
   cargandoProducto = false;
   cargandoCategorias = false;
   mensaje = '';
   tipoMensaje: 'success' | 'error' | 'warning' | '' = '';
-  imagenPrevia: string[] = []; // ✅ CAMBIADO: array para previews
-  imagenesCambiadas = false; // ✅ CAMBIADO
+  imagenPrevia: string[] = []; 
+  imagenesCambiadas = false;
 
-  // Estados para eliminación
   eliminandoCategoria: number | null = null;
   eliminandoOpcion: number | null = null;
 
@@ -71,12 +66,10 @@ export class ProductEditComponent implements OnInit {
   ngOnInit(): void {
     this.productoId = Number(this.route.snapshot.paramMap.get('id'));
     if (this.productoId) {
-      // Primero cargar categorías, luego el producto
       this.cargarCategoriasYProducto();
     }
   }
 
-  // CORRECCIÓN: Cargar categorías primero y luego el producto
   cargarCategoriasYProducto(): void {
     this.cargandoCategorias = true;
     
@@ -85,7 +78,6 @@ export class ProductEditComponent implements OnInit {
         this.categorias = categorias;
         this.cargandoCategorias = false;
         
-        // Una vez cargadas las categorías, cargar el producto
         this.cargarProducto();
         this.cargarOpciones();
       },
@@ -103,7 +95,6 @@ export class ProductEditComponent implements OnInit {
       next: (producto) => {
         this.productoOriginal = producto;
         
-        // CORRECCIÓN: Verificar si la categoría del producto existe en la lista
         const categoriaId = producto.categoria?.id || 0;
         const categoriaExiste = this.categorias.some(cat => cat.id === categoriaId);
         
@@ -116,23 +107,20 @@ export class ProductEditComponent implements OnInit {
           categoriaId: categoriaExiste ? categoriaId : 0,
           opcionesIds: producto.opciones.map(op => op.id),
           usuarioId: 1,
-          imagenes: [], // ✅ CORREGIDO
-          imagenesActuales: producto.imagenes || [], // ✅ NUEVO
+          imagenes: [],
+          imagenesActuales: producto.imagenes || [],
           mantenerImagenes: true,
           descuentoPorcentaje: producto.descuentoPorcentaje || 0
         };
         
-        // CORRECCIÓN: Forzar la detección de cambios
         this.cdr.detectChanges();
         
-        // Cargar preview de imagen actual
         if (producto.imagenes && producto.imagenes.length > 0) {
           this.imagenPrevia = producto.imagenes.map(img => this.getImagenUrl(img));
         }
         
         this.cargandoProducto = false;
         
-        // Mostrar mensaje si la categoría no existe
         if (categoriaId > 0 && !categoriaExiste) {
           this.mostrarAlertaAdvertencia('La categoría original de este producto ya no existe. Por favor seleccione una nueva categoría.');
         }
@@ -274,18 +262,15 @@ export class ProductEditComponent implements OnInit {
     }
   }
 
-   // ✅ CORREGIDO: Manejar múltiples imágenes
   onImagenSeleccionada(event: any): void {
     const files = event.target.files;
     if (files && files.length > 0) {
-      // Limitar a 5 imágenes máximo
       const maxFiles = Math.min(files.length, 5);
       
       for (let i = 0; i < maxFiles; i++) {
         const file = files[i];
         this.producto.imagenes.push(file);
         
-        // Crear preview
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.imagenPrevia.push(e.target.result);
@@ -296,10 +281,8 @@ export class ProductEditComponent implements OnInit {
       this.imagenesCambiadas = true;
     }
   }
-  // ✅ NUEVO: Eliminar una imagen (nueva o existente)
   eliminarImagen(index: number, esImagenExistente: boolean = false): void {
     if (esImagenExistente) {
-      // Eliminar imagen existente del servidor
       this.commerceService.eliminarImagenDeProducto(
         this.productoId, 
         index, 
@@ -317,7 +300,6 @@ export class ProductEditComponent implements OnInit {
         }
       });
     } else {
-      // Eliminar imagen nueva (no subida aún)
       this.producto.imagenes.splice(index - this.producto.imagenesActuales.length, 1);
       this.imagenPrevia.splice(index, 1);
       this.imagenesCambiadas = true;
@@ -325,7 +307,6 @@ export class ProductEditComponent implements OnInit {
   }
 
   actualizarProducto(): void {
-    // Validaciones básicas
     if (!this.producto.nombre.trim()) {
       this.mostrarAlertaError('El nombre del producto es requerido');
       return;
@@ -352,10 +333,8 @@ export class ProductEditComponent implements OnInit {
         const tieneNuevasImagenes = this.producto.imagenes && this.producto.imagenes.length > 0;
 
         if (tieneNuevasImagenes) {
-          // Si hay nuevas imágenes, usar el método para múltiples imágenes
           this.actualizarConMultiplesImagenes();
         } else {
-          // Si NO hay nuevas imágenes, actualizar solo los datos
           this.actualizarSinImagen();
         }
       }
@@ -380,7 +359,6 @@ export class ProductEditComponent implements OnInit {
     });
   }
   private actualizarSinImagen(): void {
-    // ✅ CORREGIDO: Enviar correctamente las imágenes existentes
     const datosActualizacion = {
       nombre: this.producto.nombre,
       descripcion: this.producto.descripcion || '',
@@ -389,15 +367,13 @@ export class ProductEditComponent implements OnInit {
       categoriaId: this.producto.categoriaId,
       opcionesIds: this.producto.opcionesIds || [],
       descuentoPorcentaje: this.producto.descuentoPorcentaje || 0,
-      // ✅ CRÍTICO: Enviar el array completo de imágenes existentes
       imagenes: this.producto.imagenesActuales || [],
-      // Para compatibilidad con backend (si lo requiere)
       imagen: this.producto.imagenesActuales && this.producto.imagenesActuales.length > 0 
         ? this.producto.imagenesActuales[0] 
         : ''
     };
 
-    console.log('📤 Enviando actualización SIN nuevas imágenes:', datosActualizacion);
+    console.log(' Enviando actualización SIN nuevas imágenes:', datosActualizacion);
 
     this.commerceService.actualizarProducto(
       this.productoId,
@@ -408,7 +384,7 @@ export class ProductEditComponent implements OnInit {
         this.procesarActualizacionExitosa(productoActualizado);
       },
       error: (error) => {
-        console.error('❌ Error actualizando producto:', error);
+        console.error(' Error actualizando producto:', error);
         
         if (error.status === 403) {
           this.mostrarAlertaError('Error de permisos. Verifica que estés autenticado correctamente.');
@@ -431,15 +407,13 @@ export class ProductEditComponent implements OnInit {
     
     this.cargando = false;
     
-    // Actualizar los datos locales
     this.productoOriginal = productoActualizado;
     this.producto.imagenesActuales = productoActualizado.imagenes || [];
     
-    // ✅ CORREGIDO: Actualizar el preview de imágenes si se cambiaron
     if (this.imagenesCambiadas) {
       this.imagenPrevia = (productoActualizado.imagenes || []).map(img => this.getImagenUrl(img));
       this.imagenesCambiadas = false;
-      this.producto.imagenes = []; // Limpiar imágenes nuevas
+      this.producto.imagenes = [];
     }
   }
 
@@ -470,10 +444,8 @@ export class ProductEditComponent implements OnInit {
         this.producto.imagenes = [];
         this.imagenesCambiadas = false;
         
-        // ✅ CORREGIDO: Restaurar previews de imágenes existentes
         this.imagenPrevia = this.producto.imagenesActuales.map(img => this.getImagenUrl(img));
         
-        // Resetear el input file
         const fileInput = document.getElementById('imagenes') as HTMLInputElement;
         if (fileInput) {
           fileInput.value = '';
@@ -484,12 +456,10 @@ export class ProductEditComponent implements OnInit {
     });
   }
 
-  // Verificar si una categoría puede ser eliminada
   puedeEliminarCategoria(categoria: Categoria): boolean {
     return !categoria.productos || categoria.productos.length === 0;
   }
 
-  // Obtener el texto del tooltip para categorías
   getTooltipCategoria(categoria: Categoria): string {
     if (this.puedeEliminarCategoria(categoria)) {
       return 'Eliminar categoría';
@@ -498,7 +468,6 @@ export class ProductEditComponent implements OnInit {
     }
   }
 
-  // Verificar si hay cambios sin guardar
   hayCambiosSinGuardar(): boolean {
     if (!this.productoOriginal) return false;
 
@@ -510,13 +479,11 @@ export class ProductEditComponent implements OnInit {
       this.producto.categoriaId !== (this.productoOriginal.categoria?.id || 0) ||
       this.producto.descuentoPorcentaje !== (this.productoOriginal.descuentoPorcentaje || 0) ||
       JSON.stringify(this.producto.opcionesIds) !== JSON.stringify(this.productoOriginal.opciones.map(op => op.id)) ||
-      this.imagenesCambiadas || // ✅ CORREGIDO: usar imagenesCambiadas
-      // ✅ NUEVO: Verificar si se eliminaron imágenes existentes
+      this.imagenesCambiadas || 
       JSON.stringify(this.producto.imagenesActuales) !== JSON.stringify(this.productoOriginal.imagenes || [])
     );
   }
 
-  // MÉTODOS SWEETALERT2
   private mostrarAlertaExito(mensaje: string): Promise<any> {
     return Swal.fire({
       title: '¡Éxito!',
@@ -646,26 +613,20 @@ export class ProductEditComponent implements OnInit {
       }
     });
   }
-  // Verifica si el descuento es válido (entero entre 1 y 100)
     esDescuentoValido(valor: any): boolean {
     const num = Number(valor);
-    // Permite 0 como válido
     return Number.isInteger(num) && num >= 0 && num <= 100;
 }
 
-    // Corrige automáticamente valores inválidos al tipear
     validarDescuento(): void {
       const num = Number(this.producto.descuentoPorcentaje);
 
-      // Si el usuario borra el campo, asumimos 0
       if (this.producto.descuentoPorcentaje === null || this.producto.descuentoPorcentaje === null) {
         this.producto.descuentoPorcentaje = 0;
         return;
       }
 
-      // Si no es entero o está fuera de rango, marcarlo pero no corregir automáticamente
       if (!Number.isInteger(num) || num < 0 || num > 100) {
-        // Solo mantiene el valor en memoria, se marcará visualmente en rojo por [ngClass]
       }
     }
 

@@ -1,5 +1,4 @@
 <div class="container mt-4">
-  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2 text-primary">
       <i class="fas fa-clipboard-list me-2"></i>
@@ -14,7 +13,6 @@
     </button>
   </div>
 
-  <!-- Selector de Tipo -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <div class="row">
@@ -45,7 +43,6 @@
     </div>
   </div>
 
-  <!-- Filtros -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-light">
       <h5 class="card-title mb-0">
@@ -55,7 +52,6 @@
     </div>
     <div class="card-body">
       <div class="row g-3 align-items-end">
-        <!-- Filtro por Fecha Inicio -->
         <div class="col-md-3">
           <label for="fechaInicio" class="form-label fw-bold">Fecha desde:</label>
           <input
@@ -67,7 +63,6 @@
           />
         </div>
 
-        <!-- Filtro por Fecha Fin -->
         <div class="col-md-3">
           <label for="fechaFin" class="form-label fw-bold">Fecha hasta:</label>
           <input
@@ -79,7 +74,6 @@
           />
         </div>
 
-        <!-- Filtro por Acción -->
         <div class="col-md-3">
           <label for="accion" class="form-label fw-bold">Acción:</label>
           <select
@@ -95,7 +89,6 @@
           </select>
         </div>
 
-        <!-- Botón Limpiar Filtros -->
         <div class="col-md-3">
           <button
             class="btn btn-outline-danger w-100"
@@ -108,7 +101,6 @@
         </div>
       </div>
 
-      <!-- Contador de resultados -->
       <div class="row mt-3">
         <div class="col-12">
           <div class="alert alert-info py-2 mb-0" *ngIf="!cargando">
@@ -133,7 +125,6 @@
     </div>
   </div>
 
-  <!-- Loading -->
   <div *ngIf="cargando" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Cargando...</span>
@@ -141,14 +132,12 @@
     <p class="text-muted mt-2">Cargando auditorías...</p>
   </div>
 
-  <!-- Error -->
   <div *ngIf="error && !cargando" class="alert alert-danger alert-dismissible fade show" role="alert">
     <i class="fas fa-exclamation-triangle me-2"></i>
     {{ error }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
-  <!-- Listado de Auditorías de Productos -->
   <div *ngIf="mostrarProductos && !cargando">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="h4 text-primary">
@@ -204,7 +193,6 @@
           
           <div class="card-body">
             <div *ngIf="obtenerCambiosProducto(auditoria) as cambios">
-              <!-- Para CREAR: Mostrar solo valores nuevos -->
               <div *ngIf="auditoria.accion === 'CREAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-success mb-3">
@@ -230,7 +218,6 @@
                 </div>
               </div>
 
-              <!-- Para MODIFICAR: Mostrar comparación -->
               <div *ngIf="auditoria.accion === 'MODIFICAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-warning mb-3">
@@ -259,7 +246,6 @@
                 </div>
               </div>
 
-              <!-- Para ELIMINAR: Mostrar valores anteriores -->
               <div *ngIf="auditoria.accion === 'ELIMINAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-danger mb-3">
@@ -297,7 +283,6 @@
     </div>
   </div>
 
-  <!-- Listado de Auditorías de Categorías -->
   <div *ngIf="!mostrarProductos && !cargando">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="h4 text-success">
@@ -353,7 +338,6 @@
           
           <div class="card-body">
             <div *ngIf="obtenerCambiosCategoria(auditoria) as cambios">
-              <!-- Para CREAR: Mostrar solo valores nuevos -->
               <div *ngIf="auditoria.accion === 'CREAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-success mb-3">
@@ -379,7 +363,6 @@
                 </div>
               </div>
 
-              <!-- Para MODIFICAR: Mostrar comparación -->
               <div *ngIf="auditoria.accion === 'MODIFICAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-warning mb-3">
@@ -412,7 +395,6 @@
                 </div>
               </div>
 
-              <!-- Para ELIMINAR: Mostrar valores anteriores -->
               <div *ngIf="auditoria.accion === 'ELIMINAR'" class="row">
                 <div class="col-12">
                   <h6 class="text-danger mb-3">
