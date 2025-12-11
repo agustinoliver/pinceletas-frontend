@@ -3,17 +3,23 @@
   display: inline-block;
 }
 
+/* ========================================
+   BOTÓN DE NOTIFICACIONES
+   ======================================== */
 .notification-toggle {
   background: none;
   border: none;
   color: var(--text-dark);
-  font-size: 1.2rem;
-  padding: 0.5rem;
+  font-weight: 500;
+  padding: 0.5rem 0.8rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  z-index: 1051; /* 🔥 Asegurar que el botón esté por encima */
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin: 0 0.15rem;
 }
 
 .notification-toggle:hover {
@@ -22,53 +28,81 @@
   transform: translateY(-1px);
 }
 
+.notification-toggle i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+/* Badge de notificaciones no leídas */
 .notification-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -2px;
+  right: -2px;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 0.7rem;
+  min-width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: pulse 2s infinite;
-  z-index: 1052; /* 🔥 Asegurar que la badge esté por encima */
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(237, 98, 12, 0.4);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 }
 
+/* ========================================
+   DROPDOWN MENU - ABRE A LA IZQUIERDA
+   ======================================== */
 .notification-dropdown-menu {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 0.5rem);
+  right: 0; /* 🔥 Cambiado: Ahora se alinea a la derecha del botón */
+  left: auto; /* 🔥 Cambiado: Removido left: 0 */
   width: 380px;
   max-width: 90vw;
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-color);
-  z-index: 1060; /* 🔥 AUMENTADO: Mayor z-index para estar siempre adelante */
+  z-index: 1060;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-10px);
+  transform: translateY(-10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .notification-dropdown-menu.show {
   opacity: 1;
   visibility: visible;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
+/* ========================================
+   HEADER DEL DROPDOWN
+   ======================================== */
 .notification-header {
   display: flex;
   justify-content: space-between;
@@ -82,19 +116,30 @@
 .notification-title {
   margin: 0;
   font-weight: 600;
+  font-size: 0.95rem;
   color: var(--text-dark);
   display: flex;
   align-items: center;
+}
+
+.notification-title i {
+  color: var(--primary-color);
+}
+
+.notification-title .badge {
+  font-size: 0.7rem;
+  padding: 0.25em 0.5em;
 }
 
 .btn-mark-all-read {
   background: var(--primary-light);
   border: none;
   color: var(--primary-color);
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 0.85rem;
 }
 
 .btn-mark-all-read:hover {
@@ -103,6 +148,9 @@
   transform: scale(1.05);
 }
 
+/* ========================================
+   LISTA DE NOTIFICACIONES
+   ======================================== */
 .notification-list {
   max-height: 400px;
   overflow-y: auto;
@@ -116,24 +164,37 @@
 }
 
 .empty-notifications i {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.5;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.3;
+  color: var(--primary-color);
 }
 
 .empty-notifications p {
   margin: 0;
   font-size: 0.9rem;
+  color: #6c757d;
 }
 
+/* ========================================
+   FOOTER DEL DROPDOWN
+   ======================================== */
 .notification-footer {
   padding: 0.75rem 1.25rem;
   border-top: 1px solid var(--border-color);
   background: #f8f9fa;
   border-radius: 0 0 12px 12px;
+  text-align: center;
 }
 
-/* Scrollbar personalizado para la lista */
+.notification-footer small {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO
+   ======================================== */
 .notification-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -152,43 +213,69 @@
   background: var(--primary-hover);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ========================================
+   MODO DESKTOP - ICONOS EXPANDIBLES
+   ======================================== */
+@media (min-width: 992px) {
+  /* Efecto de respiración cuando está compacto */
+  .notification-toggle:not(:hover) i {
+    animation: iconBreath 3s ease-in-out infinite;
+  }
+
+  @keyframes iconBreath {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  .notification-toggle:hover i {
+    animation: none;
+  }
+
+  /* Ajustar posición del dropdown */
   .notification-dropdown-menu {
-    width: 320px;
-    left: 0;
-    /* 🔥 Asegurar posición en móvil */
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%) translateX(-10px);
-  }
-  
-  .notification-dropdown-menu.show {
-    transform: translateX(-50%) translateX(0);
-  }
-  
-  .notification-list {
-    max-height: 300px;
+    width: 380px;
   }
 }
 
-@media (max-width: 480px) {
-  .notification-dropdown-menu {
-    width: 280px;
-    left: 0;
-    /* 🔥 Asegurar posición en móvil */
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%) translateX(-10px);
+/* ========================================
+   RESPONSIVE - MÓVIL
+   ======================================== */
+@media (max-width: 991px) {
+  .notification-toggle {
+    padding: 0.8rem 1rem;
+    width: 100%;
+    justify-content: flex-start;
+    margin: 0.25rem 0;
   }
-  
-  .notification-dropdown-menu.show {
-    transform: translateX(-50%) translateX(0);
-  }
-}
 
-/* 🔥 NUEVO: Overlay para móvil */
-@media (max-width: 768px) {
+  .notification-badge {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-left: 8px;
+    border: none;
+  }
+
+  .notification-dropdown-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 90vw;
+    max-width: 400px;
+    max-height: 80vh;
+  }
+
+  .notification-dropdown-menu.show {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* Overlay de fondo en móvil */
   .notification-dropdown-menu::before {
     content: '';
     position: fixed;
@@ -201,8 +288,44 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
+
   .notification-dropdown-menu.show::before {
     opacity: 1;
   }
+
+  .notification-list {
+    max-height: calc(80vh - 140px);
+  }
+}
+
+@media (max-width: 576px) {
+  .notification-dropdown-menu {
+    width: 95vw;
+    max-width: 350px;
+  }
+
+  .notification-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .notification-title {
+    font-size: 0.9rem;
+  }
+
+  .notification-list {
+    padding: 0.5rem;
+  }
+}
+
+/* ========================================
+   VARIABLES CSS
+   ======================================== */
+:root {
+  --primary-color: #ed620c;
+  --primary-hover: #d4560a;
+  --primary-light: rgba(237, 98, 12, 0.1);
+  --accent-color: #ff8c42;
+  --text-dark: #333333;
+  --text-light: #6c757d;
+  --border-color: #dee2e6;
 }
