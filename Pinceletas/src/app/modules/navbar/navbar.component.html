@@ -135,21 +135,13 @@
 
           <!-- Botón Mi Perfil -->
           <li class="nav-item">
-            <a class="nav-link nav-link-custom" 
+            <a class="nav-link nav-link-custom user-profile-link" 
                (click)="navigateToProfile()" 
                style="cursor: pointer;"
-               data-tooltip="Mi Perfil">
-              <i class="fas fa-user"></i>
-              <span class="nav-text">Mi Perfil</span>
-            </a>
-          </li>
-
-          <!-- Nombre del usuario (solo nombre, sin apellido) -->
-          <li class="nav-item user-welcome">
-            <span class="user-name"> 
+               [attr.data-tooltip]="userFirstName">
               <i class="fas fa-user-circle"></i>
-              <span class="user-name-compact">{{ userFirstName }}</span>
-            </span>
+              <span class="nav-text">{{ userFirstName }}</span>
+            </a>
           </li>
 
           <!-- Botón Cerrar Sesión -->

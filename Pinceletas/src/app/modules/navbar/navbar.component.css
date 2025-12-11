@@ -227,28 +227,27 @@
 }
 
 /* ========================================
-   USUARIO
+   USUARIO - PERFIL
    ======================================== */
-.user-welcome {
-  background: var(--accent-light);
-  border-radius: 8px;
-  margin: 0 0.3rem;
+/* Estilo especial para el botón de perfil con nombre de usuario */
+.user-profile-link {
+  background: var(--accent-light) !important;
   border: 1px solid var(--accent-color);
-  display: inline-flex;
-  align-items: center;
+  font-weight: 600 !important;
 }
 
-.user-name {
-  padding: 0.5rem 0.8rem; 
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-dark) !important;
-  font-weight: 500;
-  line-height: 1;
+.user-profile-link:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary-color);
 }
 
-.user-name i {
+.user-profile-link i {
   color: var(--primary-color) !important;
+}
+
+.user-profile-link.active {
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%) !important;
+  border-color: var(--primary-color);
 }
 
 /* ========================================
@@ -505,8 +504,8 @@ app-dropdown-notification {
     vertical-align: middle;
   }
 
-  /* Usuario: Solo mostrar nombre (sin apellido) */
-  .user-name-compact {
+  /* Usuario: Solo mostrar nombre (sin apellido) en perfil */
+  .user-profile-link .nav-text {
     display: inline-block;
     max-width: 0;
     opacity: 0;
@@ -517,22 +516,11 @@ app-dropdown-notification {
     vertical-align: middle;
   }
 
-  .user-welcome:hover .user-name-compact,
-  .user-welcome.active .user-name-compact {
+  .user-profile-link:hover .nav-text,
+  .user-profile-link.active .nav-text {
     max-width: 150px;
     opacity: 1;
     margin-left: 0.5rem;
-  }
-
-  .user-welcome {
-    padding: 0.5rem 0.7rem !important;
-    transition: all 0.3s ease;
-    cursor: default;
-  }
-
-  .user-welcome:hover {
-    padding: 0.5rem 1rem !important;
-    background: var(--primary-light);
   }
 
   /* Badge del carrito mantiene posición relativa al ícono */
@@ -661,8 +649,7 @@ app-dropdown-notification {
   }
 
   /* Efecto de expansión suave */
-  .nav-link-custom,
-  .user-welcome {
+  .nav-link-custom {
     will-change: padding;
   }
 
@@ -685,7 +672,7 @@ app-dropdown-notification {
 @media (max-width: 991px) {
   /* En móvil mostrar todo el texto siempre */
   .nav-link-custom .nav-text,
-  .user-name-compact,
+  .user-profile-link .nav-text,
   .btn-register .btn-text,
   .btn-logout .btn-text {
     display: inline !important;
@@ -770,17 +757,13 @@ app-dropdown-notification {
     width: 100%;
   }
 
-  .user-welcome {
-    margin: 0.5rem 0;
+  /* Botón de perfil en móvil */
+  .user-profile-link {
+    display: block !important;
     width: 100%;
-    text-align: center;
-  }
-
-  .user-name {
-    padding: 0.8rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--accent-light) !important;
+    border: 1px solid var(--accent-color) !important;
+    margin: 0.5rem 0;
   }
 
   .carrito-badge {
@@ -858,11 +841,6 @@ app-dropdown-notification {
   .dropdown-item {
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
-  }
-
-  .user-name {
-    font-size: 0.9rem;
-    padding: 0.7rem 0.8rem;
   }
 
   .carrito-badge {
