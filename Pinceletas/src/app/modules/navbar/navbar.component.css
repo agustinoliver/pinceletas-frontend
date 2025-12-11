@@ -17,11 +17,11 @@
    ======================================== */
 .navbar-custom {
   background: #ffffff !important;
-  padding: 0.8rem 0;
-  border-bottom: 3px solid var(--primary-light);
+  padding: 0.4rem 0;
+  border-bottom: 2px solid var(--primary-light);
   position: relative;
   z-index: 1000;
-  box-shadow: 0 2px 12px rgba(237, 98, 12, 0.08);
+  box-shadow: 0 2px 8px rgba(237, 98, 12, 0.06);
 }
 
 .navbar-custom::before {
@@ -42,9 +42,9 @@
    NAVBAR BRAND
    ======================================== */
 .navbar-brand {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   transition: all 0.3s ease;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 8px;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
   -webkit-background-clip: text !important;
@@ -69,11 +69,14 @@
 .nav-link-custom {
   font-weight: 500;
   transition: all 0.3s ease;
-  padding: 0.7rem 1.2rem !important;
+  padding: 0.5rem 0.8rem !important;
   border-radius: 8px;
-  margin: 0 0.2rem;
+  margin: 0 0.15rem;
   color: var(--text-dark) !important;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .nav-link-custom:hover {
@@ -229,16 +232,19 @@
 .user-welcome {
   background: var(--accent-light);
   border-radius: 8px;
-  margin: 0 0.5rem;
+  margin: 0 0.3rem;
   border: 1px solid var(--accent-color);
+  display: inline-flex;
+  align-items: center;
 }
 
 .user-name {
-  padding: 0.7rem 1.2rem; 
-  display: flex;
+  padding: 0.5rem 0.8rem; 
+  display: inline-flex;
   align-items: center;
   color: var(--text-dark) !important;
   font-weight: 500;
+  line-height: 1;
 }
 
 .user-name i {
@@ -467,6 +473,7 @@ app-dropdown-notification {
     white-space: nowrap;
     transition: max-width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
     margin-left: 0;
+    vertical-align: middle;
   }
 
   /* Mostrar texto al hacer hover */
@@ -479,19 +486,23 @@ app-dropdown-notification {
 
   /* Ajustar padding para modo compacto */
   .nav-link-custom {
-    padding: 0.7rem 0.9rem !important;
+    padding: 0.5rem 0.7rem !important;
     transition: all 0.3s ease;
   }
 
   .nav-link-custom:hover {
-    padding: 0.7rem 1.2rem !important;
+    padding: 0.5rem 1rem !important;
   }
 
-  /* Ícono siempre visible */
+  /* Ícono siempre visible y centrado */
   .nav-link-custom i {
-    display: inline-block;
-    min-width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
     text-align: center;
+    vertical-align: middle;
   }
 
   /* Usuario: Solo mostrar nombre (sin apellido) */
@@ -503,6 +514,7 @@ app-dropdown-notification {
     white-space: nowrap;
     transition: max-width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
     margin-left: 0;
+    vertical-align: middle;
   }
 
   .user-welcome:hover .user-name-compact,
@@ -513,24 +525,26 @@ app-dropdown-notification {
   }
 
   .user-welcome {
-    padding: 0.7rem 0.9rem !important;
+    padding: 0.5rem 0.7rem !important;
     transition: all 0.3s ease;
     cursor: default;
   }
 
   .user-welcome:hover {
-    padding: 0.7rem 1.2rem !important;
+    padding: 0.5rem 1rem !important;
     background: var(--primary-light);
   }
 
   /* Badge del carrito mantiene posición relativa al ícono */
   .nav-link-custom .position-relative {
     position: relative;
+    display: inline-flex;
+    align-items: center;
   }
 
   .carrito-badge {
     position: absolute !important;
-    top: -5px !important;
+    top: -8px !important;
     right: -10px !important;
     transform: none !important;
   }
@@ -538,20 +552,23 @@ app-dropdown-notification {
   /* Indicador de favoritos se mantiene visible */
   .favorito-pulse-indicator {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 2px;
+    right: 2px;
   }
 
   /* Ajustar botones de acción */
   .btn-register,
   .btn-logout {
-    padding: 0.7rem 0.9rem !important;
+    padding: 0.5rem 0.7rem !important;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
   }
 
   .btn-register:hover,
   .btn-logout:hover {
-    padding: 0.7rem 1.2rem !important;
+    padding: 0.5rem 1rem !important;
   }
 
   .btn-register .btn-text,
@@ -563,6 +580,7 @@ app-dropdown-notification {
     white-space: nowrap;
     transition: max-width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
     margin-left: 0;
+    vertical-align: middle;
   }
 
   .btn-register:hover .btn-text,
@@ -570,6 +588,14 @@ app-dropdown-notification {
     max-width: 150px;
     opacity: 1;
     margin-left: 0.5rem;
+  }
+
+  .btn-register i,
+  .btn-logout i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
   }
 
   /* Tooltip opcional para mejor UX */
@@ -642,7 +668,7 @@ app-dropdown-notification {
 
   /* Separador más sutil en modo compacto */
   .nav-item {
-    margin: 0 0.15rem;
+    margin: 0 0.1rem;
   }
 
   /* Asegurar contraste y focus visible */
