@@ -118,6 +118,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return `${this.currentUser.nombre} ${this.currentUser.apellido}`;
   }
 
+  get userFirstName(): string {
+    if (!this.currentUser) return '';
+    return this.currentUser.nombre;
+  }
+
   // ✅ AÑADIR: Método para obtener la clase del badge del carrito
   getCarritoBadgeClass(): string {
     return this.carritoCount > 0 ? 'badge bg-danger carrito-badge' : 'badge bg-secondary carrito-badge';
