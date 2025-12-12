@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
   styleUrl: './favorites-list.component.css'
 })
 export class FavoritesListComponent implements OnInit{
- favoritos: Favorito[] = [];
+favoritos: Favorito[] = [];
   favoritosFiltrados: Favorito[] = [];
   cargando = false;
   
@@ -62,6 +62,7 @@ export class FavoritesListComponent implements OnInit{
       }
     });
   }
+
   onOpcionChange(favorito: Favorito): void {
     console.log('Opción seleccionada:', favorito.opcionSeleccionada);
   }
@@ -233,9 +234,9 @@ export class FavoritesListComponent implements OnInit{
   }
 
   getCategoriaNombre(favorito: Favorito): string {
-  if (!favorito.producto.categoria || !favorito.producto.categoria.nombre) {
-    return 'Sin categoría';
-  }
-  return favorito.producto.categoria.nombre;
+    if (!favorito.producto.categoria || !favorito.producto.categoria.nombre) {
+      return 'Sin categoría';
+    }
+    return favorito.producto.categoria.nombre;
   }
 }

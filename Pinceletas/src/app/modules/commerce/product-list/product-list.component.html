@@ -65,11 +65,22 @@
             class="card producto-card h-100 border-0"
             (click)="verDetalleProducto(producto.id)"
             style="cursor: pointer;">
-            <div *ngIf="tieneDescuento(producto)" class="position-absolute top-0 end-0 m-2">
+            
+            <!-- Botón de favorito flotante -->
+            <button 
+              class="btn-favorito"
+              [class.is-favorite]="esFavorito(producto.id)"
+              (click)="toggleFavorito(producto, $event)"
+              [title]="esFavorito(producto.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+              <i [class]="esFavorito(producto.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+            </button>
+
+            <div *ngIf="tieneDescuento(producto)" class="position-absolute top-0 end-0 m-2" style="z-index: 5;">
               <span class="badge bg-danger">
                 <i class="fas fa-tag me-1"></i>{{ producto.descuentoPorcentaje }}% OFF
               </span>
             </div>
+            
             <div class="image-container">
               <img 
                 [src]="getImagenUrl(producto.imagenes[0])" 
@@ -82,6 +93,7 @@
                 <span>Imagen no disponible</span>
               </div>
             </div>
+            
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-dark">{{ producto.nombre }}</h5>
               

@@ -5,6 +5,8 @@ import { CommerceService } from '../../../services/commerce.service';
 import { Categoria} from '../../../models/categoria.model';
 import { calcularPrecioConDescuento, Producto } from '../../../models/producto.model';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
+import { UserAuthService } from '../../../services/user-auth.service';
 
 @Component({
   selector: 'app-product-list',
@@ -17,14 +19,17 @@ export class ProductListComponent implements OnInit {
   categorias: Categoria[] = [];
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
+  productosFavoritos: Set<number> = new Set();
 
   categoriaSeleccionada: string = 'todas';
   filtroNombre: string = '';
   
   private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
+  private usuarioId: number = 1;
 
   constructor(
     private commerceService: CommerceService,
+    private authService: UserAuthService,
     private router: Router
   ) {}
 
@@ -35,14 +40,73 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser && currentUser.id) {
+      this.usuarioId = currentUser.id;
+    }
+    
+    this.cargarFavoritos();
     this.commerceService.getCategoriasConProductos().subscribe((data) => {
       this.categorias = data;
       this.actualizarProductos();
     });
   }
 
+  cargarFavoritos(): void {
+    this.commerceService.getFavoritos(this.usuarioId).subscribe({
+      next: (favoritos) => {
+        this.productosFavoritos = new Set(favoritos.map(f => f.producto.id));
+      },
+      error: (error) => {
+        console.error('Error cargando favoritos:', error);
+      }
+    });
+  }
+
+  esFavorito(productoId: number): boolean {
+    return this.productosFavoritos.has(productoId);
+  }
+
+  toggleFavorito(producto: Producto, event: Event): void {
+    event.stopPropagation();
+    
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.mostrarAlertaLogin('agregar productos a favoritos');
+      return;
+    }
+    
+    if (this.esFavorito(producto.id)) {
+      this.commerceService.eliminarFavorito(this.usuarioId, producto.id).subscribe({
+        next: () => {
+          this.productosFavoritos.delete(producto.id);
+          this.mostrarAlertaExito(`"${producto.nombre}" eliminado de favoritos`);
+        },
+        error: (error) => {
+          console.error('Error eliminando favorito:', error);
+          this.mostrarAlertaError('Error al eliminar de favoritos');
+        }
+      });
+    } else {
+      const favoritoData = {
+        usuarioId: this.usuarioId,
+        productoId: producto.id
+      };
+      
+      this.commerceService.agregarFavorito(favoritoData).subscribe({
+        next: () => {
+          this.productosFavoritos.add(producto.id);
+          this.mostrarAlertaExito(`"${producto.nombre}" agregado a favoritos`);
+        },
+        error: (error) => {
+          console.error('Error agregando favorito:', error);
+          this.mostrarAlertaError('Error al agregar a favoritos');
+        }
+      });
+    }
+  }
+
   actualizarProductos(): void {
-    // FILTRAR SOLO PRODUCTOS ACTIVOS
     const productos = this.categorias.flatMap((c) => 
       c.productos ? c.productos.filter(p => p.activo) : []
     );
@@ -57,7 +121,6 @@ export class ProductListComponent implements OnInit {
       const categoria = this.categorias.find(
         (c) => c.nombre === this.categoriaSeleccionada
       );
-      // FILTRAR SOLO PRODUCTOS ACTIVOS DE LA CATEGORÍA SELECCIONADA
       filtrados = categoria && categoria.productos 
         ? categoria.productos.filter(p => p.activo) 
         : [];
@@ -85,6 +148,7 @@ export class ProductListComponent implements OnInit {
     this.filtroNombre = '';
     this.aplicarFiltros();
   }
+  
   calcularPrecio(producto: Producto) {
     return calcularPrecioConDescuento(
       producto.precio,
@@ -92,8 +156,49 @@ export class ProductListComponent implements OnInit {
     );
   }
 
-  // ✅ NUEVO: Verificar si el producto tiene descuento
   tieneDescuento(producto: Producto): boolean {
     return (producto.descuentoPorcentaje || 0) > 0;
+  }
+
+  private mostrarAlertaLogin(accion: string): void {
+    Swal.fire({
+      title: '¡Inicia sesión!',
+      text: `Para ${accion}, necesitas iniciar sesión primero.`,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Ir a iniciar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ed620c',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.router.navigate(['/login'], {
+          queryParams: { returnUrl: this.router.url }
+        });
+      }
+    });
+  }
+
+  private mostrarAlertaExito(mensaje: string): void {
+    Swal.fire({
+      title: '¡Éxito!',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#28a745',
+      timer: 2000,
+      timerProgressBar: true
+    });
+  }
+
+  private mostrarAlertaError(mensaje: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: mensaje,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33'
+    });
   }
 }
