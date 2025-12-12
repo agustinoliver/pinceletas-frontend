@@ -268,7 +268,7 @@ code {
 .pagination .page-link {
   border: none;
   background: transparent;
-  color: #5a5c69;
+  color: var(--text-dark);
   padding: 0.5rem 0.75rem;
   font-weight: 500;
   border-radius: 8px;
@@ -278,18 +278,18 @@ code {
 }
 
 .pagination .page-link:hover {
-  background-color: rgba(78, 115, 223, 0.1);
-  color: #4e73df;
+  background-color: rgba(237, 98, 12, 0.1);
+  color: var(--primary-color);
 }
 
 .pagination .page-item.active .page-link {
-  background: linear-gradient(135deg, #4e73df, #375cb8);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: white;
-  box-shadow: 0 2px 8px rgba(78, 115, 223, 0.3);
+  box-shadow: 0 2px 8px rgba(237, 98, 12, 0.3);
 }
 
 .pagination .page-item.disabled .page-link {
-  color: #858796;
+  color: var(--text-light);
   opacity: 0.5;
   cursor: not-allowed;
   background: transparent;
@@ -298,6 +298,7 @@ code {
 .pagination .page-link i {
   font-size: 0.85rem;
 }
+
 
 @media (max-width: 768px) {
   .btn-group {
