@@ -18,6 +18,7 @@ import { Producto } from '../../../models/producto.model';
 export class PedidoAuditComponent implements OnInit {
   auditoriasPedidos: AuditoriaPedido[] = [];
   auditoriasPedidosFiltradas: AuditoriaPedido[] = [];
+  auditoriasPaginadas: AuditoriaPedido[] = [];
   
   cargando: boolean = false;
   error: string = '';
@@ -28,6 +29,11 @@ export class PedidoAuditComponent implements OnInit {
   filtroPedidoId: string = '';
 
   productosCache: Map<number, string> = new Map();
+
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 4;
+  totalPaginas: number = 0;
 
   constructor(
     private pedidoService: PedidoService,
@@ -140,6 +146,9 @@ export class PedidoAuditComponent implements OnInit {
 
   aplicarFiltros() {
     this.auditoriasPedidosFiltradas = this.filtrarAuditorias(this.auditoriasPedidos);
+    this.paginaActual = 1;
+    this.calcularPaginacion();
+    this.actualizarPaginacion();
   }
 
   filtrarAuditorias(auditorias: AuditoriaPedido[]): AuditoriaPedido[] {
@@ -173,6 +182,42 @@ export class PedidoAuditComponent implements OnInit {
 
       return true;
     });
+  }
+
+  calcularPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.auditoriasPedidosFiltradas.length / this.itemsPorPagina);
+    if (this.totalPaginas === 0) this.totalPaginas = 1;
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    this.auditoriasPaginadas = this.auditoriasPedidosFiltradas.slice(inicio, fin);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  getPaginasArray(): number[] {
+    const paginas: number[] = [];
+    const maxPaginas = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginas / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxPaginas - 1);
+    
+    if (fin - inicio < maxPaginas - 1) {
+      inicio = Math.max(1, fin - maxPaginas + 1);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+    
+    return paginas;
   }
 
   limpiarFiltros() {

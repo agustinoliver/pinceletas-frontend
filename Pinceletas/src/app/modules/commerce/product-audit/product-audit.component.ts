@@ -21,6 +21,8 @@ export class ProductAuditComponent implements OnInit {
   auditoriasCategorias: AuditoriaCategoria[] = [];
   auditoriasProductosFiltradas: AuditoriaProducto[] = [];
   auditoriasCategoriasFiltradas: AuditoriaCategoria[] = [];
+  auditoriasProductosPaginadas: AuditoriaProducto[] = [];
+  auditoriasCategoriasPaginadas: AuditoriaCategoria[] = [];
   
   mostrarProductos: boolean = true;
   cargando: boolean = false;
@@ -32,6 +34,11 @@ export class ProductAuditComponent implements OnInit {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   filtroAccion: string = 'todas';
+
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 4;
+  totalPaginas: number = 0;
 
   constructor(
     private commerceService: CommerceService,
@@ -119,6 +126,7 @@ export class ProductAuditComponent implements OnInit {
 
   cambiarTipoAuditoria(mostrarProductos: boolean) {
     this.mostrarProductos = mostrarProductos;
+    this.paginaActual = 1;
     if (mostrarProductos && this.auditoriasProductos.length === 0) {
       this.cargarAuditoriasProductos();
     } else if (!mostrarProductos && this.auditoriasCategorias.length === 0) {
@@ -134,6 +142,9 @@ export class ProductAuditComponent implements OnInit {
     } else {
       this.auditoriasCategoriasFiltradas = this.filtrarAuditorias(this.auditoriasCategorias);
     }
+    this.paginaActual = 1;
+    this.calcularPaginacion();
+    this.actualizarPaginacion();
   }
 
   filtrarAuditorias(auditorias: any[]): any[] {
@@ -161,6 +172,51 @@ export class ProductAuditComponent implements OnInit {
 
       return true;
     });
+  }
+
+  calcularPaginacion(): void {
+    const totalItems = this.mostrarProductos 
+      ? this.auditoriasProductosFiltradas.length 
+      : this.auditoriasCategoriasFiltradas.length;
+    this.totalPaginas = Math.ceil(totalItems / this.itemsPorPagina);
+    if (this.totalPaginas === 0) this.totalPaginas = 1;
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    
+    if (this.mostrarProductos) {
+      this.auditoriasProductosPaginadas = this.auditoriasProductosFiltradas.slice(inicio, fin);
+    } else {
+      this.auditoriasCategoriasPaginadas = this.auditoriasCategoriasFiltradas.slice(inicio, fin);
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  getPaginasArray(): number[] {
+    const paginas: number[] = [];
+    const maxPaginas = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginas / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxPaginas - 1);
+    
+    if (fin - inicio < maxPaginas - 1) {
+      inicio = Math.max(1, fin - maxPaginas + 1);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+    
+    return paginas;
   }
 
   limpiarFiltros() {
