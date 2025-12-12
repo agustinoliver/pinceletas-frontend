@@ -107,7 +107,7 @@
 }
 
 .btn-outline-primary {
-  border-color: #0d6efd;
+  border: 2px solid #0d6efd;
   color: #0d6efd;
 }
 
@@ -117,14 +117,13 @@
 }
 
 .btn-outline-danger {
-  border: 1px solid #dc3545 !important;
-  border-color: #dc3545;
+  border: 2px solid #dc3545;
   color: #dc3545;
 }
 
 .btn-outline-danger:hover {
   background-color: #dc3545;
-  border-color: #dc3545 !important;
+  border-color: #dc3545;
   color: white;
 }
 
