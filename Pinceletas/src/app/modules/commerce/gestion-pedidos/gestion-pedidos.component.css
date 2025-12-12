@@ -237,6 +237,50 @@ h1 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
+/* Estilos de Paginación Minimalista */
+.pagination {
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pagination .page-item {
+  margin: 0;
+}
+
+.pagination .page-link {
+  border: none;
+  background: transparent;
+  color: var(--text-dark);
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  text-align: center;
+}
+
+.pagination .page-link:hover {
+  background-color: rgba(237, 98, 12, 0.1);
+  color: var(--primary-color);
+}
+
+.pagination .page-item.active .page-link {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: white;
+  box-shadow: 0 2px 8px rgba(237, 98, 12, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+  color: var(--text-light);
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.pagination .page-link i {
+  font-size: 0.85rem;
+}
+
 /* Responsive para tablets */
 @media (max-width: 991px) {
   .gestion-pedidos-container {
@@ -358,6 +402,12 @@ h1 {
   .card h4 {
     font-size: 1.1rem;
   }
+
+  .pagination .page-link {
+    padding: 0.4rem 0.6rem;
+    min-width: 36px;
+    font-size: 0.9rem;
+  }
 }
 
 /* Responsive para móviles pequeños */
@@ -414,6 +464,12 @@ h1 {
     padding: 0.6rem 0.4rem;
     font-size: 0.75rem;
   }
+
+  .pagination .page-link {
+    padding: 0.35rem 0.5rem;
+    min-width: 32px;
+    font-size: 0.85rem;
+  }
 }
 
 /* Responsive para pantallas muy pequeñas */
@@ -431,6 +487,12 @@ h1 {
   .table td {
     padding: 0.5rem 0.3rem;
     font-size: 0.7rem;
+  }
+
+  .pagination .page-link {
+    padding: 0.3rem 0.45rem;
+    min-width: 30px;
+    font-size: 0.8rem;
   }
 }
 

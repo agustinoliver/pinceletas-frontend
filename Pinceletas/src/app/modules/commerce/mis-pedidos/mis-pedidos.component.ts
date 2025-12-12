@@ -19,11 +19,17 @@ import autoTable from 'jspdf-autotable';
 export class MisPedidosComponent implements OnInit{
   pedidos: PedidoResponse[] = [];
   pedidosFiltrados: PedidoResponse[] = [];
+  pedidosPaginados: PedidoResponse[] = [];
   cargando = false;
   
   filtroNumeroPedido: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
+  
+  // Paginación
+  paginaActual: number = 1;
+  pedidosPorPagina: number = 5;
+  totalPaginas: number = 0;
   
   private usuarioId: number = 0;
 
@@ -89,6 +95,9 @@ export class MisPedidosComponent implements OnInit{
     }
 
     this.pedidosFiltrados = filtrados;
+    this.paginaActual = 1;
+    this.calcularPaginacion();
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros(): void {
@@ -96,6 +105,42 @@ export class MisPedidosComponent implements OnInit{
     this.filtroFechaInicio = '';
     this.filtroFechaFin = '';
     this.aplicarFiltros();
+  }
+
+  calcularPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.pedidosFiltrados.length / this.pedidosPorPagina);
+    if (this.totalPaginas === 0) this.totalPaginas = 1;
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.pedidosPorPagina;
+    const fin = inicio + this.pedidosPorPagina;
+    this.pedidosPaginados = this.pedidosFiltrados.slice(inicio, fin);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  getPaginasArray(): number[] {
+    const paginas: number[] = [];
+    const maxPaginas = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginas / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxPaginas - 1);
+    
+    if (fin - inicio < maxPaginas - 1) {
+      inicio = Math.max(1, fin - maxPaginas + 1);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+    
+    return paginas;
   }
 
   verDetallePedido(pedidoId: number): void {
@@ -133,9 +178,9 @@ export class MisPedidosComponent implements OnInit{
   private generarPDF(pedido: PedidoResponse): void {
     const doc = new jsPDF();
     
-    const primaryColor: [number, number, number] = [237, 98, 12]; // #ED620C
-    const accentColor: [number, number, number] = [235, 237, 109]; // #EBED6D
-    const darkColor: [number, number, number] = [44, 62, 80]; // #2c3e50
+    const primaryColor: [number, number, number] = [237, 98, 12];
+    const accentColor: [number, number, number] = [235, 237, 109];
+    const darkColor: [number, number, number] = [44, 62, 80];
     
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 40, 'F');

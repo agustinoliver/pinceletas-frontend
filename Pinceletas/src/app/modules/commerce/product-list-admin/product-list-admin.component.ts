@@ -16,14 +16,20 @@ import Swal from 'sweetalert2';
 })
 export class ProductListAdminComponent implements OnInit {
   productos: Producto[] = [];
+  productosPaginados: Producto[] = [];
   categorias: Categoria[] = [];
   cargando = false;
   mensaje = '';
   tipoMensaje: 'success' | 'error' | '' = '';
   eliminandoProducto: number | null = null;
 
+  // Paginación
+  paginaActual: number = 1;
+  productosPorPagina: number = 5;
+  totalPaginas: number = 0;
+
   private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
-  private usuarioId = 1; // Por defecto, puedes hacerlo dinámico
+  private usuarioId = 1;
 
   constructor(
     private commerceService: CommerceService,
@@ -39,8 +45,9 @@ export class ProductListAdminComponent implements OnInit {
     this.commerceService.getCategoriasConProductos().subscribe({
       next: (categorias) => {
         this.categorias = categorias;
-        // Extraer todos los productos de todas las categorías
         this.productos = this.extraerProductosDeCategorias(categorias);
+        this.calcularPaginacion();
+        this.actualizarPaginacion();
         this.cargando = false;
       },
       error: (error) => {
@@ -56,7 +63,6 @@ export class ProductListAdminComponent implements OnInit {
     
     categorias.forEach(categoria => {
       if (categoria.productos && categoria.productos.length > 0) {
-        // Asignar la categoría a cada producto
         categoria.productos.forEach(producto => {
           producto.categoria = categoria;
           todosLosProductos.push(producto);
@@ -65,6 +71,42 @@ export class ProductListAdminComponent implements OnInit {
     });
     
     return todosLosProductos;
+  }
+
+  calcularPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.productos.length / this.productosPorPagina);
+    if (this.totalPaginas === 0) this.totalPaginas = 1;
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.productosPorPagina;
+    const fin = inicio + this.productosPorPagina;
+    this.productosPaginados = this.productos.slice(inicio, fin);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  getPaginasArray(): number[] {
+    const paginas: number[] = [];
+    const maxPaginas = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginas / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxPaginas - 1);
+    
+    if (fin - inicio < maxPaginas - 1) {
+      inicio = Math.max(1, fin - maxPaginas + 1);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+    
+    return paginas;
   }
 
   getImagenUrl(imagenPath: string): string {
@@ -86,15 +128,16 @@ export class ProductListAdminComponent implements OnInit {
         this.eliminandoProducto = producto.id;
         this.commerceService.eliminarProducto(producto.id, this.usuarioId).subscribe({
           next: () => {
-            // Remover el producto de la lista local
             this.productos = this.productos.filter(p => p.id !== producto.id);
             
-            // También remover el producto de la categoría correspondiente
             this.categorias.forEach(categoria => {
               if (categoria.productos) {
                 categoria.productos = categoria.productos.filter(p => p.id !== producto.id);
               }
             });
+            
+            this.calcularPaginacion();
+            this.actualizarPaginacion();
             
             this.mostrarAlertaExito('Producto eliminado exitosamente');
             this.eliminandoProducto = null;
@@ -127,19 +170,16 @@ export class ProductListAdminComponent implements OnInit {
     const target = event.target;
     target.style.display = 'none';
     
-    // Buscar el siguiente elemento hermano de forma segura
     const nextSibling = target.nextElementSibling;
     if (nextSibling && nextSibling.classList.contains('image-placeholder-admin')) {
       nextSibling.style.display = 'flex';
     }
   }
 
-  // Método auxiliar para obtener el nombre de la categoría de forma segura
   getCategoriaNombre(producto: Producto): string {
     return producto.categoria?.nombre || 'Sin categoría';
   }
 
-  // MÉTODOS SWEETALERT2
   private mostrarAlertaExito(mensaje: string): void {
     Swal.fire({
       title: '¡Éxito!',

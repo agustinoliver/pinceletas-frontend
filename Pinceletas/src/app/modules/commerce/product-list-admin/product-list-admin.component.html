@@ -17,8 +17,6 @@
         </button>
       </div>
 
-      <!-- Eliminamos los mensajes de alerta nativos ya que usamos SweetAlert -->
-
       <!-- Loading -->
       <div *ngIf="cargando" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -45,7 +43,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let producto of productos" class="align-middle">
+                <tr *ngFor="let producto of productosPaginados" class="align-middle">
                   <!-- Imagen -->
                   <td class="ps-4">
                     <div class="image-container-admin">
@@ -127,7 +125,6 @@
                         [disabled]="eliminandoProducto === producto.id"
                         title="Eliminar producto"
                       >
-                        <!-- CORRECCIÓN: Separar las clases condicionales correctamente -->
                         <i *ngIf="eliminandoProducto !== producto.id" class="fas fa-trash"></i>
                         <i *ngIf="eliminandoProducto === producto.id" class="fas fa-spinner fa-spin"></i>
                       </button>
@@ -151,10 +148,56 @@
         </div>
       </div>
 
+      <!-- Paginación -->
+      <div class="row mt-4 mb-5" *ngIf="!cargando && productos.length > 0 && totalPaginas > 1">
+        <div class="col-12">
+          <nav aria-label="Paginación de productos">
+            <ul class="pagination justify-content-center">
+              <!-- Botón anterior -->
+              <li class="page-item" [class.disabled]="paginaActual === 1">
+                <button class="page-link" (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+              </li>
+
+              <!-- Primera página -->
+              <li class="page-item" *ngIf="getPaginasArray()[0] > 1">
+                <button class="page-link" (click)="cambiarPagina(1)">1</button>
+              </li>
+              <li class="page-item disabled" *ngIf="getPaginasArray()[0] > 2">
+                <span class="page-link">...</span>
+              </li>
+
+              <!-- Páginas del rango -->
+              <li class="page-item" *ngFor="let pagina of getPaginasArray()" [class.active]="pagina === paginaActual">
+                <button class="page-link" (click)="cambiarPagina(pagina)">
+                  {{ pagina }}
+                </button>
+              </li>
+
+              <!-- Última página -->
+              <li class="page-item disabled" *ngIf="getPaginasArray()[getPaginasArray().length - 1] < totalPaginas - 1">
+                <span class="page-link">...</span>
+              </li>
+              <li class="page-item" *ngIf="getPaginasArray()[getPaginasArray().length - 1] < totalPaginas">
+                <button class="page-link" (click)="cambiarPagina(totalPaginas)">{{ totalPaginas }}</button>
+              </li>
+
+              <!-- Botón siguiente -->
+              <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                <button class="page-link" (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
       <!-- Contador de productos -->
-      <div *ngIf="!cargando" class="mt-3 text-end">
+      <div *ngIf="!cargando && productos.length > 0" class="mt-3 text-end">
         <small class="text-muted">
-          Mostrando {{ productos.length }} producto{{ productos.length !== 1 ? 's' : '' }}
+          Mostrando {{ productosPaginados.length }} de {{ productos.length }} producto{{ productos.length !== 1 ? 's' : '' }} (Página {{ paginaActual }} de {{ totalPaginas }})
         </small>
       </div>
     </div>
