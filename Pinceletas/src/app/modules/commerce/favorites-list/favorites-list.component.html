@@ -88,7 +88,7 @@
       <div class="row">
         <div 
           class="col-lg-4 col-md-6 mb-4" 
-          *ngFor="let favorito of favoritosFiltrados">
+          *ngFor="let favorito of favoritosPaginados">
           <div 
             class="card producto-card h-100 border-0 shadow-sm favorite-card"
             (click)="verDetalleProducto(favorito.producto.id)">
@@ -174,6 +174,52 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="row mt-4 mb-5" *ngIf="!cargando && favoritosFiltrados.length > 0 && totalPaginas > 1">
+    <div class="col-12">
+      <nav aria-label="Paginación de productos">
+        <ul class="pagination justify-content-center">
+          <!-- Botón anterior -->
+          <li class="page-item" [class.disabled]="paginaActual === 1">
+            <button class="page-link" (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+
+          <!-- Primera página -->
+          <li class="page-item" *ngIf="getPaginasArray()[0] > 1">
+            <button class="page-link" (click)="cambiarPagina(1)">1</button>
+          </li>
+          <li class="page-item disabled" *ngIf="getPaginasArray()[0] > 2">
+            <span class="page-link">...</span>
+          </li>
+
+          <!-- Páginas del rango -->
+          <li class="page-item" *ngFor="let pagina of getPaginasArray()" [class.active]="pagina === paginaActual">
+            <button class="page-link" (click)="cambiarPagina(pagina)">
+              {{ pagina }}
+            </button>
+          </li>
+
+          <!-- Última página -->
+          <li class="page-item disabled" *ngIf="getPaginasArray()[getPaginasArray().length - 1] < totalPaginas - 1">
+            <span class="page-link">...</span>
+          </li>
+          <li class="page-item" *ngIf="getPaginasArray()[getPaginasArray().length - 1] < totalPaginas">
+            <button class="page-link" (click)="cambiarPagina(totalPaginas)">{{ totalPaginas }}</button>
+          </li>
+
+          <!-- Botón siguiente -->
+          <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+            <button class="page-link" (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 

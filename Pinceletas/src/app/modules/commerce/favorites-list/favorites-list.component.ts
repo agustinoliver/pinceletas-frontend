@@ -18,11 +18,17 @@ import Swal from 'sweetalert2';
 export class FavoritesListComponent implements OnInit{
 favoritos: Favorito[] = [];
   favoritosFiltrados: Favorito[] = [];
+  favoritosPaginados: Favorito[] = [];
   cargando = false;
   
   filtroNombre: string = '';
   categoriaSeleccionada: string = 'todas';
   categoriasUnicas: string[] = [];
+  
+  // Paginación
+  paginaActual: number = 1;
+  productosPorPagina: number = 6;
+  totalPaginas: number = 0;
   
   private backendUrl = 'https://pinceletas-commerce-service.onrender.com';
   private usuarioId: number = 1;
@@ -53,6 +59,8 @@ favoritos: Favorito[] = [];
         }));
         this.favoritosFiltrados = [...this.favoritos];
         this.extraerCategoriasUnicas();
+        this.calcularPaginacion();
+        this.actualizarPaginacion();
         this.cargando = false;
       },
       error: (error) => {
@@ -95,12 +103,55 @@ favoritos: Favorito[] = [];
     }
 
     this.favoritosFiltrados = filtrados;
+    this.paginaActual = 1;
+    this.calcularPaginacion();
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros(): void {
     this.filtroNombre = '';
     this.categoriaSeleccionada = 'todas';
     this.favoritosFiltrados = [...this.favoritos];
+    this.paginaActual = 1;
+    this.calcularPaginacion();
+    this.actualizarPaginacion();
+  }
+
+  // Métodos de paginación
+  calcularPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.favoritosFiltrados.length / this.productosPorPagina);
+    if (this.totalPaginas === 0) this.totalPaginas = 1;
+  }
+
+  actualizarPaginacion(): void {
+    const inicio = (this.paginaActual - 1) * this.productosPorPagina;
+    const fin = inicio + this.productosPorPagina;
+    this.favoritosPaginados = this.favoritosFiltrados.slice(inicio, fin);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  getPaginasArray(): number[] {
+    const paginas: number[] = [];
+    const maxPaginas = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginas / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxPaginas - 1);
+    
+    if (fin - inicio < maxPaginas - 1) {
+      inicio = Math.max(1, fin - maxPaginas + 1);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+    
+    return paginas;
   }
 
   verDetalleProducto(productoId: number, opciones?: any): void {
@@ -124,6 +175,13 @@ favoritos: Favorito[] = [];
             this.favoritos = this.favoritos.filter(f => f.id !== favorito.id);
             this.favoritosFiltrados = this.favoritosFiltrados.filter(f => f.id !== favorito.id);
             this.extraerCategoriasUnicas();
+            this.calcularPaginacion();
+            
+            if (this.paginaActual > this.totalPaginas) {
+              this.paginaActual = Math.max(1, this.totalPaginas);
+            }
+            
+            this.actualizarPaginacion();
             this.mostrarAlertaExito('Producto eliminado de favoritos');
           },
           error: (error) => {
