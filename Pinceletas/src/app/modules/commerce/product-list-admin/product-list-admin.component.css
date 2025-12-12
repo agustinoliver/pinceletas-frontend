@@ -170,18 +170,18 @@
 }
 
 .pagination .page-link:hover {
-  background-color: rgba(13, 110, 253, 0.1);
-  color: #0d6efd;
+  background-color: rgba(237, 98, 12, 0.1);
+  color: var(--primary-color);
 }
 
 .pagination .page-item.active .page-link {
-  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: white;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 2px 8px rgba(237, 98, 12, 0.3);
 }
 
 .pagination .page-item.disabled .page-link {
-  color: #6c757d;
+  color: var(--text-light);
   opacity: 0.5;
   cursor: not-allowed;
   background: transparent;
