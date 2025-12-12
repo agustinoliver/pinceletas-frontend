@@ -9,14 +9,16 @@
           </h1>
           <p class="text-muted mb-0">Historial de todos tus pedidos</p>
         </div>
-        <button class="btn btn-outline-primary me-2" (click)="cargarPedidos()" [disabled]="cargando">
-          <i class="fas fa-sync-alt me-2" [class.fa-spin]="cargando"></i>
-          Actualizar
-        </button>
-        <button class="btn btn-outline-secondary" (click)="volverAProductos()">
-          <i class="fas fa-arrow-left me-2"></i>
-          Seguir Comprando
-        </button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" (click)="cargarPedidos()" [disabled]="cargando">
+            <i class="fas fa-sync-alt me-2" [class.fa-spin]="cargando"></i>
+            Actualizar
+          </button>
+          <button class="btn btn-outline-secondary" (click)="volverAProductos()">
+            <i class="fas fa-arrow-left me-2"></i>
+            Seguir Comprando
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -130,13 +132,22 @@
                   </span>
                 </td>
                 <td class="text-center pe-4">
-                  <button 
-                    class="btn btn-outline-primary btn-sm"
-                    (click)="verDetallePedido(pedido.id)"
-                    title="Ver detalle del pedido">
-                    <i class="fas fa-eye me-1"></i>
-                    Ver Detalle
-                  </button>
+                  <div class="btn-group" role="group">
+                    <button 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="verDetallePedido(pedido.id)"
+                      title="Ver detalle del pedido">
+                      <i class="fas fa-eye me-1"></i>
+                      Ver
+                    </button>
+                    <button 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="exportarPedidoPDF(pedido.id)"
+                      title="Exportar pedido a PDF">
+                      <i class="fas fa-file-pdf me-1"></i>
+                      PDF
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
