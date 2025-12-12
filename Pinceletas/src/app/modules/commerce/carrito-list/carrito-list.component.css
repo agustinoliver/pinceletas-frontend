@@ -104,6 +104,7 @@
 
 .sticky-top {
   top: 20px;
+  z-index: 1020;
 }
 
 .btn-primary {
