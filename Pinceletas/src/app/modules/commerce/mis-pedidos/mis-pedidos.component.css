@@ -37,6 +37,36 @@
   box-shadow: 0 4px 12px rgba(237, 98, 12, 0.3);
 }
 
+/* Estilos para los botones de acción en la tabla */
+.btn-group .btn {
+  border-radius: 6px;
+  margin: 0 2px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-group .btn-outline-primary {
+  border: 1px solid #0d6efd !important;
+  color: #0d6efd;
+}
+
+.btn-group .btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd !important;
+  color: white;
+}
+
+.btn-group .btn-outline-danger {
+  border: 1px solid #dc3545 !important;
+  color: #dc3545;
+}
+
+.btn-group .btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545 !important;
+  color: white;
+}
+
 @media (max-width: 991px) {
   .container {
     padding: 1rem;
