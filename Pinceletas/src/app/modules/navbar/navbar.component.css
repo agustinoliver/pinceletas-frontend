@@ -20,7 +20,7 @@
   padding: 0.4rem 0;
   border-bottom: 2px solid var(--primary-light);
   position: relative;
-  z-index: 1000;
+  z-index: 1030;
   box-shadow: 0 2px 8px rgba(237, 98, 12, 0.06);
 }
 
@@ -128,7 +128,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 1000;
+  z-index: 1040;
   display: none;
   min-width: 250px;
   padding: 0.5rem 0;
@@ -703,7 +703,7 @@ app-dropdown-notification {
     left: auto;
     width: auto;
     min-width: 280px;
-    z-index: 1000;
+    z-index: 1040;
   }
 
   .navbar-collapse::-webkit-scrollbar {

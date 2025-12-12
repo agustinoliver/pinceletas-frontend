@@ -79,15 +79,15 @@
 .notification-dropdown-menu {
   position: absolute;
   top: calc(100% + 0.5rem);
-  right: 0; /* 🔥 Cambiado: Ahora se alinea a la derecha del botón */
-  left: auto; /* 🔥 Cambiado: Removido left: 0 */
+  right: 0;
+  left: auto;
   width: 380px;
   max-width: 90vw;
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-color);
-  z-index: 1060;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -269,6 +269,7 @@
     width: 90vw;
     max-width: 400px;
     max-height: 80vh;
+    z-index: 9999;
   }
 
   .notification-dropdown-menu.show {
